@@ -295,8 +295,13 @@ class _Metric {
   const _Metric(this.dim, this.deriv);
 
   /// Returns the value of the metric at the given level.
+  /// Uses scalb equivalent: deriv * 2^(-dim * level)
   double getValue(int level) {
-    return deriv * (1 << (-dim * level)).toDouble();
+    // For level 0, return deriv (since 2^0 = 1).
+    // For higher levels, multiply by 2^(-dim * level).
+    // This is equivalent to Java's Math.scalb(deriv, -dim * level).
+    final exponent = -dim * level;
+    return deriv * math.pow(2.0, exponent);
   }
 
   /// Returns the minimum level at which the metric is at most the given value.
