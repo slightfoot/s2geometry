@@ -1,0 +1,16 @@
+name: s2geometry
+description: A Dart port of Google's S2 Geometry library for spherical geometry and spatial indexing.
+version: 0.1.0
+homepage: https://github.com/google/s2-geometry-library-java
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  meta: ^1.9.0
+
+dev_dependencies:
+  test: ^1.24.0
+  benchmark_harness: ^2.2.0
+  lints: ^3.0.0
+
