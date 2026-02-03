@@ -146,8 +146,9 @@ class S2Cell implements S2Region {
     if (_level < 2) return averageArea;
 
     // First, compute the approximate area when projected perpendicular to its normal
-    final flatArea = 0.5 *
-        getVertex(2).sub(getVertex(0)).crossProd(getVertex(3).sub(getVertex(1))).norm();
+    final v20 = getVertex(2) - getVertex(0);
+    final v31 = getVertex(3) - getVertex(1);
+    final flatArea = 0.5 * v20.crossProd(v31).norm;
 
     // Compensate for the curvature of the cell surface
     return flatArea * 2 / (1 + math.sqrt(1 - math.min(S2.m1Pi * flatArea, 1.0)));

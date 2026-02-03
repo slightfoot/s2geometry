@@ -170,6 +170,9 @@ class S2CellId implements Comparable<S2CellId> {
     return 1 << (2 * (maxLevel - level));
   }
 
+  /// Public version for external use.
+  static int lowestOnBitForLevel(int level) => _lowestOnBitForLevel(level);
+
   static int _parentAsInt(int id, int level) {
     int newLsb = _lowestOnBitForLevel(level);
     return (id & -newLsb) | newLsb;
@@ -178,6 +181,15 @@ class S2CellId implements Comparable<S2CellId> {
   static int _lowestOnBit(int id) {
     // Dart's int is signed, so we use bitwise operations
     return id & -id;
+  }
+
+  /// Returns the lowest-numbered bit that is on for this cell.
+  int get lowestOnBit => _lowestOnBit(id);
+
+  /// Computes the level from the lowest on bit.
+  static int _levelForLowestOnBit(int id) {
+    final lsb = _lowestOnBit(id);
+    return maxLevel - ((lsb.bitLength - 1) >> 1);
   }
 
   static int _rangeMinAsInt(int id) {
@@ -290,11 +302,25 @@ class S2CellId implements Comparable<S2CellId> {
     return S2CellId(_childBeginAsInt(id));
   }
 
+  /// Returns the first descendant at the given level.
+  S2CellId childBeginAtLevel(int level) {
+    assert(isValid);
+    assert(level >= this.level && level <= maxLevel);
+    return S2CellId((id - lowestOnBit) | lowestOnBitForLevel(level));
+  }
+
   /// Returns the first cell after a traversal of the children of this cell.
   S2CellId get childEnd {
     assert(isValid);
     assert(level < maxLevel);
     return S2CellId(_childEndAsInt(id));
+  }
+
+  /// Returns the first cell after all descendants at the given level.
+  S2CellId childEndAtLevel(int level) {
+    assert(isValid);
+    assert(level >= this.level && level <= maxLevel);
+    return S2CellId((id + lowestOnBit) | lowestOnBitForLevel(level));
   }
 
   /// Return the next cell at the same level along the Hilbert curve.
@@ -400,6 +426,26 @@ class S2CellId implements Comparable<S2CellId> {
     return fromToken(token).isValid;
   }
 
+  // Static methods for working with raw cell id integers (used by S2CellUnion).
+
+  /// Returns true if the given id represents a face cell.
+  static bool isFaceId(int id) => (id & (_lowestOnBit(id) - 1)) == 0 && _levelForLowestOnBit(id) == 0;
+
+  /// Returns the parent cell id as an integer.
+  static int parentId(int id) {
+    final newLsb = _lowestOnBit(id) << 2;
+    return (id & (~newLsb + 1)) | newLsb;
+  }
+
+  /// Returns the range minimum cell id as an integer.
+  static int rangeMinId(int id) => id - (_lowestOnBit(id) - 1);
+
+  /// Returns the range maximum cell id as an integer.
+  static int rangeMaxId(int id) => id + (_lowestOnBit(id) - 1);
+
+  /// Unsigned less-than comparison for two cell id integers.
+  static bool unsignedLessThan(int x1, int x2) => _unsignedLessThan(x1, x2);
+
   // Unsigned comparison helpers
   static bool _unsignedLessThan(int x1, int x2) {
     return (x1 ^ (1 << 63)) < (x2 ^ (1 << 63));
@@ -415,6 +461,9 @@ class S2CellId implements Comparable<S2CellId> {
 
   /// Returns true if this cell id is less than other (unsigned comparison).
   bool lessThan(S2CellId other) => _unsignedLessThan(id, other.id);
+
+  /// Returns true if this cell id is less than or equal to other.
+  bool lessOrEquals(S2CellId other) => _unsignedLessOrEquals(id, other.id);
 
   /// Returns true if this cell id is greater than other (unsigned comparison).
   bool greaterThan(S2CellId other) => _unsignedGreaterThan(id, other.id);
@@ -472,28 +521,81 @@ class S2CellId implements Comparable<S2CellId> {
     final iOffset = ((i & halfSize) != 0) ? 1 : -1;
     final jOffset = ((j & halfSize) != 0) ? 1 : -1;
 
-    results.add(parent(level));
-    results.add(S2CellId._fromFaceIJSame(
+    results.add(parentAtLevel(level));
+    results.add(_fromFaceIJSame(
         face, i + iOffset * size, j, i + iOffset * size >= 0)
-        .parent(level));
-    results.add(S2CellId._fromFaceIJSame(
+        .parentAtLevel(level));
+    results.add(_fromFaceIJSame(
         face, i, j + jOffset * size, j + jOffset * size >= 0)
-        .parent(level));
-    results.add(S2CellId._fromFaceIJSame(
+        .parentAtLevel(level));
+    results.add(_fromFaceIJSame(
         face, i + iOffset * size, j + jOffset * size,
         i + iOffset * size >= 0 && j + jOffset * size >= 0)
-        .parent(level));
+        .parentAtLevel(level));
   }
 
   /// Returns an S2CellId from face and (i, j) coordinates.
   /// If sameCell is false, wraps around to neighboring faces.
   static S2CellId _fromFaceIJSame(int face, int i, int j, bool sameCell) {
     if (sameCell) {
-      return fromFaceIJ(face, i, j);
+      return S2CellId.fromFaceIJ(face, i, j);
     } else {
       // TODO: implement face wrapping for edge cases
-      return fromFaceIJ(face, i.clamp(0, _maxSize - 1), j.clamp(0, _maxSize - 1));
+      return S2CellId.fromFaceIJ(face, i.clamp(0, maxSize - 1), j.clamp(0, maxSize - 1));
     }
+  }
+
+  /// Returns true if this cell contains the given cell id.
+  bool containsCellId(S2CellId other) {
+    return other.greaterOrEquals(rangeMin) && other.lessOrEquals(rangeMax);
+  }
+
+  /// Returns true if this cell id is greater than or equal to other.
+  bool greaterOrEquals(S2CellId other) => !lessThan(other);
+
+  /// Appends all neighbors of this cell at the given level to [results].
+  ///
+  /// Two cells are neighbors if they share an edge or a corner, i.e. if their
+  /// boundaries intersect. Note that a cell is always a neighbor of itself.
+  void getAllNeighbors(int level, List<S2CellId> results) {
+    final ijo = _toIJOrientation();
+    int i = ijo >>> 33;
+    int j = (ijo >> 2) & 0x7FFFFFFF;
+
+    // Size at this cell's level.
+    final size = getSizeIJ(this.level);
+    // Size at requested level.
+    final sizeAtLevel = getSizeIJ(level);
+
+    // We need to handle the following cases:
+    // 1. level < this.level - parent/ancestor
+    // 2. level == this.level - same level
+    // 3. level > this.level - children
+
+    // Snap i and j to requested level grid.
+    i &= -sizeAtLevel;
+    j &= -sizeAtLevel;
+
+    // Generate all neighbors at the given level.
+    // First, add neighbors along edges.
+    for (int di = -sizeAtLevel; di <= size; di += sizeAtLevel) {
+      _appendNeighbor(i + di, j - sizeAtLevel, level, results); // bottom
+      _appendNeighbor(i + di, j + size, level, results);       // top
+    }
+    for (int dj = 0; dj < size; dj += sizeAtLevel) {
+      _appendNeighbor(i - sizeAtLevel, j + dj, level, results); // left
+      _appendNeighbor(i + size, j + dj, level, results);        // right
+    }
+  }
+
+  void _appendNeighbor(int i, int j, int level, List<S2CellId> results) {
+    // Clamp to valid range and avoid duplicates from edge wrapping.
+    if (i < 0 || i >= maxSize || j < 0 || j >= maxSize) {
+      // TODO: proper face wrapping
+      return;
+    }
+    final neighbor = S2CellId.fromFaceIJ(face, i, j).parentAtLevel(level);
+    results.add(neighbor);
   }
 }
 

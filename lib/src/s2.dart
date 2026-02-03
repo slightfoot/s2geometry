@@ -131,7 +131,9 @@ class S2 {
   static double area(S2Point a, S2Point b, S2Point c) {
     // Returns the area of the planar triangle. Not to be confused with
     // signedArea which computes the signed (spherical) area.
-    return 0.5 * a.sub(c).crossProd(b.sub(c)).norm();
+    final ac = a - c;
+    final bc = b - c;
+    return 0.5 * ac.crossProd(bc).norm;
   }
 
   /// Returns the signed area of triangle ABC on the unit sphere.

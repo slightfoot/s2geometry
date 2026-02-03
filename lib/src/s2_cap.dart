@@ -214,11 +214,14 @@ class S2Cap implements S2Region {
       final edge = cell.getEdgeRaw(k);
       final dot = _axis.dotProd(edge);
       if (dot > 0) continue;
-      if (dot * dot > sin2Angle * edge.norm2()) {
+      final edgeNorm2 = edge.norm2;
+      if (dot * dot > sin2Angle * edgeNorm2) {
         return false;
       }
       final dir = edge.crossProd(_axis);
-      if (dir.dotProd(vertices[k]) < 0 && dir.dotProd(vertices[(k + 1) & 3]) > 0) {
+      final dotK = dir.dotProd(vertices[k]);
+      final dotKNext = dir.dotProd(vertices[(k + 1) & 3]);
+      if (dotK < 0 && dotKNext > 0) {
         return true;
       }
     }

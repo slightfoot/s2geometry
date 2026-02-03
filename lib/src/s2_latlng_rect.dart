@@ -15,7 +15,6 @@
 import 'dart:math' as math;
 
 import 'r1_interval.dart';
-import 's1_angle.dart';
 import 's1_chord_angle.dart';
 import 's1_interval.dart';
 import 's2.dart';
@@ -130,7 +129,7 @@ class S2LatLngRect implements S2Region {
 
   /// Returns true if the given point is contained by the rectangle.
   bool containsLatLng(S2LatLng ll) {
-    return _lat.contains(ll.latRadians) && _lng.contains(ll.lngRadians);
+    return _lat.containsPoint(ll.latRadians) && _lng.containsPoint(ll.lngRadians);
   }
 
   /// Returns true if the rectangle contains the given point.
@@ -141,7 +140,7 @@ class S2LatLngRect implements S2Region {
 
   /// Returns true if this rectangle contains the given other rectangle.
   bool containsRect(S2LatLngRect other) {
-    return _lat.containsInterval(other._lat) && _lng.containsInterval(other._lng);
+    return _lat.contains(other._lat) && _lng.contains(other._lng);
   }
 
   /// Returns true if this rectangle intersects the given other rectangle.
@@ -193,8 +192,6 @@ class S2LatLngRect implements S2Region {
   S2Cap get capBound {
     if (isEmpty) return S2Cap.empty();
     // Compute the center and radius of a cap that covers the rectangle
-    final poleZ = (_lat.lo + _lat.hi >= 0) ? 1.0 : -1.0;
-    final poleLat = poleZ * S2.piOver2;
 
     // Check if the rectangle contains a pole
     if (_lat.lo <= -S2.piOver2 || _lat.hi >= S2.piOver2) {
