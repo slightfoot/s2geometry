@@ -14,6 +14,24 @@
 
 import 'dart:math' as math;
 
+/// Endpoint of an R1Interval.
+enum R1IntervalEndpoint {
+  lo,
+  hi,
+  // Uppercase for Java compatibility
+  LO,
+  HI;
+
+  /// Returns the opposite endpoint.
+  R1IntervalEndpoint get opposite {
+    if (this == lo || this == LO) return hi;
+    return lo;
+  }
+}
+
+/// Type alias for Java compatibility (Endpoint in R1Interval)
+typedef Endpoint = R1IntervalEndpoint;
+
 /// An R1Interval represents a closed, bounded interval on the real line.
 /// It is capable of representing the empty interval (containing no points)
 /// and zero-length intervals (containing a single point).
@@ -26,8 +44,11 @@ class R1Interval {
   /// Creates an interval with the given bounds. If lo > hi, the interval is empty.
   R1Interval(this._lo, this._hi);
 
-  /// Creates an empty interval.
+  /// Creates an empty interval (default constructor equivalent).
   R1Interval.empty() : _lo = 1, _hi = 0;
+
+  /// Creates an empty interval (same as empty()).
+  factory R1Interval.init() => R1Interval.empty();
 
   /// Creates a copy of the given interval.
   R1Interval.copy(R1Interval other) : _lo = other._lo, _hi = other._hi;
@@ -53,8 +74,29 @@ class R1Interval {
   /// Sets the low bound.
   set lo(double value) => _lo = value;
 
-  /// Sets the high bound.
+  /// Sets the low bound.
   set hi(double value) => _hi = value;
+
+  /// Gets the endpoint value for the given endpoint.
+  double getValue(R1IntervalEndpoint endpoint) {
+    return (endpoint == R1IntervalEndpoint.lo || endpoint == R1IntervalEndpoint.LO)
+        ? _lo : _hi;
+  }
+
+  /// Sets the endpoint value for the given endpoint.
+  void setValue(R1IntervalEndpoint endpoint, double value) {
+    if (endpoint == R1IntervalEndpoint.lo || endpoint == R1IntervalEndpoint.LO) {
+      _lo = value;
+    } else {
+      _hi = value;
+    }
+  }
+
+  /// Sets both endpoints (Java compatibility for interval.set(lo, hi)).
+  void set(double newLo, double newHi) {
+    _lo = newLo;
+    _hi = newHi;
+  }
 
   /// Returns true if the interval is empty.
   bool get isEmpty => _lo > _hi;
@@ -62,8 +104,15 @@ class R1Interval {
   /// Returns the center of the interval. For empty intervals, result is arbitrary.
   double get center => 0.5 * (_lo + _hi);
 
+  /// Returns the center of the interval. For empty intervals, result is arbitrary.
+  /// Method form for Java compatibility.
+  double getCenter() => center;
+
   /// Returns the length of the interval. Empty intervals have negative length.
   double get length => _hi - _lo;
+
+  /// Returns the length of the interval. Method form for Java compatibility.
+  double getLength() => length;
 
   /// Returns true if the given point is in the closed interval [lo, hi].
   bool containsPoint(double p) => p >= _lo && p <= _hi;
@@ -102,12 +151,6 @@ class R1Interval {
     if (isEmpty) return 0.0;
     if (y.isEmpty) return double.maxFinite;
     return math.max(0.0, math.max(_hi - y._hi, y._lo - _lo));
-  }
-
-  /// Sets both bounds of the interval.
-  void set(double lo, double hi) {
-    _lo = lo;
-    _hi = hi;
   }
 
   /// Sets the interval to empty.

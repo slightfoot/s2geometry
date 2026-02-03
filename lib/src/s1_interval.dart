@@ -24,6 +24,11 @@ class S1Interval {
   double _lo;
   double _hi;
 
+  /// Creates an empty interval (default constructor).
+  S1Interval.init()
+      : _lo = math.pi,
+        _hi = -math.pi;
+
   /// Creates an empty interval.
   S1Interval.empty()
       : _lo = math.pi,
@@ -48,8 +53,12 @@ class S1Interval {
 
   void _normalize(bool checked) {
     if (!checked) {
-      if (_lo == -math.pi && _hi != math.pi) _lo = math.pi;
-      if (_hi == -math.pi && _lo != math.pi) _hi = math.pi;
+      // Normalize -pi to pi for both endpoints.
+      // Store original values to check conditions correctly.
+      final origLo = _lo;
+      final origHi = _hi;
+      if (origLo == -math.pi && origHi != math.pi) _lo = math.pi;
+      if (origHi == -math.pi && origLo != math.pi) _hi = math.pi;
     }
   }
 
@@ -127,6 +136,43 @@ class S1Interval {
     if (len >= 0) return len;
     len += 2 * math.pi;
     return (len > 0) ? len : -1;
+  }
+
+  /// Returns the center of the interval. Method form for Java compatibility.
+  double getCenter() => center;
+
+  /// Returns the length of the interval. Method form for Java compatibility.
+  double getLength() => length;
+
+  /// Gets endpoint by index (0 = lo, 1 = hi).
+  double get(int i) => i == 0 ? _lo : _hi;
+
+  /// Returns the directed Hausdorff distance to the given interval.
+  /// For two S1Intervals x and y, this distance is defined by
+  /// h(x, y) = max{p in x} min{q in y} d(p, q), where d(.,.) is measured along S1.
+  double getDirectedHausdorffDistance(S1Interval y) {
+    if (y.contains(this)) {
+      return 0.0; // this includes the case this is empty
+    }
+    if (y.isEmpty) {
+      return math.pi; // maximum possible distance on S1
+    }
+
+    final yComplementCenter = y.complementCenter;
+    if (containsPoint(yComplementCenter)) {
+      return _positiveDistance(y._hi, yComplementCenter);
+    } else {
+      // The Hausdorff distance is realized by either two hi() endpoints or two
+      // lo() endpoints, whichever is farther apart.
+      final hiHi = S1Interval._checked(y._hi, yComplementCenter).containsPoint(_hi)
+          ? _positiveDistance(y._hi, _hi)
+          : 0.0;
+      final loLo = S1Interval._checked(yComplementCenter, y._lo).containsPoint(_lo)
+          ? _positiveDistance(_lo, y._lo)
+          : 0.0;
+      assert(hiHi > 0 || loLo > 0);
+      return hiHi > loLo ? hiHi : loLo;
+    }
   }
 
   /// Returns the complement of the interior.
@@ -233,19 +279,25 @@ class S1Interval {
   void _expandedInternal(double margin) {
     if (margin >= 0) {
       if (isEmpty) return;
+      // Check whether this interval will be full after expansion, allowing for
+      // a 1-bit rounding error when computing each endpoint.
       if (length + 2 * margin + 2 * Platform.dblEpsilon >= 2 * math.pi) {
         setFull();
         return;
       }
     } else {
       if (isFull) return;
+      // Check whether this interval will be empty after expansion, allowing for
+      // a 1-bit rounding error when computing each endpoint.
       if (length + 2 * margin - 2 * Platform.dblEpsilon <= 0) {
         setEmpty();
         return;
       }
     }
-    _lo = Platform.ieeeRemainder(_lo - margin, 2 * math.pi);
-    _hi = Platform.ieeeRemainder(_hi + margin, 2 * math.pi);
+    set(
+        Platform.ieeeRemainder(_lo - margin, 2 * math.pi),
+        Platform.ieeeRemainder(_hi + margin, 2 * math.pi),
+        false);
     if (_lo <= -math.pi) _lo = math.pi;
   }
 

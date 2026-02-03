@@ -61,7 +61,16 @@ class S1Angle implements Comparable<S1Angle> {
   factory S1Angle.e7(int e7) => S1Angle.degrees(e7 * 1e-7);
 
   /// Returns angle in tenths of a microdegree, rounded.
-  int get e7 => (degrees * 1e7).round();
+  /// Throws [ArgumentError] if the angle is outside the range [-214.7483648, 214.7483647].
+  int get e7 {
+    final value = degrees * 1e7;
+    // Check for overflow - int32 range is approximately [-2147483648, 2147483647]
+    // which corresponds to [-214.7483648, 214.7483647] degrees
+    if (value > 2147483647 || value < -2147483648) {
+      throw ArgumentError('Angle $this exceeds the range of e7 representation');
+    }
+    return value.round();
+  }
 
   /// Returns the angle between two points on the unit sphere.
   factory S1Angle.fromPoints(S2Point x, S2Point y) {
@@ -113,17 +122,37 @@ class S1Angle implements Comparable<S1Angle> {
   /// Returns an S1Angle whose angle is the negation of this.
   S1Angle operator -() => S1Angle._(-_radians);
 
+  /// Returns an S1Angle whose angle is the negation of this.
+  /// Method form for Java compatibility.
+  S1Angle neg() => -this;
+
   /// Returns an S1Angle whose angle is this + a.
   S1Angle operator +(S1Angle a) => S1Angle._(_radians + a._radians);
+
+  /// Returns an S1Angle whose angle is this + a.
+  /// Method form for Java compatibility.
+  S1Angle add(S1Angle a) => this + a;
 
   /// Returns an S1Angle whose angle is this - a.
   S1Angle operator -(S1Angle a) => S1Angle._(_radians - a._radians);
 
+  /// Returns an S1Angle whose angle is this - a.
+  /// Method form for Java compatibility.
+  S1Angle sub(S1Angle a) => this - a;
+
   /// Returns an S1Angle whose angle is this * m.
   S1Angle operator *(double m) => S1Angle._(_radians * m);
 
+  /// Returns an S1Angle whose angle is this * m.
+  /// Method form for Java compatibility.
+  S1Angle mul(double m) => this * m;
+
   /// Returns an S1Angle whose angle is this / d.
   S1Angle operator /(double d) => S1Angle._(_radians / d);
+
+  /// Returns an S1Angle whose angle is this / d.
+  /// Method form for Java compatibility.
+  S1Angle div(double d) => this / d;
 
   /// Returns this.radians / other.radians.
   double divAngle(S1Angle other) => _radians / other._radians;
@@ -151,6 +180,9 @@ class S1Angle implements Comparable<S1Angle> {
     return S1Angle._(normalized);
   }
 
+  /// Returns a builder initialized with the value of this angle.
+  S1AngleBuilder toBuilder() => S1AngleBuilder()..addRadians(_radians);
+
   @override
   String toString() => '${degrees}d';
 
@@ -158,5 +190,34 @@ class S1Angle implements Comparable<S1Angle> {
   int compareTo(S1Angle other) {
     return _radians < other._radians ? -1 : (_radians > other._radians ? 1 : 0);
   }
+}
+
+/// A builder for accumulating S1Angle values.
+class S1AngleBuilder {
+  double _radians = 0;
+
+  /// Creates a builder with zero angle.
+  S1AngleBuilder();
+
+  /// Adds radians to the accumulated value.
+  S1AngleBuilder addRadians(double radians) {
+    _radians += radians;
+    return this;
+  }
+
+  /// Adds the given angle to the accumulated value.
+  S1AngleBuilder add(dynamic value) {
+    if (value is S1Angle) {
+      _radians += value.radians;
+    } else if (value is double) {
+      _radians += value;
+    } else {
+      throw ArgumentError('add() accepts S1Angle or double');
+    }
+    return this;
+  }
+
+  /// Builds and returns the accumulated S1Angle.
+  S1Angle build() => S1Angle._(_radians);
 }
 

@@ -20,24 +20,38 @@ import 'dart:math' as math;
 class S2Point implements Comparable<S2Point> {
   /// Origin of the coordinate system, [0,0,0].
   static const S2Point zero = S2Point(0, 0, 0);
+  /// Origin (uppercase, Java compatibility).
+  static const S2Point ZERO = zero;
 
   /// Direction of the x-axis.
   static const S2Point xPos = S2Point(1, 0, 0);
+  /// X_POS (uppercase, Java compatibility).
+  static const S2Point X_POS = xPos;
 
   /// Opposite direction of the x-axis.
   static const S2Point xNeg = S2Point(-1, 0, 0);
+  /// X_NEG (uppercase, Java compatibility).
+  static const S2Point X_NEG = xNeg;
 
   /// Direction of the y-axis.
   static const S2Point yPos = S2Point(0, 1, 0);
+  /// Y_POS (uppercase, Java compatibility).
+  static const S2Point Y_POS = yPos;
 
   /// Opposite direction of the y-axis.
   static const S2Point yNeg = S2Point(0, -1, 0);
+  /// Y_NEG (uppercase, Java compatibility).
+  static const S2Point Y_NEG = yNeg;
 
   /// Direction of the z-axis.
   static const S2Point zPos = S2Point(0, 0, 1);
+  /// Z_POS (uppercase, Java compatibility).
+  static const S2Point Z_POS = zPos;
 
   /// Opposite direction of the z-axis.
   static const S2Point zNeg = S2Point(0, 0, -1);
+  /// Z_NEG (uppercase, Java compatibility).
+  static const S2Point Z_NEG = zNeg;
 
   final double x;
   final double y;
@@ -89,6 +103,12 @@ class S2Point implements Comparable<S2Point> {
 
   /// Returns this plus the other point (method form).
   S2Point add(S2Point that) => this + that;
+
+  /// Returns this point scaled by m (method form, Java compatibility).
+  S2Point mul(double m) => this * m;
+
+  /// Returns this point divided by m (method form, Java compatibility).
+  S2Point div(double m) => this / m;
 
   /// Returns the vector dot product of this with that.
   double dotProd(S2Point that) => x * that.x + y * that.y + z * that.z;

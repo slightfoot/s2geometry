@@ -34,6 +34,12 @@ class S2 {
   static final double sqrt2 = math.sqrt(2);
   static final double sqrt3 = math.sqrt(3);
 
+  /// Pi / 2 constant.
+  static const double mPi2 = math.pi / 2;
+
+  /// Pi / 4 constant.
+  static const double mPi4 = math.pi / 4;
+
   /// The smallest floating-point value x such that (1 + x != 1).
   static const double dblEpsilon = 2.220446049250313E-16;
 

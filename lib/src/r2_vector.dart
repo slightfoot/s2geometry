@@ -26,6 +26,16 @@ class R2Vector {
   /// Constructs a new R2Vector from the given x and y coordinates.
   R2Vector(this.x, this.y);
 
+  /// Constructs a new R2Vector from a coordinate array of length 2.
+  /// This matches the Java constructor: new R2Vector(double[] coords).
+  R2Vector.fromArray(List<double> coords)
+      : x = coords[0],
+        y = coords[1] {
+    if (coords.length != 2) {
+      throw ArgumentError('Points must have exactly 2 coordinates');
+    }
+  }
+
   /// Constructs a new R2Vector from a coordinate list of length 2.
   R2Vector.fromList(List<double> coords)
       : x = coords[0],
@@ -34,6 +44,10 @@ class R2Vector {
       throw ArgumentError('Points must have exactly 2 coordinates');
     }
   }
+
+  // Java-style getters for compatibility
+  double getX() => x;
+  double getY() => y;
 
   /// Returns the coordinate at the given index (0 for x, 1 for y).
   double operator [](int index) {
@@ -110,6 +124,26 @@ class R2Vector {
     if (that.x < x) return false;
     return y < that.y;
   }
+
+  // Java-style instance methods for compatibility
+  /// Returns the vector sum of this and p (Java compatibility).
+  R2Vector add(R2Vector p) => R2Vector(x + p.x, y + p.y);
+
+  /// Returns the vector difference of this and p (Java compatibility).
+  R2Vector sub(R2Vector p) => R2Vector(x - p.x, y - p.y);
+
+  /// Returns this vector scaled by m (Java compatibility).
+  R2Vector mul(double m) => R2Vector(m * x, m * y);
+
+  // Static methods for Java compatibility
+  /// Returns the vector sum of p1 and p2 (static, Java compatibility).
+  static R2Vector addStatic(R2Vector p1, R2Vector p2) => R2Vector(p1.x + p2.x, p1.y + p2.y);
+
+  /// Returns the vector difference of p1 and p2 (static, Java compatibility).
+  static R2Vector subStatic(R2Vector p1, R2Vector p2) => R2Vector(p1.x - p2.x, p1.y - p2.y);
+
+  /// Returns p scaled by m (static, Java compatibility).
+  static R2Vector mulStatic(R2Vector p, double m) => R2Vector(m * p.x, m * p.y);
 
   @override
   bool operator ==(Object other) {

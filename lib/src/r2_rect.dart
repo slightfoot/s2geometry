@@ -15,18 +15,22 @@
 import 'r1_interval.dart';
 import 'r2_vector.dart';
 
+/// Axis enum for R2Rect (Java compatibility).
+enum Axis { X, Y }
+
 /// An R2Rect represents a closed axis-aligned rectangle in the (x,y) plane.
 /// This class is mutable to allow iteratively constructing bounds.
 class R2Rect {
   final R1Interval _x;
   final R1Interval _y;
 
-  /// Creates an empty R2Rect.
+  /// Creates an empty R2Rect (default constructor, Java compatibility).
   R2Rect.empty()
       : _x = R1Interval.empty(),
         _y = R1Interval.empty();
 
   /// Constructs a rectangle from the given lower-left and upper-right points.
+  /// This also matches Java's: new R2Rect(R2Vector lo, R2Vector hi)
   R2Rect.fromPoints(R2Vector lo, R2Vector hi)
       : _x = R1Interval(lo.x, hi.x),
         _y = R1Interval(lo.y, hi.y);
@@ -36,10 +40,13 @@ class R2Rect {
       : _x = x,
         _y = y;
 
-  /// Copy constructor.
+  /// Copy constructor (matches Java's: new R2Rect(R2Rect rect)).
   R2Rect.copy(R2Rect rect)
       : _x = R1Interval.copy(rect._x),
         _y = R1Interval.copy(rect._y);
+
+  /// Factory to create R2Rect from two R2Vector points (Java compatibility).
+  factory R2Rect.fromVectors(R2Vector lo, R2Vector hi) = R2Rect.fromPoints;
 
   /// Returns a rectangle from center point and size.
   static R2Rect fromCenterSize(R2Vector center, R2Vector size) {
@@ -60,11 +67,18 @@ class R2Rect {
     );
   }
 
+
+
   /// The interval along the x-axis.
   R1Interval get x => _x;
 
   /// The interval along the y-axis.
   R1Interval get y => _y;
+
+  /// Returns the interval for the specified axis (Java compatibility).
+  R1Interval getInterval(Axis axis) {
+    return axis == Axis.X ? _x : _y;
+  }
 
   /// The point with minimum x and y values.
   R2Vector get lo => R2Vector(_x.lo, _y.lo);
@@ -92,11 +106,37 @@ class R2Rect {
   /// Returns the center of the rectangle.
   R2Vector get center => R2Vector(_x.center, _y.center);
 
+  /// Returns the center of the rectangle (Java compatibility).
+  R2Vector getCenter() => center;
+
   /// Returns the size of the rectangle.
   R2Vector get size => R2Vector(_x.length, _y.length);
 
+  /// Returns the size of the rectangle (Java compatibility).
+  R2Vector getSize() => size;
+
+  /// Returns true if this rectangle contains point p (overloaded for R2Vector).
+  bool contains(dynamic p) {
+    if (p is R2Vector) {
+      return _x.containsPoint(p.x) && _y.containsPoint(p.y);
+    } else if (p is R2Rect) {
+      return _x.contains(p._x) && _y.contains(p._y);
+    }
+    throw ArgumentError('Argument must be R2Vector or R2Rect');
+  }
+
   /// Returns true if this rectangle contains point p.
   bool containsPoint(R2Vector p) => _x.containsPoint(p.x) && _y.containsPoint(p.y);
+
+  /// Returns true if the interior contains point (overloaded).
+  bool interiorContains(dynamic p) {
+    if (p is R2Vector) {
+      return _x.interiorContainsPoint(p.x) && _y.interiorContainsPoint(p.y);
+    } else if (p is R2Rect) {
+      return _x.interiorContains(p._x) && _y.interiorContains(p._y);
+    }
+    throw ArgumentError('Argument must be R2Vector or R2Rect');
+  }
 
   /// Returns true if the interior contains point p.
   bool interiorContainsPoint(R2Vector p) =>
@@ -132,11 +172,19 @@ class R2Rect {
   R2Vector clampPoint(R2Vector p) => R2Vector(_x.clampPoint(p.x), _y.clampPoint(p.y));
 
   /// Returns a rectangle expanded by margin on each side.
-  R2Rect expanded(R2Vector margin) {
-    final xx = _x.expanded(margin.x);
-    final yy = _y.expanded(margin.y);
-    if (xx.isEmpty || yy.isEmpty) return R2Rect.empty();
-    return R2Rect(xx, yy);
+  R2Rect expanded(dynamic margin) {
+    if (margin is R2Vector) {
+      final xx = _x.expanded(margin.x);
+      final yy = _y.expanded(margin.y);
+      if (xx.isEmpty || yy.isEmpty) return R2Rect.empty();
+      return R2Rect(xx, yy);
+    } else if (margin is double) {
+      final xx = _x.expanded(margin);
+      final yy = _y.expanded(margin);
+      if (xx.isEmpty || yy.isEmpty) return R2Rect.empty();
+      return R2Rect(xx, yy);
+    }
+    throw ArgumentError('Argument must be R2Vector or double');
   }
 
   /// Returns the union of this rectangle with other.

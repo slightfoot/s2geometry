@@ -27,24 +27,43 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
   /// Maximum squared chord length.
   static const double maxLength2 = 4.0;
 
-  /// The zero chord angle.
+  /// The zero chord angle (lowercase).
   static final S1ChordAngle zero = S1ChordAngle._(0);
 
-  /// The chord angle of 90 degrees.
+  /// The zero chord angle (uppercase, Java compatibility).
+  static final S1ChordAngle ZERO = zero;
+
+  /// The chord angle of 90 degrees (lowercase).
   static final S1ChordAngle right = S1ChordAngle._(2);
 
-  /// The chord angle of 180 degrees (maximum finite chord angle).
+  /// The chord angle of 90 degrees (uppercase, Java compatibility).
+  static final S1ChordAngle RIGHT = right;
+
+  /// The chord angle of 180 degrees (maximum finite chord angle, lowercase).
   static final S1ChordAngle straight = S1ChordAngle._(maxLength2);
 
-  /// A chord angle larger than any finite chord angle.
+  /// The chord angle of 180 degrees (uppercase, Java compatibility).
+  static final S1ChordAngle STRAIGHT = straight;
+
+  /// A chord angle larger than any finite chord angle (lowercase).
   static final S1ChordAngle infinity = S1ChordAngle._(double.infinity);
 
-  /// A chord angle smaller than zero.
+  /// A chord angle larger than any finite chord angle (uppercase, Java compatibility).
+  static final S1ChordAngle INFINITY = infinity;
+
+  /// A chord angle smaller than zero (lowercase).
   static final S1ChordAngle negative = S1ChordAngle._(-1);
+
+  /// A chord angle smaller than zero (uppercase, Java compatibility).
+  static final S1ChordAngle NEGATIVE = negative;
 
   final double _length2;
 
   S1ChordAngle._(this._length2);
+
+  /// Constructs the chord angle between two points on the unit sphere.
+  /// This is the factory constructor for Java compatibility (new S1ChordAngle(x, y)).
+  factory S1ChordAngle(S2Point x, S2Point y) = S1ChordAngle.fromPoints;
 
   /// Constructs the chord angle between two points on the unit sphere.
   S1ChordAngle.fromPoints(S2Point x, S2Point y)
@@ -72,6 +91,9 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
 
   /// Returns the squared chord length.
   double get length2 => _length2;
+
+  /// Returns the squared chord length (Java compatibility).
+  double getLength2() => _length2;
 
   /// Returns true if zero.
   bool get isZero => _length2 == 0;
@@ -189,10 +211,16 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
   /// Returns the error in fromS1Angle.
   double get s1AngleConstructorMaxError => 1.5 * Platform.dblEpsilon * _length2;
 
+  /// Returns the error in fromS1Angle (Java compatibility).
+  double getS1AngleConstructorMaxError() => s1AngleConstructorMaxError;
+
   /// Returns the error in fromPoints.
   double get s2PointConstructorMaxError =>
       (4.5 * Platform.dblEpsilon * _length2) +
       (16 * Platform.dblEpsilon * Platform.dblEpsilon);
+
+  /// Returns the error in fromPoints (Java compatibility).
+  double getS2PointConstructorMaxError() => s2PointConstructorMaxError;
 
   @override
   bool operator ==(Object other) {

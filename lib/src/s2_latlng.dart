@@ -62,6 +62,9 @@ class S2LatLng {
     );
   }
 
+  /// Constructor from S2Point (Java compatibility: new S2LatLng(S2Point p)).
+  factory S2LatLng.point(S2Point p) = S2LatLng.fromPoint;
+
   /// Basic constructor from S1Angle values.
   S2LatLng(S1Angle lat, S1Angle lng)
       : _latRadians = lat.radians,
@@ -165,6 +168,15 @@ class S2LatLng {
   S2LatLng operator *(double m) {
     return S2LatLng.fromRadians(_latRadians * m, _lngRadians * m);
   }
+
+  /// Adds the given point to this point (method form, Java compatibility).
+  S2LatLng add(S2LatLng other) => this + other;
+
+  /// Subtracts the given point from this point (method form, Java compatibility).
+  S2LatLng sub(S2LatLng other) => this - other;
+
+  /// Scales this point by the given scaling factor (method form, Java compatibility).
+  S2LatLng mul(double m) => this * m;
 
   @override
   bool operator ==(Object other) {

@@ -141,5 +141,21 @@ class Platform {
     // For negative values, we need to mask and shift
     return (value >> shift) & ((1 << (64 - shift)) - 1);
   }
+
+  /// Returns the ULP (Unit in the Last Place) of a double value.
+  /// This is the positive distance between this value and the next larger representable value.
+  static double ulp(double d) {
+    if (d.isNaN) return double.nan;
+    if (d.isInfinite) return double.infinity;
+    if (d == 0.0) return double.minPositive;
+
+    final dAbs = d.abs();
+    final bytes = ByteData(8);
+    bytes.setFloat64(0, dAbs, Endian.little);
+    var bits = bytes.getInt64(0, Endian.little);
+    bits++;
+    bytes.setInt64(0, bits, Endian.little);
+    return bytes.getFloat64(0, Endian.little) - dAbs;
+  }
 }
 
