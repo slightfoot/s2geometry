@@ -490,8 +490,17 @@ class S2CellId implements Comparable<S2CellId> {
   String toString() => '(face=$face, pos=${pos.toRadixString(16)}, level=$level)';
 
   /// Returns the (i, j, orientation) packed into a single int.
-  /// Format: (i << 33) | (orientation << 1) | (j << 2)
+  /// Format: (i << 33) | (j << 2) | orientation
   int toIJOrientation() => _toIJOrientation();
+
+  /// Extracts the i coordinate from the packed ijo value.
+  static int getI(int ijo) => ijo >>> 33;
+
+  /// Extracts the j coordinate from the packed ijo value.
+  static int getJ(int ijo) => (ijo >> 2) & 0x7FFFFFFF;
+
+  /// Extracts the orientation from the packed ijo value.
+  static int getOrientation(int ijo) => ijo & 0x3;
 
   /// Returns the center of the cell in (u,v) coordinates.
   R2Vector getCenterUV() {

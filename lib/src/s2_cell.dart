@@ -287,11 +287,11 @@ class S2Cell implements S2Region {
     _cellId = id;
     _face = id.face;
     _level = id.level;
-    _orientation = id.childPosition;
 
-    final ij = id.toIJOrientation();
-    final i = (ij >> 33) & 0x7FFFFFFF;
-    final j = (ij >> 2) & 0x7FFFFFFF;
+    final ijo = id.toIJOrientation();
+    _orientation = S2CellId.getOrientation(ijo);
+    final i = S2CellId.getI(ijo);
+    final j = S2CellId.getJ(ijo);
     final cellSize = id.sizeIJ;
 
     _uMin = S2Projections.ijToUV(i, cellSize);

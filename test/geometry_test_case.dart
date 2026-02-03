@@ -98,6 +98,25 @@ void assertExactly(double expected, double actual, [String message = '']) {
   }
 }
 
+/// Checks that two doubles are identical (same value and same sign).
+/// Unlike assertExactly, this distinguishes between +0.0 and -0.0.
+void assertIdentical(double actual, double expected, [String message = '']) {
+  // Use identical() to check for same value and sign
+  // For doubles, we need to check the bit representation
+  final actualBits = _getRawDoubleBits(actual);
+  final expectedBits = _getRawDoubleBits(expected);
+  if (actualBits != expectedBits) {
+    fail('${message.isNotEmpty ? "$message: " : ""}Expected $expected (bits: $expectedBits) but got $actual (bits: $actualBits)');
+  }
+}
+
+/// Gets the raw IEEE 754 bit representation of a double.
+int _getRawDoubleBits(double d) {
+  final bytes = ByteData(8);
+  bytes.setFloat64(0, d, Endian.big);
+  return bytes.getInt64(0, Endian.big);
+}
+
 /// Succeeds if and only if x is less than y.
 void assertLessThan<T extends Comparable<T>>(T x, T y) {
   expect(x.compareTo(y) < 0, isTrue, reason: 'Expected $x < $y but it is not.');

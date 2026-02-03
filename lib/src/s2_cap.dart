@@ -123,6 +123,20 @@ class S2Cap implements S2Region {
     return (_radius + other._radius).greaterOrEquals(axialDistance);
   }
 
+  /// Returns true if and only if the interior of this cap intersects the
+  /// given other cap. (This relationship is not symmetric, since only
+  /// the interior of this cap is used.)
+  bool interiorIntersects(S2Cap other) {
+    // Interior(X) intersects Y if and only if Complement(Interior(X)) does not contain Y.
+    return !complement.containsCap(other);
+  }
+
+  /// Returns true if and only if the given point is contained in the interior
+  /// of the region (i.e. the region excluding its boundary).
+  bool interiorContains(S2Point p) {
+    return isFull || S1ChordAngle.fromPoints(_axis, p).compareTo(_radius) < 0;
+  }
+
   /// Returns a new S2Cap that includes the given point.
   S2Cap addPoint(S2Point p) {
     if (isEmpty) {
@@ -260,5 +274,25 @@ class S2Cap implements S2Region {
 
   @override
   String toString() => '[Point = $_axis Radius = $_radius]';
+
+  /// Returns true if the angle between axes of 'this' and 'other' is at most
+  /// 'maxError' radians, and the difference between the squared chord distance
+  /// radii of 'this' and 'other' is also at most 'maxError'.
+  bool approxEqualsWithError(S2Cap other, double maxError) {
+    final r2 = _radius.length2;
+    final otherR2 = other._radius.length2;
+    return (S2.approxEquals(_axis, other._axis, maxError) && (r2 - otherR2).abs() <= maxError)
+        || (isEmpty && otherR2 <= maxError)
+        || (other.isEmpty && r2 <= maxError)
+        || (isFull && otherR2 >= 2 - maxError)
+        || (other.isFull && r2 >= 2 - maxError);
+  }
+
+  /// Returns true if the angle between axes of 'this' and 'other' is at most
+  /// 1e-14 radians, and the difference between the squared chord distance
+  /// radii of 'this' and 'other' is also at most 1e-14.
+  bool approxEquals(S2Cap other) {
+    return approxEqualsWithError(other, 1e-14);
+  }
 }
 

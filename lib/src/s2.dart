@@ -132,14 +132,57 @@ class S2 {
   /// 1/Pi - inverse of pi.
   static const double m1Pi = 1.0 / math.pi;
 
-  /// Returns the area of the planar triangle ABC.
-  /// This is the magnitude of the cross product divided by 2.
+  /// Returns the area of the spherical triangle ABC using a combination of
+  /// l'Huilier's formula and Girard's formula for best accuracy.
+  /// All points must be unit length.
   static double area(S2Point a, S2Point b, S2Point c) {
-    // Returns the area of the planar triangle. Not to be confused with
-    // signedArea which computes the signed (spherical) area.
-    final ac = a - c;
-    final bc = b - c;
-    return 0.5 * ac.crossProd(bc).norm;
+    // This method is based on l'Huilier's theorem,
+    //
+    // tan(E/4) = sqrt(tan(s/2) tan((s-a)/2) tan((s-b)/2) tan((s-c)/2))
+    //
+    // where E is the spherical excess of the triangle (i.e. its area),
+    // a, b, c are the side lengths, and s is the semiperimeter (a + b + c) / 2.
+    //
+    // We use the Kahan-style stable angle computation for better accuracy.
+    final sa = _stableAngle(b, c);
+    final sb = _stableAngle(c, a);
+    final sc = _stableAngle(a, b);
+
+    final s = 0.5 * (sa + sb + sc);
+    if (s >= 3e-4) {
+      // Consider whether Girard's formula might be more accurate.
+      double s2 = s * s;
+      double dmin = s - math.max(sa, math.max(sb, sc));
+      if (dmin < 1e-2 * s * s2 * s2) {
+        // This triangle is skinny enough to consider using Girard's formula.
+        double girardAreaValue = girardArea(a, b, c);
+        if (dmin < s * (0.1 * (girardAreaValue + 5e-15))) {
+          return girardAreaValue;
+        }
+      }
+    }
+    // Use l'Huilier's formula.
+    return 4 * math.atan(math.sqrt(math.max(
+        0.0,
+        math.tan(0.5 * s) *
+            math.tan(0.5 * (s - sa)) *
+            math.tan(0.5 * (s - sb)) *
+            math.tan(0.5 * (s - sc)))));
+  }
+
+  /// Returns the area of the triangle computed using Girard's formula.
+  static double girardArea(S2Point a, S2Point b, S2Point c) {
+    // This is equivalent to the usual Girard's formula but is slightly more
+    // accurate, faster to compute, and handles a == b == c without a special case.
+    final ab = a.crossProd(b);
+    final bc = b.crossProd(c);
+    final ac = a.crossProd(c);
+    return math.max(0.0, ab.angle(ac) - ab.angle(bc) + bc.angle(ac));
+  }
+
+  /// Stable angle computation using Kahan's formula.
+  static double _stableAngle(S2Point a, S2Point b) {
+    return 2 * math.atan2((a - b).norm, (a + b).norm);
   }
 
   /// Returns the signed area of triangle ABC on the unit sphere.
