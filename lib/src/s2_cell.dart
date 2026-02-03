@@ -81,6 +81,18 @@ class S2Cell implements S2Region {
   /// Returns true if this cell is a leaf-cell, i.e. it has no children.
   bool get isLeaf => _level == S2CellId.maxLevel;
 
+  /// Return the four direct children of this cell in traversal order.
+  List<S2Cell> subdivide() {
+    assert(!isLeaf);
+    final children = <S2Cell>[];
+    S2CellId childId = _cellId.childBegin;
+    for (int i = 0; i < 4; i++) {
+      children.add(S2Cell(childId));
+      childId = childId.next;
+    }
+    return children;
+  }
+
   /// Returns the k-th vertex of the cell (k = 0,1,2,3) in CCW order.
   S2Point getVertex(int k) {
     return getVertexRaw(k).normalize();

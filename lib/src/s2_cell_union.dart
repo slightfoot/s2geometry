@@ -18,7 +18,6 @@ import 'dart:math' as math;
 
 import 's1_angle.dart';
 import 's1_chord_angle.dart';
-import 's2.dart';
 import 's2_cap.dart';
 import 's2_cell.dart';
 import 's2_cell_id.dart';
@@ -109,6 +108,21 @@ class S2CellUnion implements S2Region {
   /// Populates this cell union from raw 64-bit IDs (without normalization).
   void initRawIds(List<int> ids) {
     _cellIds = ids.map((id) => S2CellId(id)).toList();
+  }
+
+  /// Initializes this cell union by swapping with the given list.
+  /// The input list will be cleared after this call.
+  void initSwap(List<S2CellId> cellIds) {
+    _cellIds = List.from(cellIds);
+    cellIds.clear();
+    normalize();
+  }
+
+  /// Initializes this cell union by swapping with the given list (without normalization).
+  /// The input list will be cleared after this call.
+  void initRawSwap(List<S2CellId> cellIds) {
+    _cellIds = List.from(cellIds);
+    cellIds.clear();
   }
 
   /// Populates this cell union with a single cell ID.
@@ -390,7 +404,7 @@ class S2CellUnion implements S2Region {
   /// Gets the difference of two cell unions: cells in x but not in y.
   void getDifference(S2CellUnion x, S2CellUnion y) {
     _cellIds.clear();
-    for (final id in x) {
+    for (final id in x._cellIds) {
       _getDifferenceInternal(id, y);
     }
     assert(isNormalized || !x.isNormalized);
@@ -458,14 +472,14 @@ class S2CellUnion implements S2Region {
   }
 
   @override
-  S2Cap getCapBound() {
+  S2Cap get capBound {
     if (_cellIds.isEmpty) {
       return S2Cap.empty();
     }
     // Compute the approximate centroid of the region.
     S2Point centroid = S2Point.zero;
     for (final id in _cellIds) {
-      final area = S2Cell.averageArea(id.level);
+      final area = S2Cell.averageAreaAtLevel(id.level);
       centroid = centroid + id.toPoint() * area;
     }
     if (centroid == S2Point.zero) {
@@ -477,13 +491,13 @@ class S2CellUnion implements S2Region {
     // Use the centroid as the cap axis, expand to contain all cells.
     var cap = S2Cap.fromAxisChord(centroid, S1ChordAngle.zero);
     for (final id in _cellIds) {
-      cap = cap.addCap(S2Cell(id).getCapBound());
+      cap = cap.addCap(S2Cell(id).capBound);
     }
     return cap;
   }
 
   @override
-  S2LatLngRect getRectBound() {
+  S2LatLngRect get rectBound {
     var rect = S2LatLngRect.empty();
     for (final id in _cellIds) {
       rect = rect.union(S2Cell(id).rectBound);
@@ -509,7 +523,7 @@ class S2CellUnion implements S2Region {
 
   /// Returns the average-based area of the cell union.
   double get averageBasedArea {
-    return S2Cell.averageArea(S2CellId.maxLevel) * leafCellsCovered;
+    return S2Cell.averageAreaAtLevel(S2CellId.maxLevel) * leafCellsCovered;
   }
 
   /// Returns the approximate area of the cell union.
@@ -570,7 +584,7 @@ class S2CellUnion implements S2Region {
           break;
         }
         // Replace four children by their parent cell.
-        id = id.parent();
+        id = id.parent;
         out -= 3;
       }
       ids[out++] = id;
@@ -609,7 +623,7 @@ class S2CellUnion implements S2Region {
     return true;
   }
 
-  @override
+  /// Returns an iterator over the cells.
   Iterator<S2CellId> get iterator => _cellIds.iterator;
 
   @override

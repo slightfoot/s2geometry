@@ -553,6 +553,81 @@ class S2CellId implements Comparable<S2CellId> {
   /// Returns true if this cell id is greater than or equal to other.
   bool greaterOrEquals(S2CellId other) => !lessThan(other);
 
+  /// Returns the edge neighbors of this cell (the 4 cells that share an edge).
+  ///
+  /// The neighbors are returned in the order defined by S2Cell::GetEdge.
+  /// All neighbors are guaranteed to be distinct.
+  void getEdgeNeighbors(List<S2CellId> neighbors) {
+    assert(neighbors.length >= 4);
+    final level = this.level;
+    final size = getSizeIJ(level);
+    final ijo = _toIJOrientation();
+    final i = ijo >>> 33;
+    final j = (ijo >> 2) & 0x7FFFFFFF;
+    final face = this.face;
+
+    // Edges 0, 1, 2, 3 are bottom, right, top, left respectively.
+    neighbors[0] = S2CellId._fromFaceIJSame(face, i, j - size, j - size >= 0)
+        .parentAtLevel(level);
+    neighbors[1] = S2CellId._fromFaceIJSame(face, i + size, j, i + size < maxSize)
+        .parentAtLevel(level);
+    neighbors[2] = S2CellId._fromFaceIJSame(face, i, j + size, j + size < maxSize)
+        .parentAtLevel(level);
+    neighbors[3] = S2CellId._fromFaceIJSame(face, i - size, j, i - size >= 0)
+        .parentAtLevel(level);
+  }
+
+  /// Returns the level of the lowest common ancestor of this cell and the
+  /// given cell. Returns -1 if the two cells have no common ancestor
+  /// (i.e. they are on different faces of the cube).
+  int getCommonAncestorLevel(S2CellId other) {
+    // Basically we find the first bit position at which the two S2CellIds
+    // differ and compute the level from that.
+    int bits = id ^ other.id;
+
+    if (bits == 0) {
+      // Same cell.
+      return level;
+    }
+
+    // We need to find the most significant bit that differs.
+    // First, handle the face bits. If faces differ, no common ancestor.
+    if (face != other.face) {
+      return -1;
+    }
+
+    // Find the most significant bit that differs.
+    int msbPos = 63 - _numberOfLeadingZeros(bits);
+
+    // The level is computed from the bit position. Each level uses 2 bits,
+    // and the lowest bit is the sentinel.
+    // Bit positions: 63-62-61 are face (3 bits), then pairs of bits for each level.
+    // Level 0 uses bits 60-61, level 1 uses 58-59, etc.
+    // The sentinel bit is at position (60 - 2*level).
+
+    // msbPos tells us where the first difference is.
+    // If msbPos > 60, they're on different faces (already handled).
+    // Otherwise, the common ancestor level is floor((60 - msbPos) / 2).
+    if (msbPos > 60) {
+      return -1;
+    }
+    return (60 - msbPos) ~/ 2;
+  }
+
+  /// Returns the number of leading zeros in the binary representation.
+  static int _numberOfLeadingZeros(int x) {
+    if (x == 0) return 64;
+    int n = 0;
+    // Check high 32 bits
+    if ((x >>> 32) == 0) { n += 32; x <<= 32; }
+    if ((x >>> 48) == 0) { n += 16; x <<= 16; }
+    if ((x >>> 56) == 0) { n +=  8; x <<=  8; }
+    if ((x >>> 60) == 0) { n +=  4; x <<=  4; }
+    if ((x >>> 62) == 0) { n +=  2; x <<=  2; }
+    if ((x >>> 63) == 0) { n +=  1; }
+    return n;
+  }
+
   /// Appends all neighbors of this cell at the given level to [results].
   ///
   /// Two cells are neighbors if they share an edge or a corner, i.e. if their

@@ -39,7 +39,7 @@ export 'src/s2_region.dart';
 export 'src/s2_cap.dart';
 export 'src/s2_latlng_rect.dart';
 export 'src/s2_cell_union.dart';
-// export 'src/s2_region_coverer.dart'; // TODO: Port
+export 'src/s2_region_coverer.dart';
 
 // Utility classes
 export 'src/s2.dart';
