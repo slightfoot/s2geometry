@@ -281,11 +281,11 @@ class S2Cap implements S2Region {
   bool approxEqualsWithError(S2Cap other, double maxError) {
     final r2 = _radius.length2;
     final otherR2 = other._radius.length2;
-    return (S2.approxEquals(_axis, other._axis, maxError) && (r2 - otherR2).abs() <= maxError)
-        || (isEmpty && otherR2 <= maxError)
-        || (other.isEmpty && r2 <= maxError)
-        || (isFull && otherR2 >= 2 - maxError)
-        || (other.isFull && r2 >= 2 - maxError);
+    return (S2.approxEquals(_axis, other._axis, maxError) && (r2 - otherR2).abs() <= maxError) ||
+        (isEmpty && otherR2 <= maxError) ||
+        (other.isEmpty && r2 <= maxError) ||
+        (isFull && otherR2 >= 2 - maxError) ||
+        (other.isFull && r2 >= 2 - maxError);
   }
 
   /// Returns true if the angle between axes of 'this' and 'other' is at most
@@ -295,4 +295,3 @@ class S2Cap implements S2Region {
     return approxEqualsWithError(other, 1e-14);
   }
 }
-

@@ -44,9 +44,7 @@ void main() {
 
     test('testFromFace', () {
       for (int face = 0; face < 6; ++face) {
-        expect(
-            S2CellId.fromFace(face),
-            equals(S2CellId.fromFacePosLevel(face, 0, 0)));
+        expect(S2CellId.fromFace(face), equals(S2CellId.fromFacePosLevel(face, 0, 0)));
       }
     });
 
@@ -115,12 +113,14 @@ void main() {
       final face5child9 = face5.childBeginAtLevel(9);
       final face0child2 = face0.childBeginAtLevel(2);
       expect(
-          face5child9.next.childBeginAtLevel(15).getCommonAncestorLevel(
-              face5child9.childBeginAtLevel(20)),
+          face5child9.next
+              .childBeginAtLevel(15)
+              .getCommonAncestorLevel(face5child9.childBeginAtLevel(20)),
           equals(8));
       expect(
-          face0child2.childBeginAtLevel(30).getCommonAncestorLevel(
-              face0child2.next.childBeginAtLevel(5)),
+          face0child2
+              .childBeginAtLevel(30)
+              .getCommonAncestorLevel(face0child2.next.childBeginAtLevel(5)),
           equals(1));
     });
 
@@ -150,4 +150,3 @@ void main() {
     });
   });
 }
-

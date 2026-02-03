@@ -53,4 +53,3 @@ export 'src/platform.dart';
 // export 'src/s2_loop.dart'; // TODO: Port
 // export 'src/s2_polygon.dart'; // TODO: Port
 // export 'src/s2_polyline.dart'; // TODO: Port
-

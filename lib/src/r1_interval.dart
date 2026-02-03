@@ -45,13 +45,17 @@ class R1Interval {
   R1Interval(this._lo, this._hi);
 
   /// Creates an empty interval (default constructor equivalent).
-  R1Interval.empty() : _lo = 1, _hi = 0;
+  R1Interval.empty()
+      : _lo = 1,
+        _hi = 0;
 
   /// Creates an empty interval (same as empty()).
   factory R1Interval.init() => R1Interval.empty();
 
   /// Creates a copy of the given interval.
-  R1Interval.copy(R1Interval other) : _lo = other._lo, _hi = other._hi;
+  R1Interval.copy(R1Interval other)
+      : _lo = other._lo,
+        _hi = other._hi;
 
   /// Convenience method to construct an interval containing a single point.
   static R1Interval fromPoint(double p) => R1Interval(p, p);
@@ -79,8 +83,7 @@ class R1Interval {
 
   /// Gets the endpoint value for the given endpoint.
   double getValue(R1IntervalEndpoint endpoint) {
-    return (endpoint == R1IntervalEndpoint.lo || endpoint == R1IntervalEndpoint.LO)
-        ? _lo : _hi;
+    return (endpoint == R1IntervalEndpoint.lo || endpoint == R1IntervalEndpoint.LO) ? _lo : _hi;
   }
 
   /// Sets the endpoint value for the given endpoint.
@@ -253,4 +256,3 @@ class R1Interval {
   @override
   String toString() => '[$_lo, $_hi]';
 }
-

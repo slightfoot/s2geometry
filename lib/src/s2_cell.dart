@@ -318,4 +318,3 @@ class S2Cell implements S2Region {
   @override
   int get hashCode => _cellId.hashCode;
 }
-

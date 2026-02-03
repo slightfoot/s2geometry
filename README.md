@@ -1,0 +1,145 @@
+# S2 Geometry Library (Dart)
+
+## Overview
+
+This is a Dart port of Google's [S2 Geometry Library](https://github.com/google/s2-geometry-library-java), a package for manipulating geometric shapes. Unlike many geometry libraries, S2 is primarily designed to work with _spherical geometry_, i.e., shapes drawn on a sphere rather than on a planar 2D map. This makes it especially suitable for working with geographic data.
+
+If you want to learn more about the library, start by reading the [overview](http://s2geometry.io/about/overview) and [quick start document](http://s2geometry.io/devguide/cpp/quickstart), then read the introduction to the [basic types](http://s2geometry.io/devguide/basic_types).
+
+S2 documentation can be found on [s2geometry.io](http://s2geometry.io).
+
+## Installation
+
+Add this to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  s2geometry:
+    git:
+      url: https://github.com/slightfoot/s2geometry.git
+```
+
+## Usage
+
+```dart
+import 'package:s2geometry/s2geometry.dart';
+
+// Create a viewport rectangle (e.g., for a map view)
+final viewport = S2LatLngRect.fromPointPair(
+  S2LatLng.fromDegrees(40.0, -112.0),  // SW corner
+  S2LatLng.fromDegrees(41.0, -111.0),  // NE corner
+);
+
+// Get covering cells for efficient spatial queries
+final coverer = S2RegionCoverer(maxCells: 8);
+final covering = coverer.getCovering(viewport);
+
+// Use cell IDs for database range queries
+for (int i = 0; i < covering.size; i++) {
+  final cellId = covering.cellId(i);
+  final minId = cellId.rangeMin.id;
+  final maxId = cellId.rangeMax.id;
+  // SELECT * FROM pois WHERE s2_cell_id BETWEEN minId AND maxId
+}
+```
+
+## Build and Test
+
+This package uses [Melos](https://melos.invertase.dev/) for build management.
+
+```bash
+# Install dependencies
+dart pub get
+
+# Run tests
+melos run test
+
+# Run tests with coverage
+melos run coverage
+
+# Analyze code
+melos run analyze
+
+# Format code
+melos run format
+```
+
+## S2 Implementations
+
+The S2 library has implementations in several languages. In addition to this Dart port, Google provides:
+
+* [Java](https://github.com/google/s2-geometry-library-java) (The source for this port)
+* [C++](https://github.com/google/s2geometry) (The reference implementation and the most full featured)
+* [Go](https://github.com/golang/geo) (Approximately 40% complete)
+* [Python](https://github.com/google/s2geometry/tree/master/src/python)
+
+---
+
+## About This Port
+
+### AI-Generated Port
+
+This Dart library is an **AI-assisted port** of Google's [s2-geometry-library-java](https://github.com/google/s2-geometry-library-java). The port was created using AI code generation tools to translate Java source code to idiomatic Dart while maintaining functional equivalence.
+
+### Why This Port Was Created
+
+This port was created to enable **local, disk-backed spatial indexing** in Dart/Flutter applications without requiring external databases like MySQL or PostgreSQL for spatial queries. The S2 library's cell-based indexing system allows efficient viewport-based POI (Points of Interest) queries using simple range scans on any key-value store.
+
+### How It Was Created
+
+The port was created by:
+
+1. **Selective porting** - Only the core classes needed for spatial indexing and region covering were ported, focusing on the most essential functionality
+2. **1:1 Java-to-Dart translation** - Each Java class was directly translated to Dart, preserving the original logic and algorithms
+3. **Test porting** - The corresponding Java unit tests were ported to Dart to validate correctness, with minimal changes to test logic to ensure the same inputs produce the same outputs
+
+### Port Coverage
+
+| Category | Ported | Total (Java) | Percentage |
+|----------|--------|--------------|------------|
+| **Core Source Files** | 17 | ~120 | **14%** |
+| **Test Files** | 14 | ~100 | **14%** |
+
+#### Ported Classes
+
+| Dart File | Java Equivalent | Description |
+|-----------|-----------------|-------------|
+| `r1_interval.dart` | R1Interval.java | 1D interval on the real line |
+| `r2_vector.dart` | R2Vector.java | 2D vector |
+| `r2_rect.dart` | R2Rect.java | 2D axis-aligned rectangle |
+| `s1_angle.dart` | S1Angle.java | 1D angle |
+| `s1_interval.dart` | S1Interval.java | 1D interval on a circle |
+| `s1_chord_angle.dart` | S1ChordAngle.java | Angle represented as chord length squared |
+| `s2_point.dart` | S2Point.java | Point on the unit sphere |
+| `s2_latlng.dart` | S2LatLng.java | Latitude/longitude coordinates |
+| `s2_cell_id.dart` | S2CellId.java | 64-bit cell identifier |
+| `s2_cell.dart` | S2Cell.java | Cell on the sphere |
+| `s2_region.dart` | S2Region.java | Abstract region interface |
+| `s2_cap.dart` | S2Cap.java | Spherical cap region |
+| `s2_latlng_rect.dart` | S2LatLngRect.java | Lat/lng bounding rectangle |
+| `s2_cell_union.dart` | S2CellUnion.java | Union of S2 cells |
+| `s2_region_coverer.dart` | S2RegionCoverer.java | Converts regions to cell coverings |
+| `s2.dart` | S2.java | Core S2 utilities |
+| `s2_projections.dart` | S2Projections.java | Cell projection utilities |
+| `platform.dart` | Platform.java | Platform-specific utilities |
+
+### Test Coverage
+
+All 121 ported tests pass. Code coverage for the ported files:
+
+| File | Coverage |
+|------|----------|
+| s1_interval.dart | 97.0% |
+| s2_cell_id.dart | 94.2% |
+| r2_rect.dart | 84.6% |
+| s2_latlng.dart | 81.9% |
+| r1_interval.dart | 79.4% |
+| s1_angle.dart | 77.8% |
+| **Overall** | **73.4%** |
+
+---
+
+## Disclaimer
+
+This is not an official Google product. This is an independent port of the open-source S2 Geometry Library.
+

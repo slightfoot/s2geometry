@@ -63,36 +63,19 @@ void main() {
               .approxEquals(S2LatLng.fromDegrees(-10, -10)),
           isTrue);
       expect(
-          S2LatLng.fromDegrees(10, 20)
-              .mul(0.5)
-              .approxEquals(S2LatLng.fromDegrees(5, 10)),
-          isTrue);
+          S2LatLng.fromDegrees(10, 20).mul(0.5).approxEquals(S2LatLng.fromDegrees(5, 10)), isTrue);
     });
 
     test('testConversion', () {
       // Test special cases: poles, "date line"
       assertAlmostEquals(
-          S2LatLng.point(S2LatLng.fromDegrees(90.0, 65.0).toPoint())
-              .lat
-              .degrees,
-          90.0);
+          S2LatLng.point(S2LatLng.fromDegrees(90.0, 65.0).toPoint()).lat.degrees, 90.0);
       assertExactly(
-          -M_PI_2,
-          S2LatLng.point(S2LatLng.fromRadians(-M_PI_2, 1).toPoint())
-              .lat
-              .radians);
+          -M_PI_2, S2LatLng.point(S2LatLng.fromRadians(-M_PI_2, 1).toPoint()).lat.radians);
       assertAlmostEquals(
-          S2LatLng.point(S2LatLng.fromDegrees(12.2, 180.0).toPoint())
-              .lng
-              .degrees
-              .abs(),
-          180.0);
+          S2LatLng.point(S2LatLng.fromDegrees(12.2, 180.0).toPoint()).lng.degrees.abs(), 180.0);
       assertExactly(
-          math.pi,
-          S2LatLng.point(S2LatLng.fromRadians(0.1, -math.pi).toPoint())
-              .lng
-              .radians
-              .abs());
+          math.pi, S2LatLng.point(S2LatLng.fromRadians(0.1, -math.pi).toPoint()).lng.radians.abs());
 
       // Test generation from E5
       final test = S2LatLng.fromE5(123456, 98765);
@@ -104,35 +87,26 @@ void main() {
       // Equal and same sign
       assertIdentical(S2LatLng.latitude(S2Point(1.0, 0.0, -0.0)).radians, 0.0);
       assertIdentical(S2LatLng.longitude(S2Point(1.0, -0.0, 0.0)).radians, 0.0);
-      assertIdentical(
-          S2LatLng.longitude(S2Point(-1.0, -0.0, 0.0)).radians, math.pi);
+      assertIdentical(S2LatLng.longitude(S2Point(-1.0, -0.0, 0.0)).radians, math.pi);
       assertIdentical(S2LatLng.longitude(S2Point(-0.0, 0.0, 1.0)).radians, 0.0);
-      assertIdentical(
-          S2LatLng.longitude(S2Point(-0.0, -0.0, 1.0)).radians, 0.0);
+      assertIdentical(S2LatLng.longitude(S2Point(-0.0, -0.0, 1.0)).radians, 0.0);
     });
 
     test('testDistance', () {
-      assertExactly(0.0,
-          S2LatLng.fromDegrees(90, 0).getDistance(S2LatLng.fromDegrees(90, 0)).radians);
+      assertExactly(
+          0.0, S2LatLng.fromDegrees(90, 0).getDistance(S2LatLng.fromDegrees(90, 0)).radians);
       assertDoubleNear(
-          S2LatLng.fromDegrees(-37, 25)
-              .getDistance(S2LatLng.fromDegrees(-66, -155))
-              .degrees,
+          S2LatLng.fromDegrees(-37, 25).getDistance(S2LatLng.fromDegrees(-66, -155)).degrees,
           77,
           1e-13);
       assertDoubleNear(
-          S2LatLng.fromDegrees(0, 165)
-              .getDistance(S2LatLng.fromDegrees(0, -80))
-              .degrees,
+          S2LatLng.fromDegrees(0, 165).getDistance(S2LatLng.fromDegrees(0, -80)).degrees,
           115,
           1e-13);
       assertDoubleNear(
-          S2LatLng.fromDegrees(47, -127)
-              .getDistance(S2LatLng.fromDegrees(-47, 53))
-              .degrees,
+          S2LatLng.fromDegrees(47, -127).getDistance(S2LatLng.fromDegrees(-47, 53)).degrees,
           180,
           2e-6);
     });
   });
 }
-

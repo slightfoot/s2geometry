@@ -51,12 +51,7 @@ class S2 {
   static const int invertMask = 0x02;
 
   /// Mapping Hilbert traversal order to orientation adjustment mask.
-  static const List<int> _posToOrientation = [
-    swapMask,
-    0,
-    0,
-    invertMask + swapMask
-  ];
+  static const List<int> _posToOrientation = [swapMask, 0, 0, invertMask + swapMask];
 
   /// Mapping from cell orientation + Hilbert traversal to IJ-index.
   static const List<List<int>> _posToIj = [
@@ -162,12 +157,13 @@ class S2 {
       }
     }
     // Use l'Huilier's formula.
-    return 4 * math.atan(math.sqrt(math.max(
-        0.0,
-        math.tan(0.5 * s) *
-            math.tan(0.5 * (s - sa)) *
-            math.tan(0.5 * (s - sb)) *
-            math.tan(0.5 * (s - sc)))));
+    return 4 *
+        math.atan(math.sqrt(math.max(
+            0.0,
+            math.tan(0.5 * s) *
+                math.tan(0.5 * (s - sa)) *
+                math.tan(0.5 * (s - sb)) *
+                math.tan(0.5 * (s - sc)))));
   }
 
   /// Returns the area of the triangle computed using Girard's formula.
@@ -191,11 +187,9 @@ class S2 {
     // This is based on the formula:
     // signed_area = 2 * atan2(a · (b × c), |a||b||c| + (a·b)|c| + (b·c)|a| + (c·a)|b|)
     final aCrossB = a.crossProd(b);
-    return 2 * math.atan2(c.dotProd(aCrossB),
-        1 + a.dotProd(b) + b.dotProd(c) + c.dotProd(a));
+    return 2 * math.atan2(c.dotProd(aCrossB), 1 + a.dotProd(b) + b.dotProd(c) + c.dotProd(a));
   }
 
   // Private constructor - this is a utility class
   S2._();
 }
-

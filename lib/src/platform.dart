@@ -158,4 +158,3 @@ class Platform {
     return bytes.getFloat64(0, Endian.little) - dAbs;
   }
 }
-

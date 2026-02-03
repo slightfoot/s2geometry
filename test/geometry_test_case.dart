@@ -61,7 +61,7 @@ int _doubleToBits(double d) {
   final bytes = ByteData(8);
   bytes.setFloat64(0, d, Endian.little);
   var bits = bytes.getInt64(0, Endian.little);
-  
+
   // If negative, convert from sign-magnitude to two's complement
   if (bits < 0) {
     bits = 0x8000000000000000 - bits;
@@ -81,11 +81,12 @@ void assertDoubleNear(double val1, double val2, double absError, [String message
   if (diff <= absError) {
     return;
   }
-  
+
   if (message.isNotEmpty) {
     message = '$message\n';
   }
-  fail('${message}The difference between $val1 and $val2 is $diff, which exceeds $absError by ${diff - absError}.');
+  fail(
+      '${message}The difference between $val1 and $val2 is $diff, which exceeds $absError by ${diff - absError}.');
 }
 
 /// Checks that two doubles are exactly equal.
@@ -106,7 +107,8 @@ void assertIdentical(double actual, double expected, [String message = '']) {
   final actualBits = _getRawDoubleBits(actual);
   final expectedBits = _getRawDoubleBits(expected);
   if (actualBits != expectedBits) {
-    fail('${message.isNotEmpty ? "$message: " : ""}Expected $expected (bits: $expectedBits) but got $actual (bits: $actualBits)');
+    fail(
+        '${message.isNotEmpty ? "$message: " : ""}Expected $expected (bits: $expectedBits) but got $actual (bits: $actualBits)');
   }
 }
 
@@ -142,4 +144,3 @@ void assertBetween<T extends Comparable<T>>(T x, T lo, T hi) {
   expect(x.compareTo(lo) >= 0, isTrue, reason: 'Expected $x >= $lo but it is not.');
   expect(x.compareTo(hi) <= 0, isTrue, reason: 'Expected $x <= $hi but it is not.');
 }
-

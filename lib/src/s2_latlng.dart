@@ -207,4 +207,3 @@ class S2LatLng {
   /// Returns a String with the lat and lng in degrees.
   String toStringDegrees() => '($latDegrees, $lngDegrees)';
 }
-

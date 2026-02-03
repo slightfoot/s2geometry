@@ -23,11 +23,7 @@ import 'geometry_test_case.dart';
 
 /// Tests all of the interval operations on the given pair of rectangles.
 void testIntervalOps(
-    R2Rect x,
-    R2Rect y,
-    String expectedRexion,
-    R2Rect expectedUnion,
-    R2Rect expectedIntersection) {
+    R2Rect x, R2Rect y, String expectedRexion, R2Rect expectedUnion, R2Rect expectedIntersection) {
   expect(x.contains(y), equals(expectedRexion[0] == 'T'));
   expect(x.interiorContains(y), equals(expectedRexion[1] == 'T'));
   expect(x.intersects(y), equals(expectedRexion[2] == 'T'));
@@ -42,7 +38,7 @@ void testIntervalOps(
   final r = R2Rect.copy(x);
   r.addRect(y);
   expect(r, equals(expectedUnion));
-  
+
   if (y.getSize() == R2Vector(0, 0)) {
     final r2 = R2Rect.copy(x);
     r2.addPoint(y.lo);
@@ -100,11 +96,9 @@ void main() {
     test('testFromPoint', () {
       final d1 = R2Rect.fromVectors(R2Vector(0.1, 0), R2Vector(0.25, 1));
       expect(R2Rect.fromPoint(d1.lo), equals(R2Rect.fromVectors(d1.lo, d1.lo)));
-      expect(
-          R2Rect.fromPointPair(R2Vector(0.15, 0.9), R2Vector(0.35, 0.3)),
+      expect(R2Rect.fromPointPair(R2Vector(0.15, 0.9), R2Vector(0.35, 0.3)),
           equals(R2Rect.fromVectors(R2Vector(0.15, 0.3), R2Vector(0.35, 0.9))));
-      expect(
-          R2Rect.fromPointPair(R2Vector(0.83, 0), R2Vector(0.12, 0.5)),
+      expect(R2Rect.fromPointPair(R2Vector(0.83, 0), R2Vector(0.12, 0.5)),
           equals(R2Rect.fromVectors(R2Vector(0.12, 0), R2Vector(0.83, 0.5))));
     });
 
@@ -248,4 +242,3 @@ void main() {
     });
   });
 }
-

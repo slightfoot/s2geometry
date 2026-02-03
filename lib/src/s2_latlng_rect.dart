@@ -93,9 +93,9 @@ class S2LatLngRect implements S2Region {
   /// Returns true if the rectangle is valid.
   bool get isValid {
     return (_lat.lo.abs() <= S2.piOver2 &&
-            _lat.hi.abs() <= S2.piOver2 &&
-            _lng.isValid &&
-            _lat.isEmpty == _lng.isEmpty);
+        _lat.hi.abs() <= S2.piOver2 &&
+        _lng.isValid &&
+        _lat.isEmpty == _lng.isEmpty);
   }
 
   /// Returns true if the rectangle is empty.
@@ -249,4 +249,3 @@ class S2LatLngRect implements S2Region {
   @override
   String toString() => '[Lo=$lo, Hi=$hi]';
 }
-

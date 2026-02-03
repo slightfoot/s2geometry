@@ -220,4 +220,3 @@ class S1AngleBuilder {
   /// Builds and returns the accumulated S1Angle.
   S1Angle build() => S1Angle._(_radians);
 }
-

@@ -60,4 +60,3 @@ abstract class S2Region {
   /// intersection relationship could not be determined.
   bool mayIntersect(S2Cell cell);
 }
-

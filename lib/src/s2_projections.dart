@@ -327,4 +327,3 @@ class _Metric {
     return level;
   }
 }
-

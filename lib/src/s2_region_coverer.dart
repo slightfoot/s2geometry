@@ -114,8 +114,7 @@ class S2RegionCoverer {
 
   /// Given a connected region and a starting point, return a set of cells at
   /// the given level that cover the region.
-  static void getSimpleCovering(
-      S2Region region, S2Point start, int level, List<S2CellId> output) {
+  static void getSimpleCovering(S2Region region, S2Point start, int level, List<S2CellId> output) {
     _floodFill(region, S2CellId.fromPoint(start).parentAtLevel(level), output);
   }
 
@@ -286,8 +285,7 @@ class _ActiveCovering {
           return null;
         }
       } else {
-        if (cell.level + _coverer._levelMod > _coverer._maxLevel ||
-            _region.containsCell(cell)) {
+        if (cell.level + _coverer._levelMod > _coverer._maxLevel || _region.containsCell(cell)) {
           isTerminal = true;
         }
       }
@@ -324,10 +322,9 @@ class _ActiveCovering {
       _addCandidate(candidate);
     } else {
       // Negate priority so smaller absolute priorities are returned first.
-      final priority = -((((candidate.cell.level << _maxChildrenShift) +
-                      candidate.numChildren) <<
-                  _maxChildrenShift) +
-              numTerminals);
+      final priority = -((((candidate.cell.level << _maxChildrenShift) + candidate.numChildren) <<
+              _maxChildrenShift) +
+          numTerminals);
       _candidateQueue.add(_QueueEntry(priority, candidate));
       _candidateQueue.sort();
     }
@@ -388,14 +385,13 @@ class _ActiveCovering {
     assert(_candidateQueue.isEmpty && _result.isEmpty);
 
     _getInitialCandidates();
-    while (_candidateQueue.isNotEmpty &&
-        (!_interiorCovering || _result.length < _coverer._maxCells)) {
+    while (
+        _candidateQueue.isNotEmpty && (!_interiorCovering || _result.length < _coverer._maxCells)) {
       final candidate = _candidateQueue.removeAt(0).candidate;
       if (_interiorCovering ||
           candidate.cell.level < _coverer._minLevel ||
           candidate.numChildren == 1 ||
-          _result.length + _candidateQueue.length + candidate.numChildren <=
-              _coverer._maxCells) {
+          _result.length + _candidateQueue.length + candidate.numChildren <= _coverer._maxCells) {
         // Expand this candidate into its children.
         for (int i = 0; i < candidate.numChildren; i++) {
           if (!_interiorCovering || _result.length < _coverer._maxCells) {
@@ -409,4 +405,3 @@ class _ActiveCovering {
     }
   }
 }
-

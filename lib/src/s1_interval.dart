@@ -294,10 +294,8 @@ class S1Interval {
         return;
       }
     }
-    set(
-        Platform.ieeeRemainder(_lo - margin, 2 * math.pi),
-        Platform.ieeeRemainder(_hi + margin, 2 * math.pi),
-        false);
+    set(Platform.ieeeRemainder(_lo - margin, 2 * math.pi),
+        Platform.ieeeRemainder(_hi + margin, 2 * math.pi), false);
     if (_lo <= -math.pi) _lo = math.pi;
   }
 
@@ -389,4 +387,3 @@ class S1Interval {
   @override
   String toString() => '[$_lo, $_hi]';
 }
-

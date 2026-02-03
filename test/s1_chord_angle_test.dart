@@ -57,9 +57,9 @@ void main() {
 
     test('testEquals', () {
       final angles = [
-        S1ChordAngle.NEGATIVE, 
-        S1ChordAngle.ZERO, 
-        S1ChordAngle.STRAIGHT, 
+        S1ChordAngle.NEGATIVE,
+        S1ChordAngle.ZERO,
+        S1ChordAngle.STRAIGHT,
         S1ChordAngle.INFINITY
       ];
       for (var i = 0; i < angles.length; ++i) {
@@ -85,7 +85,7 @@ void main() {
       assertExactly(4.0, S1ChordAngle.fromS1Angle(S1Angle.radians(math.pi)).getLength2());
       assertExactly(math.pi, S1ChordAngle.fromS1Angle(S1Angle.radians(math.pi)).toAngle().radians);
       expect(S1ChordAngle.fromS1Angle(S1Angle.infinity).toAngle(), equals(S1Angle.infinity));
-      expect(S1ChordAngle.fromS1Angle(S1Angle.radians(double.infinity)).toAngle(), 
+      expect(S1ChordAngle.fromS1Angle(S1Angle.radians(double.infinity)).toAngle(),
           equals(S1Angle.infinity));
       expect(S1ChordAngle.fromS1Angle(S1Angle.radians(-1)).toAngle().radians < 0.0, isTrue);
       assertAlmostEquals(1.0, S1ChordAngle.fromS1Angle(S1Angle.radians(1.0)).toAngle().radians);
@@ -152,14 +152,11 @@ void main() {
       final kMaxError = 2 * S2.dblEpsilon;
       assertDoubleNear(k90MinusEps.radians, S2.mPi2 - kEps.radians, kMaxError);
       assertDoubleNear(k90PlusEps.radians, S2.mPi2 + kEps.radians, kMaxError);
-      assertDoubleNear(S1ChordAngle.sub(k90, k90MinusEps).getLength2(),
-          kEps.getLength2(), kMaxError);
-      assertDoubleNear(S1ChordAngle.sub(k90, k90MinusEps).radians,
-          kEps.radians, kMaxError);
-      assertDoubleNear(S1ChordAngle.sub(k90PlusEps, k90).radians,
-          kEps.radians, kMaxError);
-      assertDoubleNear(S1ChordAngle.add(k90MinusEps, kEps).radians,
-          S2.mPi2, kMaxError);
+      assertDoubleNear(
+          S1ChordAngle.sub(k90, k90MinusEps).getLength2(), kEps.getLength2(), kMaxError);
+      assertDoubleNear(S1ChordAngle.sub(k90, k90MinusEps).radians, kEps.radians, kMaxError);
+      assertDoubleNear(S1ChordAngle.sub(k90PlusEps, k90).radians, kEps.radians, kMaxError);
+      assertDoubleNear(S1ChordAngle.add(k90MinusEps, kEps).radians, S2.mPi2, kMaxError);
     });
 
     test('testTrigonometry', () {
@@ -170,8 +167,7 @@ void main() {
         expect(S1ChordAngle.sin(angle), closeTo(math.sin(radians), 1e-15));
         expect(S1ChordAngle.cos(angle), closeTo(math.cos(radians), 1e-15));
         // Since tan(x) is unbounded near Pi/4, we map the result back to an angle
-        expect(math.atan(S1ChordAngle.tan(angle)),
-            closeTo(math.atan(math.tan(radians)), 1e-15));
+        expect(math.atan(S1ChordAngle.tan(angle)), closeTo(math.atan(math.tan(radians)), 1e-15));
       }
 
       // Unlike S1Angle, S1ChordAngle can represent 90 and 180 degrees exactly.
@@ -190,10 +186,8 @@ void main() {
       expect(S1ChordAngle.INFINITY.plusError(-5), equals(S1ChordAngle.INFINITY));
       expect(S1ChordAngle.STRAIGHT.plusError(5), equals(S1ChordAngle.STRAIGHT));
       expect(S1ChordAngle.ZERO.plusError(-5), equals(S1ChordAngle.ZERO));
-      expect(S1ChordAngle.fromLength2(1.25),
-          equals(S1ChordAngle.fromLength2(1).plusError(0.25)));
-      expect(S1ChordAngle.fromLength2(0.75),
-          equals(S1ChordAngle.fromLength2(1).plusError(-0.25)));
+      expect(S1ChordAngle.fromLength2(1.25), equals(S1ChordAngle.fromLength2(1).plusError(0.25)));
+      expect(S1ChordAngle.fromLength2(0.75), equals(S1ChordAngle.fromLength2(1).plusError(-0.25)));
     });
 
     test('testHashCodeZero', () {
@@ -213,4 +207,3 @@ void main() {
     });
   });
 }
-

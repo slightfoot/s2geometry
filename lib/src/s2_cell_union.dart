@@ -201,8 +201,7 @@ class S2CellUnion implements S2Region {
       if (_cellIds[i - 1].rangeMax.compareTo(_cellIds[i].rangeMin) >= 0) {
         return false;
       }
-      if (i >= 3 &&
-          _areSiblings(_cellIds[i - 3], _cellIds[i - 2], _cellIds[i - 1], _cellIds[i])) {
+      if (i >= 3 && _areSiblings(_cellIds[i - 3], _cellIds[i - 2], _cellIds[i - 1], _cellIds[i])) {
         return false;
       }
     }
@@ -359,8 +358,7 @@ class S2CellUnion implements S2Region {
   }
 
   /// Gets intersection of two cell ID lists.
-  static void _getIntersectionLists(
-      List<S2CellId> x, List<S2CellId> y, List<S2CellId> results) {
+  static void _getIntersectionLists(List<S2CellId> x, List<S2CellId> y, List<S2CellId> results) {
     results.clear();
     int i = 0;
     int j = 0;
@@ -644,4 +642,3 @@ class S2CellUnion implements S2Region {
   @override
   String toString() => _cellIds.toString();
 }
-

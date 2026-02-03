@@ -68,7 +68,7 @@ void main() {
         S2CellId.fromFace(0).child(0).child(0),
         S2CellId.fromFace(0).child(0).child(1),
       ]);
-      
+
       final union2 = S2CellUnion.fromCellIds([
         S2CellId.fromFace(0).child(0),
       ]);
@@ -155,4 +155,3 @@ void main() {
     });
   });
 }
-

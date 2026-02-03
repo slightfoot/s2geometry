@@ -204,4 +204,3 @@ void main() {
     // Note: Java serialization test is not applicable to Dart
   });
 }
-

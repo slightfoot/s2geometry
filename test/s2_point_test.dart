@@ -104,11 +104,10 @@ void main() {
       final a = S2Point(1, 0, 0);
       final b = S2Point(0, 1, 0);
       expect(a.crossProdNorm(b), closeTo(a.crossProd(b).norm, 1e-14));
-      
+
       final c = S2Point(1, 2, 3).normalize();
       final d = S2Point(4, 5, 6).normalize();
       expect(c.crossProdNorm(d), closeTo(c.crossProd(d).norm, 1e-14));
     });
   });
 }
-

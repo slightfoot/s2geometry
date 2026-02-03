@@ -2,6 +2,7 @@ name: s2geometry
 description: A Dart port of Google's S2 Geometry library for spherical geometry and spatial indexing.
 version: 0.1.0
 homepage: https://github.com/google/s2-geometry-library-java
+publish_to: none
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -13,4 +14,156 @@ dev_dependencies:
   test: ^1.24.0
   benchmark_harness: ^2.2.0
   lints: ^3.0.0
+  melos: ^7.0.0
+  coverage: ^1.15.0
+
+melos:
+  useRootAsPackage: true
+  scripts:
+    # Run all tests
+    test:
+      description: Run all tests
+      run: dart test
+
+    # Run tests with coverage
+    test:coverage:
+      description: Run tests with coverage collection
+      run: dart test --coverage=coverage
+
+    # Format coverage to LCOV
+    coverage:format:
+      description: Format coverage data to LCOV format
+      run: dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+
+    # Generate coverage report summary
+    coverage:report:
+      description: Generate coverage summary report
+      run: |
+        cat coverage/lcov.info | awk '
+        BEGIN {
+            total_lines = 0;
+            covered_lines = 0;
+            current_file = "";
+            printf "%-50s %10s %10s %10s\n", "File", "Lines", "Covered", "Coverage"
+            printf "%-50s %10s %10s %10s\n", "----", "-----", "-------", "--------"
+        }
+        /^SF:/ {
+            if (current_file != "" && file_lines > 0) {
+                pct = (file_covered / file_lines) * 100
+                printf "%-50s %10d %10d %9.1f%%\n", current_file, file_lines, file_covered, pct
+            }
+            gsub(/^SF:.*\/lib\//, "", $0)
+            current_file = $0
+            file_lines = 0
+            file_covered = 0
+        }
+        /^DA:/ {
+            split($0, arr, ",")
+            hits = arr[2]
+            total_lines++
+            file_lines++
+            if (hits > 0) {
+                covered_lines++
+                file_covered++
+            }
+        }
+        END {
+            if (current_file != "" && file_lines > 0) {
+                pct = (file_covered / file_lines) * 100
+                printf "%-50s %10d %10d %9.1f%%\n", current_file, file_lines, file_covered, pct
+            }
+            printf "%-50s %10s %10s %10s\n", "----", "-----", "-------", "--------"
+            pct = (covered_lines / total_lines) * 100
+            printf "%-50s %10d %10d %9.1f%%\n", "TOTAL", total_lines, covered_lines, pct
+        }'
+
+    # Generate HTML coverage report (requires lcov installed: brew install lcov)
+    coverage:html:
+      description: Generate HTML coverage report (requires lcov)
+      run: genhtml coverage/lcov.info -o coverage/html --no-function-coverage
+
+    # Full coverage workflow: test, format, and report
+    coverage:
+      description: Run tests with coverage and generate report
+      run: |
+        dart test --coverage=coverage
+        dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+        cat coverage/lcov.info | awk '
+        BEGIN {
+            total_lines = 0;
+            covered_lines = 0;
+            current_file = "";
+            printf "%-50s %10s %10s %10s\n", "File", "Lines", "Covered", "Coverage"
+            printf "%-50s %10s %10s %10s\n", "----", "-----", "-------", "--------"
+        }
+        /^SF:/ {
+            if (current_file != "" && file_lines > 0) {
+                pct = (file_covered / file_lines) * 100
+                printf "%-50s %10d %10d %9.1f%%\n", current_file, file_lines, file_covered, pct
+            }
+            gsub(/^SF:.*\/lib\//, "", $0)
+            current_file = $0
+            file_lines = 0
+            file_covered = 0
+        }
+        /^DA:/ {
+            split($0, arr, ",")
+            hits = arr[2]
+            total_lines++
+            file_lines++
+            if (hits > 0) {
+                covered_lines++
+                file_covered++
+            }
+        }
+        END {
+            if (current_file != "" && file_lines > 0) {
+                pct = (file_covered / file_lines) * 100
+                printf "%-50s %10d %10d %9.1f%%\n", current_file, file_lines, file_covered, pct
+            }
+            printf "%-50s %10s %10s %10s\n", "----", "-----", "-------", "--------"
+            pct = (covered_lines / total_lines) * 100
+            printf "%-50s %10d %10d %9.1f%%\n", "TOTAL", total_lines, covered_lines, pct
+        }'
+
+    # Analyze code (only fails on errors, not warnings/infos)
+    analyze:
+      description: Run dart analyze (fails only on errors)
+      run: dart analyze --no-fatal-warnings lib test
+
+    # Analyze code strictly (fails on any issue)
+    analyze:strict:
+      description: Run dart analyze strictly (fails on warnings/infos)
+      run: dart analyze --fatal-infos lib test
+
+    # Format code
+    format:
+      description: Format Dart code
+      run: dart format lib test
+
+    # Check formatting
+    format:check:
+      description: Check Dart code formatting
+      run: dart format --set-exit-if-changed lib test
+
+    # Run all checks (analyze, format check, tests)
+    check:
+      description: Run all checks (analyze, format, tests)
+      run: |
+        dart analyze --no-fatal-warnings lib test
+        dart format --set-exit-if-changed lib test
+        dart test
+
+    # Clean coverage artifacts
+    clean:coverage:
+      description: Clean coverage artifacts
+      run: rm -rf coverage
+
+    # Clean all build artifacts
+    clean:
+      description: Clean all build artifacts
+      run: |
+        rm -rf coverage
+        rm -rf .dart_tool
+        rm -rf build
 

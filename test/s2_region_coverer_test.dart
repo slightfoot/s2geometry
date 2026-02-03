@@ -113,7 +113,7 @@ void main() {
         final level = id.level;
         // Level must satisfy: (level - minLevel) % levelMod == 0
         expect((level - minLevel) % levelMod, equals(0),
-          reason: 'Level $level should satisfy (level - $minLevel) % $levelMod == 0');
+            reason: 'Level $level should satisfy (level - $minLevel) % $levelMod == 0');
       }
     });
 
@@ -163,4 +163,3 @@ void main() {
     });
   });
 }
-

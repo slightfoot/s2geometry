@@ -212,8 +212,7 @@ class S2CellId implements Comparable<S2CellId> {
 
   /// Returns true if the given id is a valid S2Cell id.
   static bool isValidId(int id) {
-    return faceFromId(id) < numFaces &&
-        ((_lowestOnBit(id) & 0x1555555555555555) != 0);
+    return faceFromId(id) < numFaces && ((_lowestOnBit(id) & 0x1555555555555555) != 0);
   }
 
   /// Returns the face from an id.
@@ -345,7 +344,11 @@ class S2CellId implements Comparable<S2CellId> {
     final ijo = _toIJOrientation();
     final i = ijo >> 33;
     final j = (ijo >> 2) & 0x7FFFFFFF;
-    int delta = isLeaf ? 1 : (((i ^ ((id) >>> 2)) & 1) != 0) ? 2 : 0;
+    int delta = isLeaf
+        ? 1
+        : (((i ^ ((id) >>> 2)) & 1) != 0)
+            ? 2
+            : 0;
     return ((2 * i + delta) << 32) | ((2 * j + delta) & 0xFFFFFFFF);
   }
 
@@ -429,7 +432,8 @@ class S2CellId implements Comparable<S2CellId> {
   // Static methods for working with raw cell id integers (used by S2CellUnion).
 
   /// Returns true if the given id represents a face cell.
-  static bool isFaceId(int id) => (id & (_lowestOnBit(id) - 1)) == 0 && _levelForLowestOnBit(id) == 0;
+  static bool isFaceId(int id) =>
+      (id & (_lowestOnBit(id) - 1)) == 0 && _levelForLowestOnBit(id) == 0;
 
   /// Returns the parent cell id as an integer.
   static int parentId(int id) {
@@ -531,15 +535,12 @@ class S2CellId implements Comparable<S2CellId> {
     final jOffset = ((j & halfSize) != 0) ? 1 : -1;
 
     results.add(parentAtLevel(level));
-    results.add(_fromFaceIJSame(
-        face, i + iOffset * size, j, i + iOffset * size >= 0)
-        .parentAtLevel(level));
-    results.add(_fromFaceIJSame(
-        face, i, j + jOffset * size, j + jOffset * size >= 0)
-        .parentAtLevel(level));
-    results.add(_fromFaceIJSame(
-        face, i + iOffset * size, j + jOffset * size,
-        i + iOffset * size >= 0 && j + jOffset * size >= 0)
+    results.add(
+        _fromFaceIJSame(face, i + iOffset * size, j, i + iOffset * size >= 0).parentAtLevel(level));
+    results.add(
+        _fromFaceIJSame(face, i, j + jOffset * size, j + jOffset * size >= 0).parentAtLevel(level));
+    results.add(_fromFaceIJSame(face, i + iOffset * size, j + jOffset * size,
+            i + iOffset * size >= 0 && j + jOffset * size >= 0)
         .parentAtLevel(level));
   }
 
@@ -576,14 +577,12 @@ class S2CellId implements Comparable<S2CellId> {
     final face = this.face;
 
     // Edges 0, 1, 2, 3 are bottom, right, top, left respectively.
-    neighbors[0] = S2CellId._fromFaceIJSame(face, i, j - size, j - size >= 0)
-        .parentAtLevel(level);
-    neighbors[1] = S2CellId._fromFaceIJSame(face, i + size, j, i + size < maxSize)
-        .parentAtLevel(level);
-    neighbors[2] = S2CellId._fromFaceIJSame(face, i, j + size, j + size < maxSize)
-        .parentAtLevel(level);
-    neighbors[3] = S2CellId._fromFaceIJSame(face, i - size, j, i - size >= 0)
-        .parentAtLevel(level);
+    neighbors[0] = S2CellId._fromFaceIJSame(face, i, j - size, j - size >= 0).parentAtLevel(level);
+    neighbors[1] =
+        S2CellId._fromFaceIJSame(face, i + size, j, i + size < maxSize).parentAtLevel(level);
+    neighbors[2] =
+        S2CellId._fromFaceIJSame(face, i, j + size, j + size < maxSize).parentAtLevel(level);
+    neighbors[3] = S2CellId._fromFaceIJSame(face, i - size, j, i - size >= 0).parentAtLevel(level);
   }
 
   /// Returns the level of the lowest common ancestor of this cell and the
@@ -628,12 +627,29 @@ class S2CellId implements Comparable<S2CellId> {
     if (x == 0) return 64;
     int n = 0;
     // Check high 32 bits
-    if ((x >>> 32) == 0) { n += 32; x <<= 32; }
-    if ((x >>> 48) == 0) { n += 16; x <<= 16; }
-    if ((x >>> 56) == 0) { n +=  8; x <<=  8; }
-    if ((x >>> 60) == 0) { n +=  4; x <<=  4; }
-    if ((x >>> 62) == 0) { n +=  2; x <<=  2; }
-    if ((x >>> 63) == 0) { n +=  1; }
+    if ((x >>> 32) == 0) {
+      n += 32;
+      x <<= 32;
+    }
+    if ((x >>> 48) == 0) {
+      n += 16;
+      x <<= 16;
+    }
+    if ((x >>> 56) == 0) {
+      n += 8;
+      x <<= 8;
+    }
+    if ((x >>> 60) == 0) {
+      n += 4;
+      x <<= 4;
+    }
+    if ((x >>> 62) == 0) {
+      n += 2;
+      x <<= 2;
+    }
+    if ((x >>> 63) == 0) {
+      n += 1;
+    }
     return n;
   }
 
@@ -664,11 +680,11 @@ class S2CellId implements Comparable<S2CellId> {
     // First, add neighbors along edges.
     for (int di = -sizeAtLevel; di <= size; di += sizeAtLevel) {
       _appendNeighbor(i + di, j - sizeAtLevel, level, results); // bottom
-      _appendNeighbor(i + di, j + size, level, results);       // top
+      _appendNeighbor(i + di, j + size, level, results); // top
     }
     for (int dj = 0; dj < size; dj += sizeAtLevel) {
       _appendNeighbor(i - sizeAtLevel, j + dj, level, results); // left
-      _appendNeighbor(i + size, j + dj, level, results);        // right
+      _appendNeighbor(i + size, j + dj, level, results); // right
     }
   }
 
@@ -682,4 +698,3 @@ class S2CellId implements Comparable<S2CellId> {
     results.add(neighbor);
   }
 }
-

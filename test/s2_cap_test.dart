@@ -36,15 +36,15 @@ void main() {
       // Test basic properties of empty and full caps.
       final empty = S2Cap.empty();
       final full = S2Cap.full();
-      
+
       expect(empty.isValid, isTrue);
       expect(empty.isEmpty, isTrue);
       expect(empty.complement.isFull, isTrue);
-      
+
       expect(full.isValid, isTrue);
       expect(full.isFull, isTrue);
       expect(full.complement.isEmpty, isTrue);
-      
+
       assertExactly(2.0, full.height);
       assertAlmostEquals(full.angle.degrees, 180.0);
     });
@@ -59,7 +59,7 @@ void main() {
     test('testEmptyAndFullContainment', () {
       final empty = S2Cap.empty();
       final full = S2Cap.full();
-      
+
       // Containment and intersection of empty and full caps.
       expect(empty.containsCap(empty), isTrue);
       expect(full.containsCap(empty), isTrue);
@@ -84,7 +84,7 @@ void main() {
 
     test('testSingletonComplement', () {
       final xaxis = S2Cap.fromAxisHeight(S2Point(1, 0, 0), 0);
-      
+
       // Check that the complement of a singleton cap is the full cap.
       final xcomp = xaxis.complement;
       expect(xcomp.isValid, isTrue);
@@ -142,12 +142,14 @@ void main() {
       expect(xaxis.containsCap(empty), isTrue);
       expect(xaxis.interiorIntersects(empty), isFalse);
       expect(hemi.containsCap(tiny), isTrue);
-      expect(hemi.containsCap(
-        S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.radians(S2.piOver4 - eps))
-      ), isTrue);
-      expect(hemi.containsCap(
-        S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.radians(S2.piOver4 + eps))
-      ), isFalse);
+      expect(
+          hemi.containsCap(
+              S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.radians(S2.piOver4 - eps))),
+          isTrue);
+      expect(
+          hemi.containsCap(
+              S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.radians(S2.piOver4 + eps))),
+          isFalse);
     });
 
     test('testExpanded', () {
@@ -162,4 +164,3 @@ void main() {
     });
   });
 }
-

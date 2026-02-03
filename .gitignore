@@ -1,0 +1,48 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+build/
+pubspec.lock
+
+# Coverage
+coverage/
+
+# IDE - IntelliJ/Android Studio
+.idea/
+*.iml
+
+# IDE - VS Code
+.vscode/
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Logs
+*.log
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Local environment
+.env
+.env.*
+!.env.example
+

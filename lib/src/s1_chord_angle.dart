@@ -20,7 +20,7 @@ import 's2_point.dart';
 
 /// S1ChordAngle represents the angle subtended by a chord (the straight line
 /// segment connecting two points on the unit sphere).
-/// 
+///
 /// It is very efficient for computing and comparing distances, but unlike
 /// S1Angle it is only capable of representing angles between 0 and Pi radians.
 class S1ChordAngle implements Comparable<S1ChordAngle> {
@@ -86,8 +86,7 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
       S1ChordAngle.fromS1Angle(S1Angle.degrees(degrees));
 
   /// Creates from squared chord length.
-  static S1ChordAngle fromLength2(double length2) =>
-      S1ChordAngle._(math.min(maxLength2, length2));
+  static S1ChordAngle fromLength2(double length2) => S1ChordAngle._(math.min(maxLength2, length2));
 
   /// Returns the squared chord length.
   double get length2 => _length2;
@@ -111,8 +110,7 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
   bool get isSpecial => isNegative || isInfinity;
 
   /// Returns true if valid.
-  bool get isValid =>
-      (_length2 >= 0 && _length2 <= maxLength2) || isNegative || isInfinity;
+  bool get isValid => (_length2 >= 0 && _length2 <= maxLength2) || isNegative || isInfinity;
 
   /// Returns true if less than other.
   bool lessThan(S1ChordAngle other) => _length2 < other._length2;
@@ -177,12 +175,10 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
   }
 
   /// Returns the smaller of the two chord angles.
-  static S1ChordAngle min(S1ChordAngle a, S1ChordAngle b) =>
-      a._length2 <= b._length2 ? a : b;
+  static S1ChordAngle min(S1ChordAngle a, S1ChordAngle b) => a._length2 <= b._length2 ? a : b;
 
   /// Returns the larger of the two chord angles.
-  static S1ChordAngle max(S1ChordAngle a, S1ChordAngle b) =>
-      a._length2 > b._length2 ? a : b;
+  static S1ChordAngle max(S1ChordAngle a, S1ChordAngle b) => a._length2 > b._length2 ? a : b;
 
   /// Returns sin²(angle).
   static double sin2(S1ChordAngle a) {
@@ -216,8 +212,7 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
 
   /// Returns the error in fromPoints.
   double get s2PointConstructorMaxError =>
-      (4.5 * Platform.dblEpsilon * _length2) +
-      (16 * Platform.dblEpsilon * Platform.dblEpsilon);
+      (4.5 * Platform.dblEpsilon * _length2) + (16 * Platform.dblEpsilon * Platform.dblEpsilon);
 
   /// Returns the error in fromPoints (Java compatibility).
   double getS2PointConstructorMaxError() => s2PointConstructorMaxError;
@@ -266,4 +261,3 @@ class S1ChordAngle implements Comparable<S1ChordAngle> {
     return toAngle().toString();
   }
 }
-

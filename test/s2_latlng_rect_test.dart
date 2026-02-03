@@ -24,8 +24,7 @@ import 'package:s2geometry/s2geometry.dart';
 import 'geometry_test_case.dart';
 
 /// Convenience method to construct a rectangle.
-S2LatLngRect rectFromDegrees(
-    double latLo, double lngLo, double latHi, double lngHi) {
+S2LatLngRect rectFromDegrees(double latLo, double lngLo, double latHi, double lngHi) {
   return S2LatLngRect(
     R1Interval(S1Angle.degrees(latLo).radians, S1Angle.degrees(latHi).radians),
     S1Interval(S1Angle.degrees(lngLo).radians, S1Angle.degrees(lngHi).radians),
@@ -38,11 +37,11 @@ void main() {
       // Test basic properties of empty and full rectangles.
       final empty = S2LatLngRect.empty();
       final full = S2LatLngRect.full();
-      
+
       expect(empty.isValid, isTrue);
       expect(empty.isEmpty, isTrue);
       expect(empty.isPoint, isFalse);
-      
+
       expect(full.isValid, isTrue);
       expect(full.isFull, isTrue);
       expect(full.isPoint, isFalse);
@@ -142,4 +141,3 @@ void main() {
     });
   });
 }
-

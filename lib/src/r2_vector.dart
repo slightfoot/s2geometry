@@ -21,7 +21,9 @@ class R2Vector {
   double y;
 
   /// Constructs a new R2Vector at the origin [0,0].
-  R2Vector.origin() : x = 0, y = 0;
+  R2Vector.origin()
+      : x = 0,
+        y = 0;
 
   /// Constructs a new R2Vector from the given x and y coordinates.
   R2Vector(this.x, this.y);
@@ -164,4 +166,3 @@ class R2Vector {
   @override
   String toString() => '($x, $y)';
 }
-

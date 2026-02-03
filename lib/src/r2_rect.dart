@@ -67,8 +67,6 @@ class R2Rect {
     );
   }
 
-
-
   /// The interval along the x-axis.
   R1Interval get x => _x;
 
@@ -216,4 +214,3 @@ class R2Rect {
   @override
   String toString() => '[Lo$lo, Hi$hi]';
 }
-

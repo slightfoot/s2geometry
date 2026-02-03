@@ -127,11 +127,13 @@ void main() {
 
     test('testContains', () {
       // Contains(double), InteriorContains(double)
-      expect(!empty.containsPoint(0) && !empty.containsPoint(pi) && !empty.containsPoint(-pi), isTrue);
+      expect(
+          !empty.containsPoint(0) && !empty.containsPoint(pi) && !empty.containsPoint(-pi), isTrue);
       expect(!empty.interiorContainsPoint(pi) && !empty.interiorContainsPoint(-pi), isTrue);
       expect(full.containsPoint(0) && full.containsPoint(pi) && full.containsPoint(-pi), isTrue);
       expect(full.interiorContainsPoint(pi) && full.interiorContainsPoint(-pi), isTrue);
-      expect(quad12.containsPoint(0) && quad12.containsPoint(pi) && quad12.containsPoint(-pi), isTrue);
+      expect(
+          quad12.containsPoint(0) && quad12.containsPoint(pi) && quad12.containsPoint(-pi), isTrue);
       expect(quad12.interiorContainsPoint(mPi2) && !quad12.interiorContainsPoint(0), isTrue);
       expect(!quad12.interiorContainsPoint(pi) && !quad12.interiorContainsPoint(-pi), isTrue);
       expect(quad23.containsPoint(mPi2) && quad23.containsPoint(-mPi2), isTrue);
@@ -140,20 +142,21 @@ void main() {
       expect(!quad23.interiorContainsPoint(mPi2) && !quad23.interiorContainsPoint(-mPi2), isTrue);
       expect(quad23.interiorContainsPoint(pi) && quad23.interiorContainsPoint(-pi), isTrue);
       expect(!quad23.interiorContainsPoint(0), isTrue);
-      expect(piInterval.containsPoint(pi) && piInterval.containsPoint(-pi) && !piInterval.containsPoint(0), isTrue);
-      expect(!piInterval.interiorContainsPoint(pi) && !piInterval.interiorContainsPoint(-pi), isTrue);
+      expect(
+          piInterval.containsPoint(pi) &&
+              piInterval.containsPoint(-pi) &&
+              !piInterval.containsPoint(0),
+          isTrue);
+      expect(
+          !piInterval.interiorContainsPoint(pi) && !piInterval.interiorContainsPoint(-pi), isTrue);
       expect(mipi.containsPoint(pi) && mipi.containsPoint(-pi) && !mipi.containsPoint(0), isTrue);
       expect(!mipi.interiorContainsPoint(pi) && !mipi.interiorContainsPoint(-pi), isTrue);
       expect(zero.containsPoint(0) && !zero.interiorContainsPoint(0), isTrue);
     });
 
     // Helper function for testIntervalOps
-    void testIntervalOpsHelper(
-        S1Interval x,
-        S1Interval y,
-        String expectedRelation,
-        S1Interval expectedUnion,
-        S1Interval expectedIntersection) {
+    void testIntervalOpsHelper(S1Interval x, S1Interval y, String expectedRelation,
+        S1Interval expectedUnion, S1Interval expectedIntersection) {
       expect(x.contains(y), equals(expectedRelation[0] == 'T'));
       expect(x.interiorContains(y), equals(expectedRelation[1] == 'T'));
       expect(x.intersects(y), equals(expectedRelation[2] == 'T'));
@@ -410,8 +413,10 @@ void main() {
 
       // Intervals whose endpoints are in opposite order (inverted intervals).
       expect(S1Interval(0, kLo).approxEquals(S1Interval(kLo, 0)), isFalse);
-      expect(S1Interval(pi - 0.5 * kLo, -pi + 0.5 * kLo)
-          .approxEquals(S1Interval(-pi + 0.5 * kLo, pi - 0.5 * kLo)), isFalse);
+      expect(
+          S1Interval(pi - 0.5 * kLo, -pi + 0.5 * kLo)
+              .approxEquals(S1Interval(-pi + 0.5 * kLo, pi - 0.5 * kLo)),
+          isFalse);
 
       // Other intervals.
       expect(S1Interval(1 - kLo, 2 + kLo).approxEquals(S1Interval(1, 2)), isTrue);
@@ -441,4 +446,3 @@ void main() {
     });
   });
 }
-

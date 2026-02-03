@@ -48,7 +48,11 @@ void main() {
 
           // Check that cross product of vertices is aligned with edge
           assertAlmostEquals(
-              cell.getVertexRaw(k).crossProd(cell.getVertexRaw(k + 1)).normalize().dotProd(cell.getEdge(k)),
+              cell
+                  .getVertexRaw(k)
+                  .crossProd(cell.getVertexRaw(k + 1))
+                  .normalize()
+                  .dotProd(cell.getEdge(k)),
               1.0);
         }
       }
@@ -169,4 +173,3 @@ void main() {
     });
   });
 }
-
