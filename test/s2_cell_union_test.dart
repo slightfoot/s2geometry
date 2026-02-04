@@ -494,5 +494,86 @@ void main() {
       expect(result.size, equals(1));
       expect(result.cellId(0).face, equals(2));
     });
+
+    test('testNormalizeFourSiblings', () {
+      // Test normalization when four siblings are merged into parent
+      // Get all 4 children of a cell - they should merge into the parent
+      final parent = S2CellId.fromFace(0).child(0);  // A level 1 cell
+      final children = <S2CellId>[
+        parent.child(0),
+        parent.child(1),
+        parent.child(2),
+        parent.child(3),
+      ];
+      // Create union with all 4 siblings - should normalize to parent
+      final union = S2CellUnion.fromCellIds(children);
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(parent));
+    });
+
+    test('testExpandAtLevelWithContainedCells', () {
+      // Test expandAtLevel - trigger the while loop that skips contained cells
+      // We need cells where after converting to expandLevel, one parent contains another cell
+      // Create a parent at level 1 and a child within it at level 3
+      final parent = S2CellId.fromFace(0).child(0);  // level 1
+      final childOfParent = parent.child(0).child(0);  // level 3, contained by parent
+      // Put the child BEFORE the parent (in sorted order by cell id)
+      // When processing, parent will come first (higher ids processed first in reverse order)
+      // The algorithm iterates in reverse order, so order matters
+      final union = S2CellUnion.fromCellIds([childOfParent, parent]);
+      // After normalization, only parent should remain (child is contained)
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(parent));
+
+      // Now test with multiple small cells within one parent for the while loop
+      final p = S2CellId.fromFace(0).child(0);
+      final c1 = p.child(0).child(0);  // level 3
+      final c2 = p.child(0).child(1);  // level 3
+      final c3 = p.child(0).child(2);  // level 3
+      // Raw cells at different levels that become contained when expanded to level 1
+      final union2 = S2CellUnion();
+      union2.initRawCellIds([c1, c2, c3]);
+      // Expand at level 1 - the c1, c2, c3 should all map to parent p
+      // and the while loop should skip the contained ones
+      union2.expandAtLevel(1);
+      // Should have expansion completed with neighbors
+      expect(union2.size, greaterThanOrEqualTo(1));
+    });
+
+    test('testIntersectionBinarySearchBranches', () {
+      // Test intersection with ranges that require binary search adjustments
+      // Create unions where xMin > yMin and vice versa cases are triggered
+      final x = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).child(0).child(0),
+        S2CellId.fromFace(0).child(2).child(0),
+        S2CellId.fromFace(0).child(3).child(0),
+      ]);
+      final y = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).child(0).child(1),
+        S2CellId.fromFace(0).child(1).child(0),
+        S2CellId.fromFace(0).child(3).child(0),
+      ]);
+      // Get intersection - should find common elements
+      final result = S2CellUnion.intersection(x, y);
+      // Only face0/child3/child0 should be common
+      expect(result.size, equals(1));
+    });
+
+    test('testDifferenceBinarySearchBranches', () {
+      // Test difference with ranges that require binary search
+      final x = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).child(0),
+        S2CellId.fromFace(0).child(2),
+        S2CellId.fromFace(0).child(3),
+      ]);
+      final y = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).child(1),
+        S2CellId.fromFace(0).child(2),
+      ]);
+      // Get difference - should have cells from x not in y
+      final result = S2CellUnion();
+      result.getDifference(x, y);
+      expect(result.size, equals(2));  // child0 and child3
+    });
   });
 }
