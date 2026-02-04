@@ -98,7 +98,7 @@ The port was created by:
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
 | **Core Source Files** | 48 | ~120 | **40%** |
-| **Test Files** | 44 | ~100 | **44%** |
+| **Test Files** | 45 | ~100 | **45%** |
 
 #### Ported Classes
 
@@ -155,7 +155,7 @@ The port was created by:
 
 ### Test Coverage
 
-All 480 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 492 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -207,7 +207,8 @@ All 480 ported tests pass (3 skipped requiring extended precision). Code coverag
 | platform.dart | 98.1% |
 | s2_projections.dart | 89.6% |
 | s2_shape.dart | 88.1% |
-| **Overall** | **81.4%** |
+| s2_robust_cross_prod.dart | 80.9% |
+| **Overall** | **81.5%** |
 
 ---
 
