@@ -152,6 +152,169 @@ void main() {
         expect(S2TextFormat.makePolyline('invalid'), isNull);
       });
     });
+
+    group('toString methods', () {
+      test('pointToString', () {
+        final point = S2LatLng.fromDegrees(37.7749, -122.4194).toPoint();
+        final str = S2TextFormat.pointToString(point);
+        expect(str, contains('37.77'));
+        expect(str, contains('-122.41'));
+      });
+
+      test('latLngToString', () {
+        final ll = S2LatLng.fromDegrees(45.0, 90.0);
+        final str = S2TextFormat.latLngToString(ll);
+        expect(str, contains('45'));
+        expect(str, contains('90'));
+      });
+
+      test('latLngRectToString', () {
+        final rect = S2LatLngRect.fromPointPair(
+          S2LatLng.fromDegrees(0, 0),
+          S2LatLng.fromDegrees(10, 10),
+        );
+        final str = S2TextFormat.latLngRectToString(rect);
+        expect(str, contains('0'));
+        expect(str, contains('10'));
+      });
+
+      test('cellIdToString', () {
+        final cellId = S2CellId.fromFace(3);
+        final str = S2TextFormat.cellIdToString(cellId);
+        expect(str, isNotEmpty);
+      });
+
+      test('cellUnionToString', () {
+        final union = S2CellUnion.fromCellIds([
+          S2CellId.fromFace(0),
+          S2CellId.fromFace(1),
+        ]);
+        final str = S2TextFormat.cellUnionToString(union);
+        expect(str, contains('0/'));
+        expect(str, contains('1/'));
+      });
+
+      test('polylineToString', () {
+        final polyline = S2Polyline([
+          S2LatLng.fromDegrees(0, 0).toPoint(),
+          S2LatLng.fromDegrees(10, 10).toPoint(),
+        ]);
+        final str = S2TextFormat.polylineToString(polyline);
+        expect(str, contains('0'));
+        expect(str, contains('10'));
+      });
+
+      test('s2PointsToString', () {
+        final points = [
+          S2LatLng.fromDegrees(0, 0).toPoint(),
+          S2LatLng.fromDegrees(45, 90).toPoint(),
+        ];
+        final str = S2TextFormat.s2PointsToString(points);
+        expect(str, contains('0'));
+        // May be 44.999... due to floating point
+        expect(str, anyOf(contains('45'), contains('44.99')));
+      });
+
+      test('s2LatLngsToString', () {
+        final latlngs = [
+          S2LatLng.fromDegrees(0, 0),
+          S2LatLng.fromDegrees(45, 90),
+        ];
+        final str = S2TextFormat.s2LatLngsToString(latlngs);
+        expect(str, contains('0'));
+        expect(str, contains('45'));
+      });
+    });
+
+    group('additional parsing', () {
+      test('makePointsOrDie with pipe separator', () {
+        final points = S2TextFormat.makePointsOrDie('0:0|45:90');
+        expect(points, hasLength(2));
+      });
+
+      test('makeEdgesOrDie', () {
+        final edges = S2TextFormat.makeEdgesOrDie('0:0, 10:10; 20:20, 30:30');
+        expect(edges, hasLength(2));
+        expect(edges[0].start, isNotNull);
+        expect(edges[0].end, isNotNull);
+      });
+
+      test('makePolylinesOrDie with pipe separator', () {
+        final polylines = S2TextFormat.makePolylinesOrDie('0:0, 10:10|20:20, 30:30');
+        expect(polylines, hasLength(2));
+      });
+
+      test('parseVertices', () {
+        final vertices = <S2Point>[];
+        final rect = S2TextFormat.parseVertices('0:0, 10:10', vertices);
+        expect(vertices, hasLength(2));
+        expect(rect.isEmpty, isFalse);
+      });
+
+      test('snapPointToLevel', () {
+        final point = S2LatLng.fromDegrees(37.7749, -122.4194).toPoint();
+        final snapped = S2TextFormat.snapPointToLevel(point, 10);
+        expect(snapped, isNotNull);
+        // Snapped point should be close to original
+        expect(point.angle(snapped), lessThan(0.01));
+      });
+
+      test('snapPointsToLevel', () {
+        final points = [
+          S2LatLng.fromDegrees(0, 0).toPoint(),
+          S2LatLng.fromDegrees(45, 90).toPoint(),
+        ];
+        final snapped = S2TextFormat.snapPointsToLevel(points, 10);
+        expect(snapped, hasLength(2));
+      });
+
+      test('parsePoints with level', () {
+        final points = S2TextFormat.parsePoints('0:0, 45:90', 10);
+        expect(points, hasLength(2));
+      });
+    });
+
+    group('error handling', () {
+      test('parseLatLngsOrDie throws on invalid', () {
+        expect(() => S2TextFormat.parseLatLngsOrDie('invalid:input'),
+            throwsArgumentError);
+      });
+
+      test('parsePointsOrDie throws on invalid', () {
+        expect(() => S2TextFormat.parsePointsOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeLatLngOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makeLatLngOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeLatLngRectOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makeLatLngRectOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeCellIdOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makeCellIdOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeCellUnionOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makeCellUnionOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makePolylineOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makePolylineOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeEdgesOrDie throws on wrong size', () {
+        expect(() => S2TextFormat.makeEdgesOrDie('0:0'),
+            throwsArgumentError);
+      });
+    });
   });
 }
 
