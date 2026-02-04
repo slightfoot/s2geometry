@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 44 | ~120 | **37%** |
-| **Test Files** | 30 | ~100 | **30%** |
+| **Core Source Files** | 45 | ~120 | **38%** |
+| **Test Files** | 31 | ~100 | **31%** |
 
 #### Ported Classes
 
@@ -148,46 +148,48 @@ The port was created by:
 | `r2_edge_clipper.dart` | R2EdgeClipper.java | Cohen-Sutherland edge clipping to rectangles |
 | `s2_exception.dart` | S2Exception.java | Exception wrapper for S2Error |
 | `s2_polyline_simplifier.dart` | S2PolylineSimplifier.java | Helper for simplifying polylines |
+| `s2_edge_tessellator.dart` | S2EdgeTessellator.java | Converts between geodesic and projected edges |
 
 ### Test Coverage
 
-All 304 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 314 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | r2_edge.dart | 100.0% |
+| s2_exception.dart | 100.0% |
 | s1_interval.dart | 97.0% |
 | s2_predicates.dart | 96.5% |
+| s2_edge_tessellator.dart | 95.8% |
 | s2_cell_id.dart | 93.2% |
+| projection.dart | 92.9% |
 | s2_polyline.dart | 91.6% |
+| s2_polyline_simplifier.dart | 91.5% |
 | s2_point_region.dart | 90.0% |
 | s2_contains_vertex_query.dart | 90.0% |
 | s2_earth.dart | 89.1% |
-| projection.dart | 88.1% |
 | r2_edge_clipper.dart | 86.5% |
+| s1_angle.dart | 86.1% |
 | s2_edge_util.dart | 85.9% |
 | r2_rect.dart | 84.6% |
 | s2_latlng.dart | 84.3% |
 | s2_point.dart | 83.5% |
 | s2.dart | 82.0% |
-| s1_angle.dart | 81.9% |
 | matrix.dart | 81.1% |
 | s2_region_intersection.dart | 80.8% |
 | r1_interval.dart | 79.6% |
+| s1_chord_angle.dart | 79.6% |
 | s2_cell.dart | 77.9% |
 | real.dart | 77.6% |
-| s1_chord_angle.dart | 76.9% |
+| s2_cap.dart | 76.9% |
 | s2_robust_cross_prod.dart | 76.5% |
-| s2_projections.dart | 73.3% |
-| s2_cap.dart | 71.8% |
-| s2_latlng_rect.dart | 69.1% |
+| s2_projections.dart | 72.4% |
+| s2_latlng_rect.dart | 70.1% |
 | s2_cell_union.dart | 66.9% |
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| s2_exception.dart | 100.0% |
-| s2_polyline_simplifier.dart | 91.5% |
-| **Overall** | **74.2%** |
+| **Overall** | **74.6%** |
 
 ---
 
