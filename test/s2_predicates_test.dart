@@ -149,6 +149,21 @@ void main() {
       // An angle where C == ortho(B).
       expect(S2Predicates.angleContainsVertex(a, b, refB), isFalse);
     });
+
+    test('testSignWithCrossProdExpensiveFallback', () {
+      // Test that signWithCrossProd falls back to expensive computation
+      // when the triage result is uncertain (near collinear points).
+      // Use exactly collinear points that force the expensive path.
+      final a = S2Point(0.7257192787703683, 0.460588256058891, 0.5110674973050485);
+      final b = S2Point(0.7257192746638208, 0.4605882657381817, 0.5110674944131274);
+      final c = S2Point(0.7257192767170946, 0.46058826089853633, 0.511067495859088);
+      final aCrossB = a.crossProd(b);
+      // Should return non-zero result via expensive fallback
+      final result = S2Predicates.signWithCrossProd(a, b, c, aCrossB);
+      expect(result, isNot(0));
+      // Verify consistency with regular sign
+      expect(result, equals(S2Predicates.sign(a, b, c)));
+    });
   });
 }
 
