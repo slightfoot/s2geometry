@@ -46,3 +46,6 @@ Desktop.ini
 .env.*
 !.env.example
 
+# Java reference repo
+s2-geometry-library-java/
+
