@@ -141,6 +141,27 @@ void main() {
         expect(S2LatLng.longitude(v).degrees.abs(), greaterThanOrEqualTo(175.0));
       }
     });
+
+    test('testAppendProjectedChainedEdges', () {
+      // Test that appendProjected handles chained edges (vertices not empty)
+      final plateCarree = PlateCarreeProjection(180.0);
+      final tessellator = S2EdgeTessellator(plateCarree, S1Angle.degrees(0.01));
+
+      final vertices = <R2Vector>[];
+
+      // First edge
+      final a = S2LatLng.fromDegrees(0, 0).toPoint();
+      final b = S2LatLng.fromDegrees(0, 10).toPoint();
+      tessellator.appendProjected(a, b, vertices);
+      expect(vertices.length, greaterThanOrEqualTo(2));
+
+      // Second edge (chained - starts where first ended)
+      final c = S2LatLng.fromDegrees(0, 20).toPoint();
+      tessellator.appendProjected(b, c, vertices);
+
+      // Vertices should include points from both edges
+      expect(vertices.length, greaterThanOrEqualTo(3));
+    });
   });
 }
 

@@ -155,7 +155,7 @@ The port was created by:
 
 ### Test Coverage
 
-All 932 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 933 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -184,7 +184,7 @@ All 932 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_contains_vertex_query.dart | 100.0% |
 | s2_earth.dart | 97.8% |
 | s2_edge.dart | 92.3% |
-| s2_edge_tessellator.dart | 95.8% |
+| s2_edge_tessellator.dart | 100.0% |
 | s2_edge_util.dart | 98.0% |
 | s2_error.dart | 100.0% |
 | s2_exception.dart | 100.0% |
