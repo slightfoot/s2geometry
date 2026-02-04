@@ -83,6 +83,9 @@ export 'src/r2_edge.dart';
 // Distance tracking
 export 'src/distance_collector.dart';
 
+// Map projections
+export 'src/projection.dart';
+
 // TODO: Port
 // export 'src/s2_loop.dart';
 // export 'src/s2_polygon.dart';

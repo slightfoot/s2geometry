@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 40 | ~120 | **33%** |
-| **Test Files** | 26 | ~100 | **26%** |
+| **Core Source Files** | 41 | ~120 | **34%** |
+| **Test Files** | 27 | ~100 | **27%** |
 
 #### Ported Classes
 
@@ -144,10 +144,11 @@ The port was created by:
 | `s2_region_intersection.dart` | S2RegionIntersection.java | Intersection of multiple regions |
 | `r2_edge.dart` | R2Edge.java | Mutable edge in 2D space |
 | `distance_collector.dart` | DistanceCollector.java | Interface for tracking "best" distance |
+| `projection.dart` | Projection.java | Map projections (Mercator, PlateCarree) |
 
 ### Test Coverage
 
-All 262 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 268 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
