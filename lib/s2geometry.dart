@@ -50,9 +50,19 @@ export 'src/big_point.dart';
 export 'src/s2_predicates.dart';
 export 'src/s2_robust_cross_prod.dart';
 export 'src/s2_edge_util.dart';
+export 'src/matrix.dart';
+export 'src/s2_earth.dart';
 
 // Shape types
-// export 'src/s2_shape.dart'; // TODO: Port
-// export 'src/s2_loop.dart'; // TODO: Port
-// export 'src/s2_polygon.dart'; // TODO: Port
-// export 'src/s2_polyline.dart'; // TODO: Port
+export 'src/s2_shape.dart';
+export 'src/s2_edge.dart';
+export 'src/s2_point_region.dart';
+export 'src/s2_area_centroid.dart';
+export 'src/s2_region_union.dart';
+
+export 'src/s2_polyline.dart';
+export 'src/s2_text_format.dart';
+
+// TODO: Port
+// export 'src/s2_loop.dart';
+// export 'src/s2_polygon.dart';

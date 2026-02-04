@@ -161,6 +161,34 @@ class Platform {
     return bytes.getFloat64(0, Endian.little) - dAbs;
   }
 
+  /// Returns a hash code for a double value.
+  static int doubleHash(double d) {
+    final bytes = ByteData(8);
+    bytes.setFloat64(0, d, Endian.little);
+    final bits = bytes.getInt64(0, Endian.little);
+    return bits.hashCode;
+  }
+
+  /// Formats a double value for human-readable output.
+  /// Removes trailing zeros and unnecessary decimal point.
+  static String formatDouble(double d) {
+    if (d == d.truncateToDouble()) {
+      // Integer value - format without decimal places
+      return d.toInt().toString();
+    }
+    // Use a reasonable number of decimal places
+    String s = d.toStringAsFixed(15);
+    // Remove trailing zeros
+    while (s.endsWith('0')) {
+      s = s.substring(0, s.length - 1);
+    }
+    // Remove trailing decimal point if any
+    if (s.endsWith('.')) {
+      s = s.substring(0, s.length - 1);
+    }
+    return s;
+  }
+
   /// Returns the sign of the determinant of the matrix constructed from the
   /// three column vectors [a], [b], and [c]. This operation is very robust for
   /// small determinants, but is extremely slow and should only be used if

@@ -14,9 +14,13 @@
 
 import 'dart:math' as math;
 
+import 'r1_interval.dart';
 import 's1_angle.dart';
 import 's1_chord_angle.dart';
+import 's1_interval.dart';
 import 's2.dart';
+import 's2_latlng.dart';
+import 's2_latlng_rect.dart';
 import 's2_point.dart';
 import 's2_predicates.dart';
 import 's2_robust_cross_prod.dart';
@@ -406,5 +410,94 @@ class EdgeCrosser {
       ccw = Sign.expensive(a, b, c, true);
     }
     return ccw;
+  }
+
+  /// This class computes a bounding rectangle that contains all edges defined
+  /// by a vertex chain v0, v1, v2, ... All vertices must be unit length.
+  /// Note that the bounding rectangle of an edge can be larger than the
+  /// bounding rectangle of its endpoints, e.g. consider an edge that passes
+  /// through the north pole.
+  static RectBounder rectBounder() => RectBounder();
+}
+
+/// Computes a bounding rectangle for a vertex chain.
+class RectBounder {
+  S2LatLngRect _bound = S2LatLngRect.empty();
+  S2Point? _a;
+  S2LatLng? _aLatLng;
+
+  RectBounder();
+
+  /// The accumulated bound.
+  S2LatLngRect get bound => _bound;
+
+  /// Add a vertex to the chain.
+  void addPoint(S2Point b) {
+    final bLatLng = S2LatLng.fromPoint(b);
+    if (_bound.isEmpty) {
+      _bound = S2LatLngRect.fromPoint(bLatLng);
+    } else {
+      _addInternal(b, bLatLng);
+    }
+    _a = b;
+    _aLatLng = bLatLng;
+  }
+
+  void _addInternal(S2Point b, S2LatLng bLatLng) {
+    final a = _a!;
+    final aLatLng = _aLatLng!;
+
+    // N = 2 * (A x B)
+    final n = a.sub(b).crossProd(a.add(b));
+    double nNorm = n.norm;
+
+    if (nNorm < 1.91346e-15) {
+      // A and B are nearly identical or nearly antipodal
+      if (a.dotProd(b) < 0) {
+        _bound = S2LatLngRect.full();
+      } else {
+        _bound = _bound.union(S2LatLngRect.fromPointPair(aLatLng, bLatLng));
+      }
+      return;
+    }
+
+    // Compute longitude range
+    final lngAB = S1Interval.fromPointPair(
+        aLatLng.lng.radians, bLatLng.lng.radians);
+    S1Interval lng = lngAB;
+    if (lngAB.length >= math.pi - 2 * S2.dblEpsilon) {
+      lng = S1Interval.full();
+    }
+
+    // Compute latitude range
+    R1Interval latAB = R1Interval(
+        math.min(aLatLng.lat.radians, bLatLng.lat.radians),
+        math.max(aLatLng.lat.radians, bLatLng.lat.radians));
+
+    // Check if edge crosses plane through N and Z-axis
+    final m = n.crossProd(S2Point.zPos);
+    double mDotA = m.dotProd(a);
+    double mDotB = m.dotProd(b);
+    double mError = 6.06638e-16 * nNorm + 6.83174e-31;
+
+    if (mDotA * mDotB < 0 || mDotA.abs() <= mError || mDotB.abs() <= mError) {
+      // Minimum/maximum latitude may occur in edge interior
+      double maxLat = math.min(
+          S2.piOver2,
+          3 * S2.dblEpsilon +
+              math.atan2(math.sqrt(n.x * n.x + n.y * n.y), n.z.abs()));
+
+      double latBudget = 2 * math.asin(0.5 * a.sub(b).norm * math.sin(maxLat));
+      double maxDelta = 0.5 * (latBudget - latAB.length) + S2.dblEpsilon;
+
+      if (mDotA <= mError && mDotB >= -mError) {
+        latAB = R1Interval(latAB.lo, math.min(maxLat, latAB.hi + maxDelta));
+      }
+      if (mDotB <= mError && mDotA >= -mError) {
+        latAB = R1Interval(math.max(-maxLat, latAB.lo - maxDelta), latAB.hi);
+      }
+    }
+
+    _bound = _bound.union(S2LatLngRect(latAB, lng));
   }
 }

@@ -248,4 +248,20 @@ class S2Point implements Comparable<S2Point> {
 
   @override
   String toString() => '($x, $y, $z)';
+
+  /// Returns a string representation of this point in degrees (lat:lng format).
+  String toDegreesString() {
+    // Convert from 3D coordinates to lat/lng in degrees
+    final lat = math.atan2(z, math.sqrt(x * x + y * y)) * 180.0 / math.pi;
+    final lng = math.atan2(y, x) * 180.0 / math.pi;
+    return '${lat.toStringAsFixed(7)}:${lng.toStringAsFixed(7)}';
+  }
+
+  /// Returns a component by index (0=x, 1=y, 2=z). Used by Matrix operations.
+  double get(int index) => this[index];
+
+  /// Returns true if this point is approximately equal to [p].
+  /// This is used for containment tests where exact equality would fail
+  /// due to floating point precision.
+  bool containsPoint(S2Point p) => this == p;
 }
