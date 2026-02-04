@@ -15,6 +15,57 @@
 import 'package:s2geometry/s2geometry.dart';
 import 'package:test/test.dart';
 
+/// A minimal concrete implementation of S2Shape for testing.
+class TestShape extends S2Shape {
+  final int _numEdges;
+  final int _dimension;
+  final int _numChains;
+  final bool _containsOrigin;
+
+  TestShape({
+    int numEdges = 0,
+    int dimension = 2,
+    int numChains = 0,
+    bool containsOrigin = false,
+  })  : _numEdges = numEdges,
+        _dimension = dimension,
+        _numChains = numChains,
+        _containsOrigin = containsOrigin;
+
+  @override
+  int get numEdges => _numEdges;
+
+  @override
+  int get dimension => _dimension;
+
+  @override
+  int get numChains => _numChains;
+
+  @override
+  bool get hasInterior => _dimension == 2;
+
+  @override
+  bool get containsOrigin => _containsOrigin;
+
+  @override
+  void getEdge(int edgeId, MutableEdge result) {}
+
+  @override
+  int getChainStart(int chainId) => 0;
+
+  @override
+  int getChainLength(int chainId) => 0;
+
+  @override
+  void getChainEdge(int chainId, int offset, MutableEdge result) {}
+
+  @override
+  void getChainPosition(int edgeId, ChainPosition result) {}
+
+  @override
+  S2Point getChainVertex(int chainId, int edgeOffset) => S2Point(1, 0, 0);
+}
+
 void main() {
   group('MutableEdge', () {
     test('testDefaultConstructor', () {
@@ -179,6 +230,63 @@ void main() {
       final ref1 = ReferencePoint(p, true);
       final ref2 = ReferencePoint(p, true);
       expect(ref1.hashCode, equals(ref2.hashCode));
+    });
+  });
+
+  group('S2Shape', () {
+    test('testIsEmptyWithNoEdgesAndDimension0', () {
+      // Point geometry (dimension 0) with no edges is empty
+      final shape = TestShape(numEdges: 0, dimension: 0, numChains: 0);
+      expect(shape.isEmpty, isTrue);
+    });
+
+    test('testIsEmptyWithNoEdgesAndDimension1', () {
+      // Polyline geometry (dimension 1) with no edges is empty
+      final shape = TestShape(numEdges: 0, dimension: 1, numChains: 0);
+      expect(shape.isEmpty, isTrue);
+    });
+
+    test('testIsEmptyWithNoEdgesAndDimension2NoChains', () {
+      // Polygon geometry (dimension 2) with no edges and no chains is empty
+      final shape = TestShape(numEdges: 0, dimension: 2, numChains: 0);
+      expect(shape.isEmpty, isTrue);
+    });
+
+    test('testIsEmptyWithEdges', () {
+      // Shape with edges is not empty
+      final shape = TestShape(numEdges: 5, dimension: 1, numChains: 1);
+      expect(shape.isEmpty, isFalse);
+    });
+
+    test('testIsFullWithNoEdgesAndDimension2WithChains', () {
+      // Full sphere: polygon with no edges but has chains (contains everything)
+      final shape = TestShape(numEdges: 0, dimension: 2, numChains: 1);
+      expect(shape.isFull, isTrue);
+    });
+
+    test('testIsFullWithNoEdgesAndDimension1', () {
+      // Polyline with no edges is not full (dimension != 2)
+      final shape = TestShape(numEdges: 0, dimension: 1, numChains: 1);
+      expect(shape.isFull, isFalse);
+    });
+
+    test('testIsFullWithEdges', () {
+      // Polygon with edges is not full
+      final shape = TestShape(numEdges: 5, dimension: 2, numChains: 1);
+      expect(shape.isFull, isFalse);
+    });
+
+    test('testReferencePoint', () {
+      final shape = TestShape(numEdges: 0, dimension: 2, containsOrigin: true);
+      final ref = shape.referencePoint;
+      expect(ref.point, equals(S2.origin));
+      expect(ref.contained, isTrue);
+    });
+
+    test('testReferencePointNotContained', () {
+      final shape = TestShape(numEdges: 0, dimension: 2, containsOrigin: false);
+      final ref = shape.referencePoint;
+      expect(ref.contained, isFalse);
     });
   });
 }

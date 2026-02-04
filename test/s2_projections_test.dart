@@ -156,6 +156,76 @@ void main() {
       final width1 = S2Projections.minWidth.getValue(1);
       expect(width0 / width1, closeTo(2.0, 1e-10));
     });
+
+    test('testValidFaceXyzToUvInto', () {
+      final p = S2Point(1, 0.5, 0.5);
+      final result = R2Vector.origin();
+      S2Projections.validFaceXyzToUvInto(0, p, result);
+      expect(result.x, closeTo(0.5, 1e-10));
+      expect(result.y, closeTo(0.5, 1e-10));
+    });
+
+    test('testGetUAxisAllFaces', () {
+      // Test all 6 faces
+      expect(S2Projections.getUAxis(0), equals(S2Point(0, 1, 0)));
+      expect(S2Projections.getUAxis(1), equals(S2Point(-1, 0, 0)));
+      expect(S2Projections.getUAxis(2), equals(S2Point(-1, 0, 0)));
+      expect(S2Projections.getUAxis(3), equals(S2Point(0, 0, -1)));
+      expect(S2Projections.getUAxis(4), equals(S2Point(0, 0, -1)));
+      expect(S2Projections.getUAxis(5), equals(S2Point(0, 1, 0)));
+    });
+
+    test('testGetVAxisAllFaces', () {
+      // Test all 6 faces
+      expect(S2Projections.getVAxis(0), equals(S2Point(0, 0, 1)));
+      expect(S2Projections.getVAxis(1), equals(S2Point(0, 0, 1)));
+      expect(S2Projections.getVAxis(2), equals(S2Point(0, -1, 0)));
+      expect(S2Projections.getVAxis(3), equals(S2Point(0, -1, 0)));
+      expect(S2Projections.getVAxis(4), equals(S2Point(1, 0, 0)));
+      expect(S2Projections.getVAxis(5), equals(S2Point(1, 0, 0)));
+    });
+
+    test('testGetUNormAllFaces', () {
+      // Test faces 0-5 to cover all branches
+      for (int face = 0; face < 6; face++) {
+        final uNorm = S2Projections.getUNorm(face, 0.5);
+        expect(uNorm.norm2, greaterThan(0));
+      }
+    });
+
+    test('testGetVNormAllFaces', () {
+      // Test faces 0-5 to cover all branches
+      for (int face = 0; face < 6; face++) {
+        final vNorm = S2Projections.getVNorm(face, 0.5);
+        expect(vNorm.norm2, greaterThan(0));
+      }
+    });
+
+    test('testXyzToUAllFaces', () {
+      // Test xyzToU for each face
+      for (int face = 0; face < 6; face++) {
+        final p = S2Projections.faceUvToXyz(face, 0.3, 0.4);
+        final u = S2Projections.xyzToU(face, p);
+        expect(u, closeTo(0.3, 1e-10));
+      }
+    });
+
+    test('testXyzToVAllFaces', () {
+      // Test xyzToV for each face
+      for (int face = 0; face < 6; face++) {
+        final p = S2Projections.faceUvToXyz(face, 0.3, 0.4);
+        final v = S2Projections.xyzToV(face, p);
+        expect(v, closeTo(0.4, 1e-10));
+      }
+    });
+
+    test('testFaceUvToXyzAllFaces', () {
+      // Test all 6 faces
+      for (int face = 0; face < 6; face++) {
+        final p = S2Projections.faceUvToXyz(face, 0.0, 0.0);
+        expect(p.norm2, closeTo(1.0, 1e-10));
+      }
+    });
   });
 }
 
