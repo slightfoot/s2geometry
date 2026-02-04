@@ -155,7 +155,7 @@ The port was created by:
 
 ### Test Coverage
 
-All 885 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 887 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|

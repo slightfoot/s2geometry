@@ -338,5 +338,46 @@ void main() {
       // Should have reduced to maxCells or fewer (accounting for minLevel constraint)
       expect(covering.length, lessThanOrEqualTo(10)); // May not reduce if minLevel prevents it
     });
+
+    test('testNormalizeCoveringMergeAdjacentCells', () {
+      // Test the code path that merges adjacent cells when too many
+      final coverer = S2RegionCoverer(maxCells: 2, minLevel: 0);
+      final covering = <S2CellId>[];
+
+      // Add 4 adjacent cells at the same level that share a common ancestor
+      final parent = S2CellId.fromFace(0).child(0);
+      for (int i = 0; i < 4; i++) {
+        covering.add(parent.child(i));
+      }
+
+      // After normalization, the 4 children should be merged into parent
+      coverer.normalizeCovering(covering);
+
+      // Should be 1 cell (the parent)
+      expect(covering.length, equals(1));
+      expect(covering[0], equals(parent));
+    });
+
+    test('testNormalizeCoveringWithLowestCommonAncestor', () {
+      // Test the loop that finds and replaces with common ancestors
+      final coverer = S2RegionCoverer(maxCells: 3, minLevel: 0);
+      final covering = <S2CellId>[];
+
+      // Add 8 cells that are children of 2 different parents
+      final parent1 = S2CellId.fromFace(0).child(0);
+      final parent2 = S2CellId.fromFace(0).child(1);
+      for (int i = 0; i < 4; i++) {
+        covering.add(parent1.child(i));
+      }
+      for (int i = 0; i < 4; i++) {
+        covering.add(parent2.child(i));
+      }
+
+      // Should merge children into parents, then possibly merge further
+      coverer.normalizeCovering(covering);
+
+      // Should be reduced to 3 or fewer cells
+      expect(covering.length, lessThanOrEqualTo(3));
+    });
   });
 }
