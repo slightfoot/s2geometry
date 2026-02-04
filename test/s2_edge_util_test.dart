@@ -572,5 +572,160 @@ void main() {
       }
     });
   });
+
+  group('S2EdgeUtil additional tests', () {
+    test('testInterpolateDouble', () {
+      // Test interpolation from a
+      expect(S2EdgeUtil.interpolateDouble(0, 0, 10, 0, 100), closeTo(0, 1e-10));
+      expect(S2EdgeUtil.interpolateDouble(5, 0, 10, 0, 100), closeTo(50, 1e-10));
+      expect(S2EdgeUtil.interpolateDouble(10, 0, 10, 0, 100), closeTo(100, 1e-10));
+
+      // Test interpolation from b (when x is closer to b)
+      expect(S2EdgeUtil.interpolateDouble(8, 0, 10, 0, 100), closeTo(80, 1e-10));
+    });
+
+    test('testGetPointOnLineChord', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+      final r = S1ChordAngle.fromS1Angle(S1Angle.degrees(45));
+
+      final point = S2EdgeUtil.getPointOnLineChord(a, b, r);
+      expect(S2.isUnitLength(point), isTrue);
+
+      final dist = S1Angle.fromPoints(a, point);
+      expect(dist.degrees, closeTo(45, 1));
+    });
+
+    test('testGetPointOnRayChord', () {
+      final origin = p(1, 0, 0).normalize();
+      final dir = p(0, 1, 0).normalize();
+      final r = S1ChordAngle.fromS1Angle(S1Angle.degrees(30));
+
+      final point = S2EdgeUtil.getPointOnRayChord(origin, dir, r);
+      expect(S2.isUnitLength(point), isTrue);
+
+      final dist = S1Angle.fromPoints(origin, point);
+      expect(dist.degrees, closeTo(30, 1));
+    });
+
+    test('testProjectWithCrossProd', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+      final aCrossB = S2RobustCrossProd.robustCrossProd(a, b);
+      final x = p(1, 1, 0.1).normalize();
+
+      final projected = S2EdgeUtil.projectWithCrossProd(x, a, b, aCrossB);
+      expect(S2.isUnitLength(projected), isTrue);
+    });
+
+    test('testProjectPointEqualsEndpoint', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+
+      // Project a onto AB - should return a
+      final projectedA = S2EdgeUtil.project(a, a, b);
+      expect(projectedA, equals(a));
+
+      // Project b onto AB - should return b
+      final projectedB = S2EdgeUtil.project(b, a, b);
+      expect(projectedB, equals(b));
+    });
+
+    test('testOrderedCCW', () {
+      final o = p(1, 0, 0).normalize();
+      final a = p(0, 1, 0).normalize();
+      final b = p(0, 0, 1).normalize();
+      final c = p(0, -1, 0).normalize();
+
+      // Test ordering around origin
+      final ordered = S2EdgeUtil.orderedCCW(o, a, b, c);
+      expect(ordered, isA<bool>());
+    });
+
+    test('testVertexCrossingBEqualsC', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+      final c = b; // b == c
+      final d = p(0, 0, 1).normalize();
+
+      final result = S2EdgeUtil.vertexCrossing(a, b, c, d);
+      expect(result, isA<bool>());
+    });
+
+    test('testVertexCrossingBEqualsD', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+      final c = p(0, 0, 1).normalize();
+      final d = b; // b == d
+
+      final result = S2EdgeUtil.vertexCrossing(a, b, c, d);
+      expect(result, isA<bool>());
+    });
+
+    test('testDefaultIntersectionTolerance', () {
+      expect(S2EdgeUtil.defaultIntersectionTolerance.radians, isA<double>());
+      expect(S2EdgeUtil.defaultIntersectionTolerance.radians, greaterThan(0));
+    });
+
+    test('testFaceClipErrorConstants', () {
+      expect(S2EdgeUtil.faceClipErrorRadians, greaterThan(0));
+      expect(S2EdgeUtil.faceClipErrorUvDist, greaterThan(0));
+      expect(S2EdgeUtil.intersectsRectErrorUvDist, greaterThan(0));
+      expect(S2EdgeUtil.edgeClipErrorUvCoord, greaterThan(0));
+      expect(S2EdgeUtil.edgeClipErrorUvDist, greaterThan(0));
+      expect(S2EdgeUtil.intersectionError, greaterThan(0));
+    });
+
+    test('testGetPointOnLineError', () {
+      expect(S2EdgeUtil.getPointOnLineError.radians, greaterThan(0));
+    });
+
+    test('testProjectPerpendicularError', () {
+      expect(S2EdgeUtil.projectPerpendicularError.radians, greaterThan(0));
+    });
+
+    test('testGetPointOnRayPerpendicularError', () {
+      expect(S2EdgeUtil.getPointOnRayPerpendicularError.radians, greaterThan(0));
+    });
+
+    test('testIntersectionMergeRadius', () {
+      expect(S2EdgeUtil.intersectionMergeRadius.radians, greaterThan(0));
+    });
+  });
+
+  group('EdgeCrosser additional tests', () {
+    test('testEdgeCrosserNormal', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+
+      final crosser = EdgeCrosser.withEdge(a, b);
+      expect(crosser.normal, isNotNull);
+      expect(crosser.normal.norm, greaterThan(0));
+    });
+
+    test('testEdgeCrosserDegenerate', () {
+      final a = p(1, 0, 0).normalize();
+
+      // Degenerate edge where a == b
+      final crosser = EdgeCrosser.withEdge(a, a);
+      final c = p(0, 1, 0).normalize();
+      final d = p(0, 0, 1).normalize();
+
+      final result = crosser.robustCrossing(c, d);
+      expect(result, equals(-1)); // Degenerate edges don't cross
+    });
+
+    test('testEdgeCrosserCEqualsNull', () {
+      final a = p(1, 0, 0).normalize();
+      final b = p(0, 1, 0).normalize();
+
+      final crosser = EdgeCrosser.withEdge(a, b);
+      expect(crosser.c, isNull);
+
+      final c = p(0, 0, 1).normalize();
+      crosser.restartAt(c);
+      expect(crosser.c, equals(c));
+    });
+  });
 }
 
