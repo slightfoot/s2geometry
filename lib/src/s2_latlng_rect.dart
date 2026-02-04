@@ -15,7 +15,7 @@
 import 'dart:math' as math;
 
 import 'r1_interval.dart';
-import 's1_chord_angle.dart';
+import 's1_angle.dart';
 import 's1_interval.dart';
 import 's2.dart';
 import 's2_cap.dart';
@@ -191,30 +191,39 @@ class S2LatLngRect implements S2Region {
   @override
   S2Cap get capBound {
     if (isEmpty) return S2Cap.empty();
-    // Compute the center and radius of a cap that covers the rectangle
 
-    // Check if the rectangle contains a pole
-    if (_lat.lo <= -S2.piOver2 || _lat.hi >= S2.piOver2) {
-      // Rectangle contains a pole, use a simple bounding cap
-      final centerLat = (_lat.lo + _lat.hi) / 2;
-      final centerLng = _lng.center;
-      final center = S2LatLng.fromRadians(centerLat, centerLng).toPoint();
-      double maxDist = 0.0;
-      for (int k = 0; k < 4; k++) {
-        maxDist = math.max(maxDist, center.getDistance2(getVertex(k).toPoint()));
+    // We consider two possible bounding caps, one whose axis passes through
+    // the center of the lat-lng rectangle and one whose axis is the north or
+    // south pole. We return the smaller of the two caps.
+    double poleZ;
+    double poleAngle;
+    if (_lat.lo + _lat.hi < 0) {
+      // South pole axis yields smaller cap.
+      poleZ = -1;
+      poleAngle = S2.piOver2 + _lat.hi;
+    } else {
+      poleZ = 1;
+      poleAngle = S2.piOver2 - _lat.lo;
+    }
+    // Ensure that the bounding cap is conservative taking into account errors
+    // in the arithmetic above and the S1Angle/S1ChordAngle conversion.
+    final poleCap = S2Cap.fromAxisAngle(
+        S2Point(0, 0, poleZ), S1Angle.radians((1 + 2 * S2.dblEpsilon) * poleAngle));
+
+    // For bounding rectangles that span 180 degrees or less in longitude, the
+    // maximum cap size is achieved at one of the rectangle vertices. For
+    // rectangles that are larger than 180 degrees, we punt and always return
+    // a bounding cap centered at one of the two poles.
+    if (_lng.length < 2 * math.pi) {
+      S2Cap midCap = S2Cap.fromAxisAngle(center.toPoint(), S1Angle.zero);
+      for (int k = 0; k < 4; ++k) {
+        midCap = midCap.addPoint(getVertex(k).toPoint());
       }
-      return S2Cap.fromAxisChord(center, S1ChordAngle.fromLength2(maxDist));
+      if (midCap.height < poleCap.height) {
+        return midCap;
+      }
     }
-
-    // Find the max angular distance from the center to any vertex
-    final centerLat = (_lat.lo + _lat.hi) / 2;
-    final centerLng = _lng.center;
-    final center = S2LatLng.fromRadians(centerLat, centerLng).toPoint();
-    double maxDist = 0.0;
-    for (int k = 0; k < 4; k++) {
-      maxDist = math.max(maxDist, center.getDistance2(getVertex(k).toPoint()));
-    }
-    return S2Cap.fromAxisChord(center, S1ChordAngle.fromLength2(maxDist));
+    return poleCap;
   }
 
   @override

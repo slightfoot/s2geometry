@@ -167,6 +167,27 @@ class S2Projections {
     result.set(xyzToU(face, p), xyzToV(face, p));
   }
 
+  /// Returns the given point P transformed to the (u,v,w) coordinate frame of
+  /// the given face (where the w-axis represents the face normal).
+  static S2Point faceXyzToUvw(int face, S2Point p) {
+    // The result coordinates are simply the dot products of P with the (u,v,w)
+    // axes for the given face.
+    switch (face) {
+      case 0:
+        return S2Point(p.y, p.z, p.x);
+      case 1:
+        return S2Point(-p.x, p.z, p.y);
+      case 2:
+        return S2Point(-p.x, -p.y, p.z);
+      case 3:
+        return S2Point(-p.z, -p.y, -p.x);
+      case 4:
+        return S2Point(-p.z, p.x, -p.y);
+      default:
+        return S2Point(p.y, p.x, -p.z);
+    }
+  }
+
   /// Returns the unit-length normal for the given face.
   static S2Point getNorm(int face) {
     switch (face) {

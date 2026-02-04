@@ -14,6 +14,7 @@
 
 import 'dart:math' as math;
 
+import 'matrix.dart';
 import 's1_angle.dart';
 import 's2_point.dart';
 
@@ -228,6 +229,35 @@ class S2 {
     // signed_area = 2 * atan2(a · (b × c), |a||b||c| + (a·b)|c| + (b·c)|a| + (c·a)|b|)
     final aCrossB = a.crossProd(b);
     return 2 * math.atan2(c.dotProd(aCrossB), 1 + a.dotProd(b) + b.dotProd(c) + c.dotProd(a));
+  }
+
+  /// Returns a right-handed coordinate frame (three orthonormal vectors) based
+  /// on a single point, which will become the third axis.
+  static Matrix getFrame(S2Point p0) {
+    final p1 = ortho(p0);
+    final p2 = p1.crossProd(p0).normalize();
+    return Matrix.fromCols([p2, p1, p0]);
+  }
+
+  /// Returns a normalized copy of [p] after rotating it by the rotation matrix [r].
+  static S2Point rotate(S2Point p, Matrix r) {
+    final rotated = r.mult(Matrix.fromCols([p]));
+    return S2Point(rotated.get(0, 0), rotated.get(1, 0), rotated.get(2, 0)).normalize();
+  }
+
+  /// Given an orthonormal basis "frame" of column vectors and a point "p",
+  /// returns the coordinates of "p" with respect to the basis "frame".
+  /// The resulting point "q" satisfies the identity `frame * q == p`.
+  static S2Point toFrame(Matrix frame, S2Point p) {
+    // The inverse of an orthonormal matrix is its transpose.
+    return frame.transpose().mult(Matrix.fromCols([p])).getCol(0);
+  }
+
+  /// Given an orthonormal basis "frame" of column vectors and a point "q" with
+  /// respect to that basis, returns the equivalent point "p" with respect to
+  /// the standard axis-aligned basis. The result satisfies `p == frame * q`.
+  static S2Point fromFrame(Matrix frame, S2Point q) {
+    return frame.mult(Matrix.fromCols([q])).getCol(0);
   }
 
   // Private constructor - this is a utility class

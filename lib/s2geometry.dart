@@ -74,6 +74,9 @@ export 'src/s2_exception.dart';
 // Polyline utilities
 export 'src/s2_polyline_simplifier.dart';
 
+// Fractal generation for testing
+export 'src/s2_fractal_builder.dart';
+
 // Query types
 export 'src/s2_contains_vertex_query.dart';
 export 'src/s2_padded_cell.dart';
@@ -101,6 +104,19 @@ export 'src/little_endian_output.dart';
 
 // Point compression
 export 'src/s2_point_compression.dart';
+
+// Indexing
+export 'src/s2_cell_index.dart';
+export 'src/s2_point_index.dart';
+
+// Shape utilities
+export 'src/s2_edge_vector_shape.dart';
+export 'src/s2_lax_polyline_shape.dart';
+export 'src/s2_chain_interpolation_query.dart';
+export 'src/s2_closest_point_query.dart';
+
+// Sharding
+export 'src/s2_region_sharder.dart';
 
 // TODO: Port
 // export 'src/s2_loop.dart';

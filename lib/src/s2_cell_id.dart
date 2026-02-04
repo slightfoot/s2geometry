@@ -715,4 +715,70 @@ class S2CellId implements Comparable<S2CellId> {
       ),
     );
   }
+
+  /// Returns the first cell at the given level (in traversal order).
+  static S2CellId begin(int level) {
+    return S2CellId.fromFace(0).childBeginAtLevel(level);
+  }
+
+  /// Returns the (non-inclusive) end of the S2CellId range at the given level.
+  /// The return value is not a valid cell id.
+  static S2CellId end(int level) {
+    return S2CellId.fromFace(5).childEndAtLevel(level);
+  }
+
+  /// Parses a debug string in the format "face/pos" where face is 0-5 and
+  /// pos is a sequence of digits 0-3 representing child positions at each level.
+  /// For example, "1/012301230123012301230123012301" represents a leaf cell on face 1.
+  static S2CellId fromDebugString(String str) {
+    final slashIndex = str.indexOf('/');
+    if (slashIndex < 0 || slashIndex == 0) {
+      return none;
+    }
+
+    final face = int.tryParse(str.substring(0, slashIndex));
+    if (face == null || face < 0 || face >= numFaces) {
+      return none;
+    }
+
+    S2CellId id = S2CellId.fromFace(face);
+    final posStr = str.substring(slashIndex + 1);
+
+    for (int i = 0; i < posStr.length; i++) {
+      final childPos = int.tryParse(posStr[i]);
+      if (childPos == null || childPos < 0 || childPos > 3) {
+        return none;
+      }
+      id = id.child(childPos);
+    }
+
+    return id;
+  }
+
+  /// Returns a debug string in the format "face/pos" where face is 0-5 and
+  /// pos is a sequence of digits 0-3 representing child positions at each level.
+  String toDebugString() {
+    if (!isValid) return 'Invalid';
+    final buffer = StringBuffer();
+    buffer.write(face);
+    buffer.write('/');
+    for (int l = 1; l <= level; l++) {
+      buffer.write(childPositionAtLevel(l));
+    }
+    return buffer.toString();
+  }
+
+  /// Returns the next cell in Hilbert curve order, wrapping around at the end.
+  S2CellId nextWrap() {
+    final n = next;
+    if (n.lessThan(end(level))) return n;
+    return begin(level);
+  }
+
+  /// Returns the previous cell in Hilbert curve order, wrapping around at the beginning.
+  S2CellId prevWrap() {
+    final p = prev;
+    if (p.greaterOrEquals(begin(level))) return p;
+    return end(level).prev;
+  }
 }

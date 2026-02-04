@@ -17,10 +17,12 @@ import 'dart:math' as math;
 import 'r1_interval.dart';
 import 'r2_rect.dart';
 import 'r2_vector.dart';
+import 's1_chord_angle.dart';
 import 's1_interval.dart';
 import 's2.dart';
 import 's2_cap.dart';
 import 's2_cell_id.dart';
+import 's2_edge_util.dart';
 import 's2_latlng.dart';
 import 's2_latlng_rect.dart';
 import 's2_point.dart';
@@ -281,6 +283,151 @@ class S2Cell implements S2Region {
   @override
   bool mayIntersect(S2Cell cell) {
     return _cellId.intersects(cell._cellId);
+  }
+
+  /// Returns the distance from the given point to the cell. Returns zero if
+  /// the point is inside the cell.
+  S1ChordAngle getDistance(S2Point target) {
+    return S1ChordAngle.fromLength2(_getDistanceSquaredInternal(target, true));
+  }
+
+  /// Returns the distance from the cell boundary to the given point.
+  S1ChordAngle getBoundaryDistance(S2Point target) {
+    return S1ChordAngle.fromLength2(_getDistanceSquaredInternal(target, false));
+  }
+
+  /// Returns the minimum distance from the cell to the given edge AB, or zero
+  /// if the edge intersects the cell interior.
+  S1ChordAngle getDistanceToEdge(S2Point a, S2Point b) {
+    // If a and b are equal, just return the distance to the point.
+    if (a == b) {
+      return getDistance(a);
+    }
+
+    // First, check the minimum distance to the edge endpoints A and B.
+    var minDist = getDistance(a);
+    final distB = getDistance(b);
+    if (distB.compareTo(minDist) < 0) {
+      minDist = distB;
+    }
+    if (minDist.isZero) {
+      return minDist;
+    }
+
+    // Otherwise, check whether the edge crosses the cell boundary.
+    final v = <S2Point>[getVertex(0), getVertex(1), getVertex(2), getVertex(3)];
+    var v3 = v[3];
+    for (int i = 0; i < 4; i++) {
+      if (S2EdgeUtil.robustCrossing(a, b, v3, v[i]) >= 0) {
+        return S1ChordAngle.zero;
+      }
+      v3 = v[i];
+    }
+
+    // Finally, check whether the minimum distance occurs between a cell vertex
+    // and the interior of the edge AB.
+    for (int i = 0; i < 4; i++) {
+      minDist = S2EdgeUtil.updateMinDistance(v[i], a, b, minDist);
+    }
+
+    return minDist;
+  }
+
+  /// Internal method to compute squared chord distance.
+  double _getDistanceSquaredInternal(S2Point target, bool toInterior) {
+    // All calculations are done in the (u,v,w) coordinates of this cell's face.
+    final targetUvw = S2Projections.faceXyzToUvw(_face, target);
+
+    // Compute dot products with all four upward or rightward-facing edge normals.
+    final dir00 = targetUvw.x - targetUvw.z * _uMin;
+    final dir01 = targetUvw.x - targetUvw.z * _uMax;
+    final dir10 = targetUvw.y - targetUvw.z * _vMin;
+    final dir11 = targetUvw.y - targetUvw.z * _vMax;
+    var inside = true;
+
+    if (dir00 < 0) {
+      inside = false; // Target is to the left of the cell.
+      if (_vEdgeIsClosest(targetUvw, false)) {
+        return _edgeDistanceSquared(-dir00, _uMin);
+      }
+    }
+    if (dir01 > 0) {
+      inside = false; // Target is to the right of the cell.
+      if (_vEdgeIsClosest(targetUvw, true)) {
+        return _edgeDistanceSquared(dir01, _uMax);
+      }
+    }
+    if (dir10 < 0) {
+      inside = false; // Target is below the cell.
+      if (_uEdgeIsClosest(targetUvw, false)) {
+        return _edgeDistanceSquared(-dir10, _vMin);
+      }
+    }
+    if (dir11 > 0) {
+      inside = false; // Target is above the cell.
+      if (_uEdgeIsClosest(targetUvw, true)) {
+        return _edgeDistanceSquared(dir11, _vMax);
+      }
+    }
+
+    if (inside) {
+      if (toInterior) {
+        return 0;
+      }
+      // Return minimum distance to any of the four edges.
+      return math.min(
+        math.min(_edgeDistanceSquared(-dir00, _uMin), _edgeDistanceSquared(dir01, _uMax)),
+        math.min(_edgeDistanceSquared(-dir10, _vMin), _edgeDistanceSquared(dir11, _vMax)),
+      );
+    }
+
+    // Otherwise, the closest point is one of the four cell vertices.
+    return _vertexChordDistanceSquared(targetUvw, math.min);
+  }
+
+  /// Returns the reduced (min or max) squared chord distance from uvw to the
+  /// four vertices of this cell.
+  double _vertexChordDistanceSquared(
+      S2Point uvw, double Function(double, double) reducer) {
+    final d1 = _chordDistanceSquared(uvw, _uMin, _vMin);
+    final d2 = _chordDistanceSquared(uvw, _uMin, _vMax);
+    final d3 = _chordDistanceSquared(uvw, _uMax, _vMin);
+    final d4 = _chordDistanceSquared(uvw, _uMax, _vMax);
+    return reducer(d1, reducer(d2, reducer(d3, d4)));
+  }
+
+  /// Returns the squared chord distance from uvw to position (u, v).
+  static double _chordDistanceSquared(S2Point uvw, double u, double v) {
+    return uvw.getDistance2(S2Point(u, v, 1).normalize());
+  }
+
+  /// Given a point p and either the lower or upper edge of the cell (specified
+  /// by setting vEnd to false or true respectively), returns true if p is
+  /// closer to the interior of that edge than it is to either endpoint.
+  bool _uEdgeIsClosest(S2Point p, bool vEnd) {
+    final v = vEnd ? _vMax : _vMin;
+    final dir0 = S2Point(v * v + 1, -_uMin * v, -_uMin);
+    final dir1 = S2Point(v * v + 1, -_uMax * v, -_uMax);
+    return p.dotProd(dir0) > 0 && p.dotProd(dir1) < 0;
+  }
+
+  /// Given a point p and either the left or right edge of the cell (specified
+  /// by setting uEnd to false or true respectively), returns true if p is
+  /// closer to the interior of that edge than it is to either endpoint.
+  bool _vEdgeIsClosest(S2Point p, bool uEnd) {
+    final u = uEnd ? _uMax : _uMin;
+    final dir0 = S2Point(-u * _vMin, u * u + 1, -_vMin);
+    final dir1 = S2Point(-u * _vMax, u * u + 1, -_vMax);
+    return p.dotProd(dir0) > 0 && p.dotProd(dir1) < 0;
+  }
+
+  /// Given the dot product of a point P with the normal of a u- or v-edge at
+  /// the given coordinate value, returns the squared chord angle distance from
+  /// P to that edge.
+  static double _edgeDistanceSquared(double dirIJ, double uv) {
+    final pq2 = (dirIJ * dirIJ) / (1 + uv * uv);
+    final qr = 1 - math.sqrt(1 - pq2);
+    return pq2 + qr * qr;
   }
 
   void _init(S2CellId id) {

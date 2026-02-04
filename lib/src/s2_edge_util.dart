@@ -99,6 +99,51 @@ class S2EdgeUtil {
         getDistanceRadians(x, a, b, S2RobustCrossProd.robustCrossProd(a, b)));
   }
 
+  /// If the distance from X to the edge AB is less than "minDist", this
+  /// method updates "minDist" and returns the new value. Otherwise "minDist"
+  /// is unchanged and the same reference is returned. The "minDist" argument
+  /// must be non-negative.
+  ///
+  /// This method is faster than getDistance() when used with an S1ChordAngle
+  /// because it can avoid computing the actual distance in many cases.
+  static S1ChordAngle updateMinDistance(
+      S2Point x, S2Point a, S2Point b, S1ChordAngle minDist) {
+    // Compute the chord angle from x to the edge AB.
+    final dist = S1ChordAngle.fromS1Angle(getDistance(x, a, b));
+    if (dist.compareTo(minDist) < 0) {
+      return dist;
+    }
+    return minDist;
+  }
+
+  /// Returns the maximum error in the result of updateMinDistance,
+  /// assuming that all input points are normalized to within the bounds
+  /// guaranteed by S2Point.normalize().
+  static double getUpdateMinDistanceMaxError(S1ChordAngle dist) {
+    // There are two cases for the maximum error, depending on whether the
+    // closest point is interior to the edge.
+    return math.max(
+        _getUpdateMinInteriorDistanceMaxError(dist), dist.s2PointConstructorMaxError);
+  }
+
+  /// Returns the maximum error in the result of updateMinInteriorDistance,
+  /// assuming that all input points are normalized.
+  static double _getUpdateMinInteriorDistanceMaxError(S1ChordAngle distance) {
+    // If a point is more than 90 degrees from an edge, then the minimum
+    // distance is always to one of the endpoints, not to the edge interior.
+    if (distance.compareTo(S1ChordAngle.right) >= 0) {
+      return 0.0;
+    }
+
+    // This bound includes all sources of error.
+    final b = math.min(1.0, 0.5 * distance.length2);
+    final aVal = math.sqrt(b * (2 - b));
+    return ((2.5 + 2 * S2.M_SQRT3 + 8.5 * aVal) * aVal +
+            (2 + 2 * S2.M_SQRT3 / 3 + 6.5 * (1 - b)) * b +
+            (23 + 16 / S2.M_SQRT3) * S2.dblEpsilon) *
+        S2.dblEpsilon;
+  }
+
   /// A more efficient version of getDistance() where the cross product of
   /// the endpoints has been precomputed.
   static double getDistanceRadians(

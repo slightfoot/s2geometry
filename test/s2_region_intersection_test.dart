@@ -17,15 +17,67 @@ import 'package:test/test.dart';
 
 void main() {
   group('S2RegionIntersection', () {
+    // Helper to create three overlapping rectangles (from Java test)
+    S2RegionIntersection threeRegions() {
+      final rect1 = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-35, -30),
+        S2LatLng.fromDegrees(30, 15),
+      );
+      final rect2 = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-45, -20),
+        S2LatLng.fromDegrees(20, 25),
+      );
+      final rect3 = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-25, -10),
+        S2LatLng.fromDegrees(40, 35),
+      );
+      return S2RegionIntersection([rect1, rect2, rect3]);
+    }
+
+    // Java test: testEmptyRegions
+    test('testEmptyRegions', () {
+      final regionIntersection = S2RegionIntersection([]);
+      expect(regionIntersection.capBound.isFull, isTrue);
+      expect(regionIntersection.rectBound.isFull, isTrue);
+    });
+
+    // Java test: testThreeRegions
+    test('testThreeRegions', () {
+      final regionIntersection = threeRegions();
+      final expectedRect = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-25, -10),
+        S2LatLng.fromDegrees(20, 15),
+      );
+      // Check rectBound is approximately equal to expectedRect
+      final rectBound = regionIntersection.rectBound;
+      expect((rectBound.lat.lo - expectedRect.lat.lo).abs() < 1e-10, isTrue);
+      expect((rectBound.lat.hi - expectedRect.lat.hi).abs() < 1e-10, isTrue);
+      expect((rectBound.lng.lo - expectedRect.lng.lo).abs() < 1e-10, isTrue);
+      expect((rectBound.lng.hi - expectedRect.lng.hi).abs() < 1e-10, isTrue);
+
+      final expectedCap = expectedRect.capBound;
+      expect(regionIntersection.capBound.approxEquals(expectedCap), isTrue);
+
+      // The region intersects but does not contain face 0.
+      final face0 = S2Cell.fromFace(0);
+      expect(regionIntersection.mayIntersect(face0), isTrue);
+      expect(regionIntersection.containsCell(face0), isFalse);
+
+      // The region intersects and contains the cell of the center point of the intersection region.
+      final center = S2Cell.fromLatLng(expectedRect.center);
+      expect(regionIntersection.mayIntersect(center), isTrue);
+      expect(regionIntersection.containsCell(center), isTrue);
+    });
+
     test('testEmptyIntersection', () {
       // An intersection of no regions covers the entire sphere
       final intersection = S2RegionIntersection([]);
-      
+
       // Should contain any point
       expect(intersection.containsPoint(const S2Point(1, 0, 0)), isTrue);
       expect(intersection.containsPoint(const S2Point(0, 1, 0)), isTrue);
       expect(intersection.containsPoint(const S2Point(0, 0, 1)), isTrue);
-      
+
       // RectBound should be full
       expect(intersection.rectBound.isFull, isTrue);
     });
