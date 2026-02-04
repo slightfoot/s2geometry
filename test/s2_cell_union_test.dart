@@ -153,5 +153,216 @@ void main() {
       assertExactly(0.0, cellUnion.approxArea);
       assertExactly(0.0, cellUnion.exactArea);
     });
+
+    test('testFromCellId', () {
+      final cellId = S2CellId.fromFace(0);
+      final union = S2CellUnion.fromCellId(cellId);
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(cellId));
+    });
+
+    test('testCopyFrom', () {
+      final original = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final copy = S2CellUnion.copyFrom(original);
+      expect(copy.size, equals(original.size));
+      expect(copy.cellId(0), equals(original.cellId(0)));
+    });
+
+    test('testClear', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(union.size, equals(1));
+      union.clear();
+      expect(union.size, equals(0));
+    });
+
+    test('testInitSwap', () {
+      final ids = [S2CellId.fromFace(0), S2CellId.fromFace(1)];
+      final union = S2CellUnion();
+      union.initSwap(ids);
+      expect(union.size, equals(2));
+      expect(ids.isEmpty, isTrue);
+    });
+
+    test('testInitRawSwap', () {
+      final ids = [S2CellId.fromFace(0), S2CellId.fromFace(1)];
+      final union = S2CellUnion();
+      union.initRawSwap(ids);
+      expect(union.size, equals(2));
+      expect(ids.isEmpty, isTrue);
+    });
+
+    test('testInitFromCellId', () {
+      final union = S2CellUnion();
+      final cellId = S2CellId.fromFace(0);
+      union.initFromCellId(cellId);
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(cellId));
+    });
+
+    test('testIsEmpty', () {
+      expect(S2CellUnion().isEmpty, isTrue);
+      expect(S2CellUnion.fromCellId(S2CellId.fromFace(0)).isEmpty, isFalse);
+    });
+
+    test('testIsNormalized', () {
+      // A normalized union
+      final normalized = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0),
+        S2CellId.fromFace(1),
+      ]);
+      expect(normalized.isNormalized, isTrue);
+    });
+
+    test('testDenormalized', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final denorm = union.denormalized(2);
+      expect(denorm.length, greaterThan(1));
+    });
+
+    test('testDenormalize', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final output = <S2CellId>[];
+      union.denormalize(1, 2, output);
+      expect(output.length, greaterThan(1));
+    });
+
+    test('testContainsPoint', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(union.containsPoint(S2Point.xPos), isTrue);
+      expect(union.containsPoint(S2Point.xNeg), isFalse);
+    });
+
+    test('testIntersectsCellId', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(union.intersectsCellId(S2CellId.fromFace(0)), isTrue);
+      expect(union.intersectsCellId(S2CellId.fromFace(1)), isFalse);
+    });
+
+    test('testIntersectsUnion', () {
+      final union1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final union2 = S2CellUnion.fromCellIds([S2CellId.fromFace(0).child(0)]);
+      expect(union1.intersectsUnion(union2), isTrue);
+
+      final union3 = S2CellUnion.fromCellIds([S2CellId.fromFace(1)]);
+      expect(union1.intersectsUnion(union3), isFalse);
+    });
+
+    test('testMayIntersectCell', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final cell = S2Cell(S2CellId.fromFace(0));
+      expect(union.mayIntersect(cell), isTrue);
+    });
+
+    test('testUnion', () {
+      final u1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final u2 = S2CellUnion.fromCellIds([S2CellId.fromFace(1)]);
+      final result = S2CellUnion.union(u1, u2);
+      expect(result.size, equals(2));
+    });
+
+    test('testIntersection', () {
+      final u1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final u2 = S2CellUnion.fromCellIds([S2CellId.fromFace(0).child(0)]);
+      final result = S2CellUnion.intersection(u1, u2);
+      expect(result.size, equals(1));
+    });
+
+    test('testGetIntersectionWithCellId', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final result = S2CellUnion();
+      result.getIntersectionWithCellId(union, S2CellId.fromFace(0));
+      expect(result.size, equals(1));
+
+      // Test with non-contained cell
+      result.getIntersectionWithCellId(union, S2CellId.fromFace(1));
+      expect(result.size, equals(0));
+    });
+
+    test('testGetDifference', () {
+      final u1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final u2 = S2CellUnion.fromCellIds([S2CellId.fromFace(0).child(0)]);
+      final result = S2CellUnion();
+      result.getDifference(u1, u2);
+      expect(result.size, greaterThan(0));
+    });
+
+    test('testExpand', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0).child(0).child(0)]);
+      union.expand(S1Angle.degrees(1), 2);
+      expect(union.size, greaterThan(1));
+    });
+
+    test('testCapBound', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final cap = union.capBound;
+      expect(cap.isEmpty, isFalse);
+    });
+
+    test('testCapBoundEmpty', () {
+      final union = S2CellUnion();
+      final cap = union.capBound;
+      expect(cap.isEmpty, isTrue);
+    });
+
+    test('testRectBound', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final rect = union.rectBound;
+      expect(rect.isEmpty, isFalse);
+    });
+
+    test('testGetCellUnionBound', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final result = <S2CellId>[];
+      union.getCellUnionBound(result);
+      expect(result.length, equals(1));
+    });
+
+    test('testIterator', () {
+      final union = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0),
+        S2CellId.fromFace(1),
+      ]);
+      int count = 0;
+      final iter = union.iterator;
+      while (iter.moveNext()) {
+        count++;
+      }
+      expect(count, equals(2));
+    });
+
+    test('testEquality', () {
+      final u1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final u2 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(u1, equals(u2));
+
+      final u3 = S2CellUnion.fromCellIds([S2CellId.fromFace(1)]);
+      expect(u1 == u3, isFalse);
+
+      expect(u1 == "not a union", isFalse);
+    });
+
+    test('testHashCode', () {
+      final u1 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final u2 = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(u1.hashCode, equals(u2.hashCode));
+    });
+
+    test('testToString', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      final str = union.toString();
+      expect(str, isNotEmpty);
+    });
+
+    test('testCellIds', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(union.cellIds.length, equals(1));
+    });
+
+    test('testAreaNonEmpty', () {
+      final union = S2CellUnion.fromCellIds([S2CellId.fromFace(0)]);
+      expect(union.averageBasedArea, greaterThan(0));
+      expect(union.approxArea, greaterThan(0));
+      expect(union.exactArea, greaterThan(0));
+    });
   });
 }
