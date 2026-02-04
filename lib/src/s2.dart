@@ -31,8 +31,21 @@ class S2 {
   /// Inverse of the square root of 2.
   static final double sqrt1Over2 = 1.0 / math.sqrt(2);
 
+  /// Inverse of sqrt(2), same as sqrt1Over2.
+  static final double mSqrt1_2 = sqrt1Over2;
+
+  /// Alias for mSqrt1_2 (Java naming convention).
+  static final double M_SQRT1_2 = sqrt1Over2;
+
   static final double sqrt2 = math.sqrt(2);
+
+  /// Alias for sqrt2 (Java naming convention).
+  static final double M_SQRT2 = sqrt2;
+
   static final double sqrt3 = math.sqrt(3);
+
+  /// Alias for sqrt3 (Java naming convention).
+  static final double M_SQRT3 = sqrt3;
 
   /// Pi / 2 constant.
   static const double mPi2 = math.pi / 2;
@@ -113,6 +126,17 @@ class S2 {
     if (k < 0) k = 2;
     return a.crossProd(_orthoBases[k]).normalize();
   }
+
+  /// Returns a unit-length vector used as the reference direction for deciding
+  /// whether a polygon with semi-open boundaries contains the given vertex [a].
+  /// The result is unit length and is guaranteed to be different from [a].
+  static S2Point refDir(S2Point a) {
+    return ortho(a);
+  }
+
+  /// True if some assertions are temporarily disabled to allow deliberate
+  /// construction of invalid S2 objects.
+  static bool skipAssertions = false;
 
   /// Return true if two points are within the given distance in radians.
   static bool approxEquals(S2Point a, S2Point b, [double maxErrorRadians = 1e-15]) {

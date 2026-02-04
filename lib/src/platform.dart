@@ -15,6 +15,9 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'real.dart';
+import 's2_point.dart';
+
 /// Platform-specific utilities.
 class Platform {
   /// The smallest positive double value that, when added to 1.0, yields a result
@@ -156,5 +159,31 @@ class Platform {
     bits++;
     bytes.setInt64(0, bits, Endian.little);
     return bytes.getFloat64(0, Endian.little) - dAbs;
+  }
+
+  /// Returns the sign of the determinant of the matrix constructed from the
+  /// three column vectors [a], [b], and [c]. This operation is very robust for
+  /// small determinants, but is extremely slow and should only be used if
+  /// performance is not a concern or all faster techniques have been exhausted.
+  static int sign(S2Point a, S2Point b, S2Point c) {
+    try {
+      Real bycz = Real.strictMul(b.y, c.z);
+      Real bzcy = Real.strictMul(b.z, c.y);
+      Real bzcx = Real.strictMul(b.z, c.x);
+
+      Real bxcz = Real.strictMul(b.x, c.z);
+      Real bxcy = Real.strictMul(b.x, c.y);
+      Real bycx = Real.strictMul(b.y, c.x);
+
+      Real bcx = bycz.sub(bzcy);
+      Real bcy = bzcx.sub(bxcz);
+      Real bcz = bxcy.sub(bycx);
+      Real x = bcx.mul(a.x);
+      Real y = bcy.mul(a.y);
+      Real z = bcz.mul(a.z);
+      return x.add(y).add(z).signum();
+    } on ArithmeticException {
+      return 0;
+    }
   }
 }

@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 17 | ~120 | **14%** |
-| **Test Files** | 14 | ~100 | **14%** |
+| **Core Source Files** | 21 | ~120 | **18%** |
+| **Test Files** | 15 | ~100 | **15%** |
 
 #### Ported Classes
 
@@ -121,21 +121,30 @@ The port was created by:
 | `s2_region_coverer.dart` | S2RegionCoverer.java | Converts regions to cell coverings |
 | `s2.dart` | S2.java | Core S2 utilities |
 | `s2_projections.dart` | S2Projections.java | Cell projection utilities |
+| `s2_predicates.dart` | S2Predicates.java | Robust geometric predicates |
+| `real.dart` | Real.java | Exact arithmetic for predicates |
+| `big_point.dart` | BigPoint.java | Extended precision 3D point |
 | `platform.dart` | Platform.java | Platform-specific utilities |
 
 ### Test Coverage
 
-All 121 ported tests pass. Code coverage for the ported files:
+All 126 ported tests pass. Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | s1_interval.dart | 97.0% |
-| s2_cell_id.dart | 94.2% |
+| s2_cell_id.dart | 93.0% |
+| s2_predicates.dart | 88.6% |
 | r2_rect.dart | 84.6% |
 | s2_latlng.dart | 81.9% |
-| r1_interval.dart | 79.4% |
+| r1_interval.dart | 79.6% |
 | s1_angle.dart | 77.8% |
-| **Overall** | **73.4%** |
+| s2_cell.dart | 76.6% |
+| s1_chord_angle.dart | 75.0% |
+| s2_projections.dart | 73.3% |
+| real.dart | 72.1% |
+| s2.dart | 71.4% |
+| **Overall** | **74.2%** |
 
 ---
 

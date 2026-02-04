@@ -45,8 +45,10 @@ export 'src/s2_region_coverer.dart';
 export 'src/s2.dart';
 export 'src/s2_projections.dart';
 export 'src/platform.dart';
+export 'src/real.dart';
+export 'src/big_point.dart';
+export 'src/s2_predicates.dart';
 // export 'src/s2_edge_util.dart'; // TODO: Port
-// export 'src/s2_predicates.dart'; // TODO: Port
 
 // Shape types
 // export 'src/s2_shape.dart'; // TODO: Port
