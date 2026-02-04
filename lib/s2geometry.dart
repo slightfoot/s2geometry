@@ -69,6 +69,10 @@ export 'src/parametrized_s2_point.dart';
 
 // Error handling
 export 'src/s2_error.dart';
+export 'src/s2_exception.dart';
+
+// Polyline utilities
+export 'src/s2_polyline_simplifier.dart';
 
 // Query types
 export 'src/s2_contains_vertex_query.dart';

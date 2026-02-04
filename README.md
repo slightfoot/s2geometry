@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 42 | ~120 | **35%** |
-| **Test Files** | 28 | ~100 | **28%** |
+| **Core Source Files** | 44 | ~120 | **37%** |
+| **Test Files** | 30 | ~100 | **30%** |
 
 #### Ported Classes
 
@@ -146,10 +146,12 @@ The port was created by:
 | `distance_collector.dart` | DistanceCollector.java | Interface for tracking "best" distance |
 | `projection.dart` | Projection.java | Map projections (Mercator, PlateCarree) |
 | `r2_edge_clipper.dart` | R2EdgeClipper.java | Cohen-Sutherland edge clipping to rectangles |
+| `s2_exception.dart` | S2Exception.java | Exception wrapper for S2Error |
+| `s2_polyline_simplifier.dart` | S2PolylineSimplifier.java | Helper for simplifying polylines |
 
 ### Test Coverage
 
-All 276 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 304 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -183,7 +185,9 @@ All 276 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| **Overall** | **73.7%** |
+| s2_exception.dart | 100.0% |
+| s2_polyline_simplifier.dart | 91.5% |
+| **Overall** | **74.2%** |
 
 ---
 

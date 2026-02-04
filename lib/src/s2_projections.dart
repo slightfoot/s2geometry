@@ -162,6 +162,11 @@ class S2Projections {
     return R2Vector(xyzToU(face, p), xyzToV(face, p));
   }
 
+  /// Writes the U,V coordinates for a given face and point into [result].
+  static void validFaceXyzToUvInto(int face, S2Point p, R2Vector result) {
+    result.set(xyzToU(face, p), xyzToV(face, p));
+  }
+
   /// Returns the unit-length normal for the given face.
   static S2Point getNorm(int face) {
     switch (face) {
