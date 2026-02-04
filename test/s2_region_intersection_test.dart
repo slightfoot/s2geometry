@@ -146,14 +146,68 @@ void main() {
     test('testEquality', () {
       final cap1 = S2Cap.fromAxisAngle(const S2Point(1, 0, 0), S1Angle.degrees(10));
       final cap2 = S2Cap.fromAxisAngle(const S2Point(0, 1, 0), S1Angle.degrees(20));
-      
+
       final intersection1 = S2RegionIntersection([cap1, cap2]);
       final intersection2 = S2RegionIntersection([cap1, cap2]);
       final intersection3 = S2RegionIntersection([cap2, cap1]);
-      
+
       expect(intersection1, equals(intersection2));
       expect(intersection1, isNot(equals(intersection3))); // Order matters
       expect(intersection1.hashCode, equals(intersection2.hashCode));
+    });
+
+    test('testCapBound', () {
+      final rect = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-10, -10),
+        S2LatLng.fromDegrees(10, 10),
+      );
+      final intersection = S2RegionIntersection([rect]);
+
+      // capBound should be a valid cap containing the rect
+      final capBound = intersection.capBound;
+      expect(capBound.isValid, isTrue);
+      expect(capBound.isEmpty, isFalse);
+
+      // Should contain points inside the rect
+      expect(capBound.containsPoint(S2LatLng.fromDegrees(0, 0).toPoint()), isTrue);
+    });
+
+    test('testGetCellUnionBound', () {
+      final rect = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-10, -10),
+        S2LatLng.fromDegrees(10, 10),
+      );
+      final intersection = S2RegionIntersection([rect]);
+
+      final cellIds = <S2CellId>[];
+      intersection.getCellUnionBound(cellIds);
+
+      // Should return some cells
+      expect(cellIds, isNotEmpty);
+    });
+
+    test('testRectBoundCaching', () {
+      final rect = S2LatLngRect.fromPointPair(
+        S2LatLng.fromDegrees(-10, -10),
+        S2LatLng.fromDegrees(10, 10),
+      );
+      final intersection = S2RegionIntersection([rect]);
+
+      // Call rectBound twice - second call should use cached value
+      final rectBound1 = intersection.rectBound;
+      final rectBound2 = intersection.rectBound;
+
+      // Should be the same object (cached)
+      expect(identical(rectBound1, rectBound2), isTrue);
+    });
+
+    test('testEqualityWithDifferentType', () {
+      final cap = S2Cap.fromAxisAngle(const S2Point(1, 0, 0), S1Angle.degrees(10));
+      final intersection = S2RegionIntersection([cap]);
+
+      // Should not equal non-S2RegionIntersection
+      expect(intersection == cap, isFalse);
+      expect(intersection == "not a region", isFalse);
     });
   });
 }

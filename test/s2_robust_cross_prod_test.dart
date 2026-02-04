@@ -137,6 +137,87 @@ void main() {
       final result = S2RobustCrossProd.robustCrossProd(a, b);
       expect(result.norm2, greaterThan(0));
     });
+
+    test('testSymbolicCrossProdXYNonZero', () {
+      // Test _symbolicCrossProdSorted when b.x != 0 or b.y != 0
+      final a = S2Point(0, 0, 1);
+      final b = S2Point(0.5, 0.5, 0).normalize();
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdZOnly', () {
+      // Test _symbolicCrossProdSorted when b.z != 0 and b.x == b.y == 0
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 0, 1);
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testStableCrossProdReturnsNull', () {
+      // Test that stableCrossProd returns null for nearly identical vectors
+      final a = S2Point(1, 0, 0);
+      final result = S2RobustCrossProd.stableCrossProd(a, a);
+      expect(result, isNull);
+    });
+
+    test('testRealCrossProdReturnsNullForIdentical', () {
+      // Test realCrossProd for identical unit vectors
+      final a = S2Point(1, 0, 0);
+      final result = S2RobustCrossProd.realCrossProd(a, a);
+      // May return null because result would be zero
+      expect(result, isNull);
+    });
+
+    test('testBigDecimalCrossProdIdentical', () {
+      // Test bigDecimalCrossProd for identical points
+      final a = S2Point(1, 0, 0);
+      final result = S2RobustCrossProd.bigDecimalCrossProd(a, a);
+      // May return null because result would be zero
+      expect(result, isNull);
+    });
+
+    test('testRobustCrossProdNearlyOpposite', () {
+      // Test nearly opposite points (a ~= -b)
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(-1, 1e-15, 0).normalize();
+      final result = S2RobustCrossProd.robustCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testExactCrossProdFallthrough', () {
+      // Test that exactCrossProd goes through various fallback methods
+      final a = S2Point(1, 1e-100, 0).normalize();
+      final b = S2Point(1, 2e-100, 0).normalize();
+      final result = S2RobustCrossProd.exactCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdOrderDependence', () {
+      // Test that symbolic cross prod uses correct ordering
+      final a = S2Point(0.3, 0.4, 0.5).normalize();
+      final b = S2Point(0.5, 0.4, 0.3).normalize();
+
+      final ab = S2RobustCrossProd.symbolicCrossProd(a, b);
+      final ba = S2RobustCrossProd.symbolicCrossProd(b, a);
+
+      // Should be antisymmetric
+      expect(ab.x + ba.x, closeTo(0, 1e-10));
+      expect(ab.y + ba.y, closeTo(0, 1e-10));
+      expect(ab.z + ba.z, closeTo(0, 1e-10));
+    });
+
+    test('testDiagonalVectors', () {
+      // Test with diagonal vectors
+      final a = S2Point(1, 1, 0).normalize();
+      final b = S2Point(1, -1, 0).normalize();
+
+      final result = S2RobustCrossProd.robustCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+      // Result should point in z direction
+      expect(result.z.abs(), greaterThan(result.x.abs()));
+      expect(result.z.abs(), greaterThan(result.y.abs()));
+    });
   });
 }
 
