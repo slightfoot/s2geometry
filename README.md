@@ -164,69 +164,64 @@ The port was created by:
 
 ### Test Coverage
 
-All **1019 tests pass** (3 skipped requiring extended precision). Overall code coverage: **38.0%** (5225/13734 lines).
-
-Coverage by file (sorted by coverage):
+All **1019 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
 
 | File | Coverage |
 |------|----------|
-| s1_interval.dart | 50.9% |
-| platform.dart | 49.8% |
-| s2_projections.dart | 47.1% |
-| s2_cell_union.dart | 46.4% |
-| s2_cell_id.dart | 45.8% |
-| s2_padded_cell.dart | 45.2% |
-| s2_closest_point_query.dart | 44.6% |
-| s2_cell.dart | 44.5% |
-| real.dart | 44.3% |
-| matrix.dart | 44.2% |
-| r2_rect.dart | 42.1% |
-| little_endian_output.dart | 41.3% |
-| s1_chord_angle.dart | 41.1% |
-| s2_point_compression.dart | 41.0% |
-| s2_region_coverer.dart | 40.5% |
-| r1_interval.dart | 39.9% |
-| s2_polyline.dart | 39.7% |
-| s2_latlng.dart | 39.7% |
-| s2_cap.dart | 39.4% |
-| little_endian_input.dart | 39.4% |
-| s2_predicates.dart | 39.2% |
-| s2_text_format.dart | 38.6% |
-| s2_edge_util.dart | 38.4% |
-| encoded_ints.dart | 37.7% |
-| r2_vector.dart | 37.5% |
-| s2_cell_index.dart | 36.7% |
-| s2_point.dart | 36.3% |
-| s2_point_index.dart | 36.2% |
-| s2_latlng_rect.dart | 36.2% |
-| s2_chain_interpolation_query.dart | 35.9% |
-| s2_edge.dart | 34.2% |
-| s2_polyline_simplifier.dart | 33.3% |
-| s2_edge_tessellator.dart | 33.3% |
-| r2_edge_clipper.dart | 33.1% |
-| big_point.dart | 32.8% |
-| s1_angle.dart | 32.4% |
-| s2_edge_vector_shape.dart | 32.0% |
-| s2_point_region.dart | 31.6% |
-| s2_lax_polyline_shape.dart | 31.3% |
-| s2_region_sharder.dart | 30.8% |
-| s2_fractal_builder.dart | 30.7% |
-| s2_earth.dart | 30.7% |
-| s2_contains_vertex_query.dart | 30.5% |
-| projection.dart | 29.4% |
-| s2.dart | 27.2% |
-| s2_robust_cross_prod.dart | 26.8% |
-| r2_edge.dart | 26.2% |
-| s2_region_union.dart | 25.2% |
-| s2_shape.dart | 24.4% |
-| s2_region_intersection.dart | 24.1% |
-| parametrized_s2_point.dart | 23.5% |
-| s2_area_centroid.dart | 20.8% |
-| s2_error.dart | 15.7% |
-| s2_exception.dart | 11.4% |
-| s1_distance.dart | 10.3% |
-| s2_region.dart | 3.2% |
-| distance_collector.dart | 2.4% |
+| big_point.dart | 100.0% |
+| encoded_ints.dart | 98.8% |
+| little_endian_input.dart | 100.0% |
+| little_endian_output.dart | 100.0% |
+| matrix.dart | 100.0% |
+| platform.dart | 98.1% |
+| projection.dart | 97.6% |
+| r1_interval.dart | 100.0% |
+| r2_edge.dart | 100.0% |
+| r2_edge_clipper.dart | 97.8% |
+| r2_rect.dart | 100.0% |
+| r2_vector.dart | 100.0% |
+| real.dart | 98.0% |
+| s1_angle.dart | 100.0% |
+| s1_chord_angle.dart | 100.0% |
+| s1_interval.dart | 100.0% |
+| s2.dart | 93.1% |
+| s2_area_centroid.dart | 100.0% |
+| s2_cap.dart | 100.0% |
+| s2_cell.dart | 90.4% |
+| s2_cell_id.dart | 94.4% |
+| s2_cell_index.dart | 96.3% |
+| s2_cell_union.dart | 98.7% |
+| s2_chain_interpolation_query.dart | 96.4% |
+| s2_closest_point_query.dart | 75.9% |
+| s2_contains_vertex_query.dart | 100.0% |
+| s2_earth.dart | 97.8% |
+| s2_edge.dart | 92.3% |
+| s2_edge_tessellator.dart | 100.0% |
+| s2_edge_util.dart | 92.2% |
+| s2_edge_vector_shape.dart | 80.5% |
+| s2_error.dart | 100.0% |
+| s2_exception.dart | 100.0% |
+| s2_fractal_builder.dart | 86.2% |
+| s2_latlng.dart | 100.0% |
+| s2_latlng_rect.dart | 100.0% |
+| s2_lax_polyline_shape.dart | 92.9% |
+| s2_padded_cell.dart | 94.0% |
+| s2_point.dart | 100.0% |
+| s2_point_compression.dart | 90.8% |
+| s2_point_index.dart | 85.1% |
+| s2_point_region.dart | 100.0% |
+| s2_polyline.dart | 100.0% |
+| s2_polyline_simplifier.dart | 94.4% |
+| s2_predicates.dart | 97.4% |
+| s2_projections.dart | 98.5% |
+| s2_region_coverer.dart | 98.2% |
+| s2_region_intersection.dart | 100.0% |
+| s2_region_sharder.dart | 97.2% |
+| s2_region_union.dart | 100.0% |
+| s2_robust_cross_prod.dart | 85.3% |
+| s2_shape.dart | 100.0% |
+| s2_text_format.dart | 99.5% |
+| **Overall** | **95.4%** |
 
 ---
 
