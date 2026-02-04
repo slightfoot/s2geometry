@@ -316,6 +316,12 @@ class S2Projections {
   /// Minimum width of cells at each level.
   static final minWidth = _Metric(1, 2 * S2.sqrt2 / 3);
 
+  /// Average edge length at each level.
+  static const double _avgEdgeDeriv = 1.459213746386106062;
+
+  /// Average angular length of any cell edge at level k.
+  static final avgEdge = _Metric(1, _avgEdgeDeriv);
+
   /// Convert a direction vector (not necessarily unit length) to (face, si, ti) coordinates.
   static FaceSiTi xyzToFaceSiTi(S2Point p) {
     final face = xyzToFace(p);

@@ -133,6 +133,8 @@ export 'src/uint_vector_coder.dart';
 export 'src/s2_cell_id_vector_coder.dart';
 export 'src/vector_coder.dart';
 export 'src/s2_point_vector_coder.dart';
+export 'src/s2_iterator.dart';
+export 'src/s2_shape_index.dart';
 
 // TODO: Port
 // export 'src/s2_loop.dart';

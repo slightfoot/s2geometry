@@ -97,8 +97,9 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 71 | ~124 | **57%** |
-| **Test Files** | 62 | ~100 | **62%** |
+| **Core Source Files** | 73 | ~124 | **59%** |
+| **Test Files** | 63 | ~100 | **63%** |
+| **Total Tests** | 1128 | ~1000+ | **~100%+** |
 
 #### Ported Classes
 
@@ -175,10 +176,12 @@ The port was created by:
 | `s2_cell_id_vector_coder.dart` | S2CellIdVectorCoder.java | Encoder/decoder for S2CellId lists |
 | `vector_coder.dart` | VectorCoder.java | Generic list encoder/decoder |
 | `s2_point_vector_coder.dart` | S2PointVectorCoder.java | Encoder/decoder for S2Point lists |
+| `s2_iterator.dart` | S2Iterator.java | Iterator interface for S2ShapeIndex |
+| `s2_shape_index.dart` | S2ShapeIndex.java | Core spatial index for shapes |
 
 ### Test Coverage
 
-All **1119 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
+All **1128 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
 
 | File | Coverage |
 |------|----------|
