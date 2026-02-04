@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 37 | ~120 | **31%** |
-| **Test Files** | 24 | ~100 | **24%** |
+| **Core Source Files** | 40 | ~120 | **33%** |
+| **Test Files** | 26 | ~100 | **26%** |
 
 #### Ported Classes
 
@@ -141,10 +141,13 @@ The port was created by:
 | `s2_error.dart` | S2Error.java | Error codes for S2 operations |
 | `s2_contains_vertex_query.dart` | S2ContainsVertexQuery.java | Determines if polygon contains a vertex |
 | `s2_padded_cell.dart` | S2PaddedCell.java | Cell with padding for recursive traversal |
+| `s2_region_intersection.dart` | S2RegionIntersection.java | Intersection of multiple regions |
+| `r2_edge.dart` | R2Edge.java | Mutable edge in 2D space |
+| `distance_collector.dart` | DistanceCollector.java | Interface for tracking "best" distance |
 
 ### Test Coverage
 
-All 245 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 262 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -174,7 +177,9 @@ All 245 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| **Overall** | **72.7%** |
+| s2_region_intersection.dart | 80.8% |
+| r2_edge.dart | 100.0% |
+| **Overall** | **73.1%** |
 
 ---
 

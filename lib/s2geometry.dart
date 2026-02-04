@@ -74,6 +74,15 @@ export 'src/s2_error.dart';
 export 'src/s2_contains_vertex_query.dart';
 export 'src/s2_padded_cell.dart';
 
+// Region intersection
+export 'src/s2_region_intersection.dart';
+
+// 2D geometry
+export 'src/r2_edge.dart';
+
+// Distance tracking
+export 'src/distance_collector.dart';
+
 // TODO: Port
 // export 'src/s2_loop.dart';
 // export 'src/s2_polygon.dart';
