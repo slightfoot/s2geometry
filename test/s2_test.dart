@@ -177,6 +177,20 @@ void main() {
       expect(S2.sqrt3, closeTo(math.sqrt(3), 1e-15));
       expect(S2.sqrt1Over2, closeTo(1 / math.sqrt(2), 1e-15));
     });
+
+    test('testConstantAliases', () {
+      // Test Java-style constant aliases
+      expect(S2.mSqrt1_2, equals(S2.sqrt1Over2));
+      expect(S2.M_SQRT1_2, equals(S2.sqrt1Over2));
+      expect(S2.M_SQRT2, equals(S2.sqrt2));
+      expect(S2.M_SQRT3, equals(S2.sqrt3));
+    });
+
+    test('testExactCrossProdError', () {
+      // Test that exactCrossProdError is a valid S1Angle
+      expect(S2.exactCrossProdError.radians, greaterThan(0));
+      expect(S2.exactCrossProdError.radians, lessThan(S2.robustCrossProdError.radians));
+    });
   });
 }
 
