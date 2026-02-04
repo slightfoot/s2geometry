@@ -314,6 +314,50 @@ void main() {
         expect(() => S2TextFormat.makeEdgesOrDie('0:0'),
             throwsArgumentError);
       });
+
+      test('makePointOrDie throws on invalid', () {
+        expect(() => S2TextFormat.makePointOrDie('invalid'),
+            throwsArgumentError);
+      });
+
+      test('makeCellId returns null for invalid child character', () {
+        // Test invalid child digit (must be 0-3)
+        final cellId = S2TextFormat.makeCellId('0/45');
+        expect(cellId, isNull);
+      });
+    });
+
+    group('additional toString methods', () {
+      test('cellUnionToString with children', () {
+        // Test _cellIdToDebugString via cellUnionToString for cells with children
+        final cellId = S2CellId.fromFace(2).child(0).child(1).child(2);
+        final union = S2CellUnion.fromCellIds([cellId]);
+        final str = S2TextFormat.cellUnionToString(union);
+        expect(str, equals('2/012'));
+      });
+
+      test('polylinesToString', () {
+        final polyline1 = S2Polyline([
+          S2LatLng.fromDegrees(0, 0).toPoint(),
+          S2LatLng.fromDegrees(10, 10).toPoint(),
+        ]);
+        final polyline2 = S2Polyline([
+          S2LatLng.fromDegrees(20, 20).toPoint(),
+          S2LatLng.fromDegrees(30, 30).toPoint(),
+        ]);
+        final str = S2TextFormat.polylinesToString([polyline1, polyline2]);
+        expect(str, contains('|'));
+      });
+
+      test('polylinesToString single polyline', () {
+        final polyline = S2Polyline([
+          S2LatLng.fromDegrees(0, 0).toPoint(),
+          S2LatLng.fromDegrees(10, 10).toPoint(),
+        ]);
+        final str = S2TextFormat.polylinesToString([polyline]);
+        expect(str, isNotEmpty);
+        expect(str, isNot(contains('|'))); // No separator for single polyline
+      });
     });
   });
 }
