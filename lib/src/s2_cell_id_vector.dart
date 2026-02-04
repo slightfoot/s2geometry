@@ -12,22 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:collection';
+
 import 's2_cell_id.dart';
 
 /// A list of [S2CellId]s, and specialized methods for directly operating on
 /// the encoded form.
-abstract class S2CellIdVector {
-  /// Returns the number of cell IDs in this vector.
-  int get length;
-
-  /// Returns the cell ID at the given index.
-  S2CellId operator [](int index);
-
+abstract class S2CellIdVector extends ListBase<S2CellId> {
   /// Returns the index of the first element [x] such that [x >= target], or
   /// [length] if no such element exists.
   ///
   /// The list must be sorted into ascending order prior to making this call.
   /// If it is not sorted, the results are undefined.
   int lowerBound(S2CellId target);
+
+  @override
+  void set length(int newLength) {
+    throw UnsupportedError('Cannot modify S2CellIdVector length');
+  }
+
+  @override
+  void operator []=(int index, S2CellId value) {
+    throw UnsupportedError('Cannot modify S2CellIdVector');
+  }
 }
 

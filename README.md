@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 67 | ~120 | **56%** |
-| **Test Files** | 58 | ~100 | **58%** |
+| **Core Source Files** | 70 | ~124 | **56%** |
+| **Test Files** | 61 | ~100 | **61%** |
 
 #### Ported Classes
 
@@ -171,10 +171,13 @@ The port was created by:
 | `buffer_utils.dart` | BufferUtils.java | ByteBuffer utilities |
 | `input_streams.dart` | InputStreams.java | Input stream utilities |
 | `in_memory_output_stream.dart` | InMemoryOutputStream.java | In-memory output stream |
+| `uint_vector_coder.dart` | UintVectorCoder.java | Encoder/decoder for integer arrays |
+| `s2_cell_id_vector_coder.dart` | S2CellIdVectorCoder.java | Encoder/decoder for S2CellId lists |
+| `vector_coder.dart` | VectorCoder.java | Generic list encoder/decoder |
 
 ### Test Coverage
 
-All **1057 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
+All **1105 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
 
 | File | Coverage |
 |------|----------|
@@ -231,7 +234,10 @@ All **1057 tests pass** (3 skipped requiring extended precision). Code coverage 
 | s2_robust_cross_prod.dart | 85.3% |
 | s2_shape.dart | 100.0% |
 | s2_text_format.dart | 99.5% |
-| **Overall** | **95.4%** |
+| uint_vector_coder.dart | 97.5% |
+| s2_cell_id_vector_coder.dart | 94.2% |
+| vector_coder.dart | 82.3% |
+| **Overall** | **91.0%** |
 
 ---
 
