@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 32 | ~120 | **27%** |
-| **Test Files** | 22 | ~100 | **22%** |
+| **Core Source Files** | 37 | ~120 | **31%** |
+| **Test Files** | 24 | ~100 | **24%** |
 
 #### Ported Classes
 
@@ -136,38 +136,45 @@ The port was created by:
 | `s2_region_union.dart` | S2RegionUnion.java | Union of multiple regions |
 | `s2_polyline.dart` | S2Polyline.java | Polyline (sequence of vertices) |
 | `s2_text_format.dart` | S2TextFormat.java | Text parsing/formatting for S2 objects |
+| `s1_distance.dart` | S1Distance.java | Abstract distance on the sphere surface |
+| `parametrized_s2_point.dart` | ParametrizedS2Point.java | S2Point with time parameter for ordering |
+| `s2_error.dart` | S2Error.java | Error codes for S2 operations |
+| `s2_contains_vertex_query.dart` | S2ContainsVertexQuery.java | Determines if polygon contains a vertex |
+| `s2_padded_cell.dart` | S2PaddedCell.java | Cell with padding for recursive traversal |
 
 ### Test Coverage
 
-All 229 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 245 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | s1_interval.dart | 97.0% |
 | s2_predicates.dart | 96.5% |
-| s2_cell_id.dart | 93.0% |
+| s2_cell_id.dart | 93.2% |
 | s2_polyline.dart | 91.6% |
 | s2_point_region.dart | 90.0% |
+| s2_contains_vertex_query.dart | 90.0% |
 | s2_earth.dart | 89.1% |
 | s2_edge_util.dart | 85.5% |
 | r2_rect.dart | 84.6% |
 | s2_latlng.dart | 84.3% |
 | s2_point.dart | 83.5% |
+| s2.dart | 82.0% |
 | s1_angle.dart | 81.9% |
 | matrix.dart | 81.1% |
 | r1_interval.dart | 79.6% |
-| s2.dart | 78.7% |
+| s2_cell.dart | 77.9% |
 | real.dart | 77.6% |
 | s1_chord_angle.dart | 76.9% |
-| s2_cell.dart | 76.6% |
 | s2_robust_cross_prod.dart | 76.5% |
 | s2_projections.dart | 73.3% |
 | s2_cap.dart | 71.8% |
 | s2_latlng_rect.dart | 69.1% |
 | s2_cell_union.dart | 66.9% |
 | s2_region_coverer.dart | 64.8% |
+| s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| **Overall** | **73.5%** |
+| **Overall** | **72.7%** |
 
 ---
 

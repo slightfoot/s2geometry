@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'r1_interval.dart';
+import 'r2_rect.dart';
 import 'r2_vector.dart';
 import 's2.dart';
 import 's2_latlng.dart';
@@ -696,5 +698,21 @@ class S2CellId implements Comparable<S2CellId> {
     }
     final neighbor = S2CellId.fromFaceIJ(face, i, j).parentAtLevel(level);
     results.add(neighbor);
+  }
+
+  /// Returns the bound in (u,v)-space for the cell at the given level containing
+  /// the leaf cell with the given (i,j)-coordinates.
+  static R2Rect ijLevelToBoundUv(int i, int j, int level) {
+    final cellSize = getSizeIJ(level);
+    return R2Rect(
+      R1Interval(
+        S2Projections.ijToUV(i, cellSize),
+        S2Projections.ijToUV(i + cellSize, cellSize),
+      ),
+      R1Interval(
+        S2Projections.ijToUV(j, cellSize),
+        S2Projections.ijToUV(j + cellSize, cellSize),
+      ),
+    );
   }
 }

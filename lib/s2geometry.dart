@@ -63,6 +63,17 @@ export 'src/s2_region_union.dart';
 export 'src/s2_polyline.dart';
 export 'src/s2_text_format.dart';
 
+// Distance types
+export 'src/s1_distance.dart';
+export 'src/parametrized_s2_point.dart';
+
+// Error handling
+export 'src/s2_error.dart';
+
+// Query types
+export 'src/s2_contains_vertex_query.dart';
+export 'src/s2_padded_cell.dart';
+
 // TODO: Port
 // export 'src/s2_loop.dart';
 // export 'src/s2_polygon.dart';
