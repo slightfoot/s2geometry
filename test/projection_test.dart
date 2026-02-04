@@ -85,5 +85,15 @@ void main() {
     assertProjectUnproject(proj, R2Vector(0, 90), S2Point(0, 0, 1));
     assertProjectUnproject(proj, R2Vector(0, -90), S2Point(0, 0, -1));
   });
+
+  test('testMercatorInRadiansConstructor', () {
+    final proj = MercatorProjection.inRadians();
+    expect(proj.wrapDistance.x, closeTo(2 * 3.14159265358979, 1e-10));
+  });
+
+  test('testPlateCarreeInRadiansConstructor', () {
+    final proj = PlateCarreeProjection.inRadians();
+    expect(proj.wrapDistance.x, closeTo(2 * 3.14159265358979, 1e-10));
+  });
 }
 
