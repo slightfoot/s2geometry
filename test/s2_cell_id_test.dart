@@ -148,5 +148,65 @@ void main() {
       expect(child0.intersects(face0), isTrue);
       expect(child0.intersects(child1), isFalse);
     });
+
+    test('testSentinel', () {
+      // Test the sentinel value
+      final sentinel = S2CellId.sentinel;
+      expect(sentinel.id, equals(S2CellId.maxUnsigned));
+      // Sentinel should be larger than any valid cell
+      expect(sentinel.id.toUnsigned(64), greaterThan(S2CellId.fromFace(5).id.toUnsigned(64)));
+    });
+
+    test('testChildPosition', () {
+      // Test childPosition getter
+      final face0 = S2CellId.fromFace(0);
+      for (int pos = 0; pos < 4; pos++) {
+        final childCell = face0.child(pos);
+        expect(childCell.childPosition, equals(pos));
+      }
+    });
+
+    test('testToLatLng', () {
+      // Test toLatLng conversion
+      final cellId = S2CellId.fromLatLng(S2LatLng.fromDegrees(37.7749, -122.4194));
+      final latLng = cellId.toLatLng();
+      expect(latLng.latDegrees, closeTo(37.7749, 0.001));
+      expect(latLng.lngDegrees, closeTo(-122.4194, 0.001));
+    });
+
+    test('testIAndJ', () {
+      // Test i and j getters
+      final cellId = S2CellId.fromFacePosLevel(0, 0, 10);
+      final i = cellId.i;
+      final j = cellId.j;
+      expect(i, greaterThanOrEqualTo(0));
+      expect(j, greaterThanOrEqualTo(0));
+      expect(i, lessThan(S2CellId.maxSize));
+      expect(j, lessThan(S2CellId.maxSize));
+    });
+
+    test('testFromTokenLongToken', () {
+      // Test fromToken with token longer than 16 characters
+      final result = S2CellId.fromToken('12345678901234567');  // 17 chars
+      expect(result, equals(S2CellId.none));
+    });
+
+    test('testFromTokenInvalidHex', () {
+      // Test fromToken with invalid hex characters
+      final result = S2CellId.fromToken('zzzz');  // Invalid hex
+      expect(result, equals(S2CellId.none));
+    });
+
+    test('testIsValidToken', () {
+      // Test isValidToken with a known valid cell token
+      // Face cell at level 0 for face 0 has a known valid token
+      final face0 = S2CellId.fromFace(0);
+      final validToken = face0.toToken();
+      expect(face0.isValid, isTrue);  // Verify cell is valid first
+      expect(S2CellId.isValidToken(validToken), isTrue);
+      expect(S2CellId.isValidToken(''), isFalse);  // Empty token
+      expect(S2CellId.isValidToken('X'), isFalse);  // X is invalid marker
+      expect(S2CellId.isValidToken('zzzz'), isFalse);  // Invalid hex
+    });
   });
 }
