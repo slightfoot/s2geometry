@@ -107,13 +107,107 @@ void main() {
       final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
       final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(5));
       final innerUnion = S2RegionUnion([cap1, cap2]);
-      
+
       final cap3 = S2Cap.fromAxisAngle(S2Point(0, 0, 1), S1Angle.degrees(5));
       final outerUnion = S2RegionUnion([innerUnion, cap3]);
 
       expect(outerUnion.containsPoint(S2Point(1, 0, 0)), isTrue);
       expect(outerUnion.containsPoint(S2Point(0, 1, 0)), isTrue);
       expect(outerUnion.containsPoint(S2Point(0, 0, 1)), isTrue);
+    });
+
+    test('testGetCellUnionBound', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(10));
+      final regionUnion = S2RegionUnion([cap]);
+
+      final cellIds = <S2CellId>[];
+      regionUnion.getCellUnionBound(cellIds);
+
+      expect(cellIds, isNotEmpty);
+    });
+
+    test('testEqualityOperator', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(5));
+
+      final union1 = S2RegionUnion([cap1, cap2]);
+      final union2 = S2RegionUnion([cap1, cap2]);
+
+      expect(union1 == union2, isTrue);
+    });
+
+    test('testEqualityDifferentRegions', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(5));
+      final cap3 = S2Cap.fromAxisAngle(S2Point(0, 0, 1), S1Angle.degrees(5));
+
+      final union1 = S2RegionUnion([cap1, cap2]);
+      final union2 = S2RegionUnion([cap1, cap3]);
+
+      expect(union1 == union2, isFalse);
+    });
+
+    test('testEqualityDifferentOrder', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(5));
+
+      final union1 = S2RegionUnion([cap1, cap2]);
+      final union2 = S2RegionUnion([cap2, cap1]);
+
+      // Different order means different unions
+      expect(union1 == union2, isFalse);
+    });
+
+    test('testEqualityDifferentType', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
+      final union = S2RegionUnion([cap]);
+
+      expect(union == cap, isFalse);
+    });
+
+    test('testHashCode', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(5));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(5));
+
+      final union1 = S2RegionUnion([cap1, cap2]);
+      final union2 = S2RegionUnion([cap1, cap2]);
+
+      expect(union1.hashCode, equals(union2.hashCode));
+    });
+
+    test('testCapBoundCaching', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(10));
+      final regionUnion = S2RegionUnion([cap]);
+
+      // Call twice to test caching
+      final capBound1 = regionUnion.capBound;
+      final capBound2 = regionUnion.capBound;
+
+      expect(identical(capBound1, capBound2), isTrue);
+    });
+
+    test('testRectBoundCaching', () {
+      // Use S2PointRegion instead of S2Cap since S2Cap.rectBound is not implemented
+      final point = S2LatLng.fromDegrees(10, 20).toPoint();
+      final regionUnion = S2RegionUnion([S2PointRegion(point)]);
+
+      // Call twice to test caching
+      final rectBound1 = regionUnion.rectBound;
+      final rectBound2 = regionUnion.rectBound;
+
+      expect(identical(rectBound1, rectBound2), isTrue);
+    });
+
+    test('testMayIntersectFalse', () {
+      // Create a small cap at (1, 0, 0)
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(1));
+      final regionUnion = S2RegionUnion([cap]);
+
+      // Get a cell that's definitely on the opposite side of the sphere
+      final oppositeCell = S2Cell.fromPoint(S2Point(-1, 0, 0));
+
+      // The small cap shouldn't intersect the opposite side of the sphere
+      expect(regionUnion.mayIntersect(oppositeCell), isFalse);
     });
 
   });

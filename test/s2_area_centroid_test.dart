@@ -60,6 +60,69 @@ void main() {
       expect(ac1.area, equals(ac2.area));
       expect(ac1.centroid, equals(ac2.centroid));
     });
+
+    test('testEqualityOperator', () {
+      final point1 = S2Point(1.0, 2.0, 3.0);
+      final point2 = S2Point(1.0, 2.0, 3.0);
+      final ac1 = S2AreaCentroid(5.0, point1);
+      final ac2 = S2AreaCentroid(5.0, point2);
+      expect(ac1 == ac2, isTrue);
+    });
+
+    test('testEqualityDifferentArea', () {
+      final point = S2Point(1.0, 2.0, 3.0);
+      final ac1 = S2AreaCentroid(5.0, point);
+      final ac2 = S2AreaCentroid(6.0, point);
+      expect(ac1 == ac2, isFalse);
+    });
+
+    test('testEqualityDifferentCentroid', () {
+      final point1 = S2Point(1.0, 2.0, 3.0);
+      final point2 = S2Point(1.0, 2.0, 4.0);
+      final ac1 = S2AreaCentroid(5.0, point1);
+      final ac2 = S2AreaCentroid(5.0, point2);
+      expect(ac1 == ac2, isFalse);
+    });
+
+    test('testEqualityNullCentroids', () {
+      final ac1 = S2AreaCentroid(5.0);
+      final ac2 = S2AreaCentroid(5.0);
+      expect(ac1 == ac2, isTrue);
+    });
+
+    test('testEqualityOneNullCentroid', () {
+      final point = S2Point(1.0, 2.0, 3.0);
+      final ac1 = S2AreaCentroid(5.0, point);
+      final ac2 = S2AreaCentroid(5.0);
+      expect(ac1 == ac2, isFalse);
+      expect(ac2 == ac1, isFalse);
+    });
+
+    test('testEqualityDifferentType', () {
+      final point = S2Point(1.0, 2.0, 3.0);
+      final ac = S2AreaCentroid(5.0, point);
+      expect(ac == point, isFalse);
+    });
+
+    test('testNullCentroid', () {
+      final ac = S2AreaCentroid(3.14);
+      expect(ac.area, equals(3.14));
+      expect(ac.centroid, isNull);
+    });
+
+    test('testHashCode', () {
+      final point1 = S2Point(1.0, 2.0, 3.0);
+      final point2 = S2Point(1.0, 2.0, 3.0);
+      final ac1 = S2AreaCentroid(5.0, point1);
+      final ac2 = S2AreaCentroid(5.0, point2);
+      expect(ac1.hashCode, equals(ac2.hashCode));
+    });
+
+    test('testHashCodeNullCentroid', () {
+      final ac1 = S2AreaCentroid(5.0);
+      final ac2 = S2AreaCentroid(5.0);
+      expect(ac1.hashCode, equals(ac2.hashCode));
+    });
   });
 }
 
