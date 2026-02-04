@@ -201,6 +201,25 @@ class S2EdgeUtil {
     return getPointOnLine(a, b, S1Angle.radians(t * ab.radians));
   }
 
+  /// Interpolates a value along a linear mapping.
+  ///
+  /// Given a value [x] in the range [a, b], interpolates the corresponding
+  /// value in the range [a1, b1]. For accuracy near both endpoints, the
+  /// interpolation is performed from whichever endpoint is closer to x.
+  ///
+  /// Requires: a != b
+  static double interpolateDouble(
+      double x, double a, double b, double a1, double b1) {
+    assert(a != b);
+    // To get results that are accurate near both A and B, we interpolate
+    // starting from the closer of the two points.
+    if ((a - x).abs() <= (b - x).abs()) {
+      return a1 + (b1 - a1) * ((x - a) / (b - a));
+    } else {
+      return b1 + (a1 - b1) * ((x - b) / (a - b));
+    }
+  }
+
   /// Given three points, returns true if the edges OA, OB, and OC are
   /// encountered in that order while sweeping CCW around the point O. You can
   /// think of this as testing whether A <= B <= C with respect to a continuous

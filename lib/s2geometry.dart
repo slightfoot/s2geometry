@@ -79,6 +79,7 @@ export 'src/s2_region_intersection.dart';
 
 // 2D geometry
 export 'src/r2_edge.dart';
+export 'src/r2_edge_clipper.dart';
 
 // Distance tracking
 export 'src/distance_collector.dart';

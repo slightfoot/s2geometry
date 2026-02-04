@@ -26,13 +26,13 @@ void main() {
       expect(edge.v1.y, equals(0));
     });
 
-    test('testInit', () {
+    test('testInitFromPoints', () {
       final edge = R2Edge();
       final v0 = R2Vector(1.0, 2.0);
       final v1 = R2Vector(3.0, 4.0);
-      
-      edge.init(v0, v1);
-      
+
+      edge.initFromPoints(v0, v1);
+
       expect(edge.v0.x, equals(1.0));
       expect(edge.v0.y, equals(2.0));
       expect(edge.v1.x, equals(3.0));
@@ -41,11 +41,11 @@ void main() {
 
     test('testInitFromEdge', () {
       final edge1 = R2Edge();
-      edge1.init(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
-      
+      edge1.initFromPoints(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
+
       final edge2 = R2Edge();
       edge2.initFromEdge(edge1);
-      
+
       expect(edge2.v0.x, equals(1.0));
       expect(edge2.v0.y, equals(2.0));
       expect(edge2.v1.x, equals(3.0));
@@ -54,21 +54,21 @@ void main() {
 
     test('testIsEqualTo', () {
       final edge1 = R2Edge();
-      edge1.init(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
-      
+      edge1.initFromPoints(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
+
       final edge2 = R2Edge();
-      edge2.init(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
-      
+      edge2.initFromPoints(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
+
       final edge3 = R2Edge();
-      edge3.init(R2Vector(1.0, 2.0), R2Vector(5.0, 6.0));
-      
+      edge3.initFromPoints(R2Vector(1.0, 2.0), R2Vector(5.0, 6.0));
+
       expect(edge1.isEqualTo(edge2), isTrue);
       expect(edge1.isEqualTo(edge3), isFalse);
     });
 
     test('testMutability', () {
       final edge = R2Edge();
-      edge.init(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
+      edge.initFromPoints(R2Vector(1.0, 2.0), R2Vector(3.0, 4.0));
       
       // Modify v0
       edge.v0.x = 10.0;
@@ -97,8 +97,8 @@ void main() {
 
     test('testToString', () {
       final edge = R2Edge();
-      edge.init(R2Vector(1.5, 2.5), R2Vector(3.5, 4.5));
-      
+      edge.initFromPoints(R2Vector(1.5, 2.5), R2Vector(3.5, 4.5));
+
       expect(edge.toString(), contains('R2Edge'));
       expect(edge.toString(), contains('1.5'));
       expect(edge.toString(), contains('2.5'));
@@ -107,9 +107,9 @@ void main() {
     test('testCopyIndependence', () {
       final v0 = R2Vector(1.0, 2.0);
       final v1 = R2Vector(3.0, 4.0);
-      
+
       final edge = R2Edge();
-      edge.init(v0, v1);
+      edge.initFromPoints(v0, v1);
       
       // Modifying the original vectors should not affect the edge
       v0.x = 100.0;

@@ -23,16 +23,21 @@ class R2Edge {
   R2Edge();
 
   /// Initializes this edge endpoints to be copies of the given endpoints.
-  void init(R2Vector newV0, R2Vector newV1) {
+  void initFromPoints(R2Vector newV0, R2Vector newV1) {
     v0.setFrom(newV0);
     v1.setFrom(newV1);
   }
 
-  /// Sets this edge endpoints to be copies of the current endpoints of the 
+  /// Sets this edge endpoints to be copies of the current endpoints of the
   /// given edge.
-  void initFromEdge(R2Edge edge) {
+  void init(R2Edge edge) {
     v0.setFrom(edge.v0);
     v1.setFrom(edge.v1);
+  }
+
+  /// Alias for [init] to match Java API.
+  void initFromEdge(R2Edge edge) {
+    init(edge);
   }
 
   /// Returns true if the current endpoints of this edge have exactly the 

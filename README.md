@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 41 | ~120 | **34%** |
-| **Test Files** | 27 | ~100 | **27%** |
+| **Core Source Files** | 42 | ~120 | **35%** |
+| **Test Files** | 28 | ~100 | **28%** |
 
 #### Ported Classes
 
@@ -145,13 +145,15 @@ The port was created by:
 | `r2_edge.dart` | R2Edge.java | Mutable edge in 2D space |
 | `distance_collector.dart` | DistanceCollector.java | Interface for tracking "best" distance |
 | `projection.dart` | Projection.java | Map projections (Mercator, PlateCarree) |
+| `r2_edge_clipper.dart` | R2EdgeClipper.java | Cohen-Sutherland edge clipping to rectangles |
 
 ### Test Coverage
 
-All 268 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 276 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
+| r2_edge.dart | 100.0% |
 | s1_interval.dart | 97.0% |
 | s2_predicates.dart | 96.5% |
 | s2_cell_id.dart | 93.2% |
@@ -159,13 +161,16 @@ All 268 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_point_region.dart | 90.0% |
 | s2_contains_vertex_query.dart | 90.0% |
 | s2_earth.dart | 89.1% |
-| s2_edge_util.dart | 85.5% |
+| projection.dart | 88.1% |
+| r2_edge_clipper.dart | 86.5% |
+| s2_edge_util.dart | 85.9% |
 | r2_rect.dart | 84.6% |
 | s2_latlng.dart | 84.3% |
 | s2_point.dart | 83.5% |
 | s2.dart | 82.0% |
 | s1_angle.dart | 81.9% |
 | matrix.dart | 81.1% |
+| s2_region_intersection.dart | 80.8% |
 | r1_interval.dart | 79.6% |
 | s2_cell.dart | 77.9% |
 | real.dart | 77.6% |
@@ -178,9 +183,7 @@ All 268 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| s2_region_intersection.dart | 80.8% |
-| r2_edge.dart | 100.0% |
-| **Overall** | **73.1%** |
+| **Overall** | **73.7%** |
 
 ---
 
