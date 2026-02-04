@@ -149,6 +149,12 @@ void main() {
       final r = Real.fromDouble(3.14159);
       expect(r.toString(), equals('3.14159'));
     });
+
+    test('testArithmeticExceptionToString', () {
+      final ex = ArithmeticException('test error message');
+      expect(ex.toString(), equals('ArithmeticException: test error message'));
+      expect(ex.message, equals('test error message'));
+    });
   });
 }
 
