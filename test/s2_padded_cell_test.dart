@@ -453,6 +453,33 @@ void main() {
         expect(child.orientation, equals(expectedOrientation));
       }
     });
+
+    test('testShrinkToFitLevelNotBetterReturnsId', () {
+      // Test when shrinkToFit computes a level that's not better than current
+      // This exercises line 221: if (level <= _level) return _id;
+      final id = S2CellId.fromFacePosLevel(0, 0, 20);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Get the cell bounds
+      final cell = S2Cell(id);
+      final lo = cell.getVertex(0);
+      final hi = cell.getVertex(2);
+
+      // Create a rectangle that encompasses the entire cell bounds
+      // This should result in level <= current level
+      final uLo = S2Projections.xyzToU(id.face, lo);
+      final vLo = S2Projections.xyzToV(id.face, lo);
+      final uHi = S2Projections.xyzToU(id.face, hi);
+      final vHi = S2Projections.xyzToV(id.face, hi);
+
+      final rect = R2Rect(
+        R1Interval(uLo < uHi ? uLo : uHi, uLo < uHi ? uHi : uLo),
+        R1Interval(vLo < vHi ? vLo : vHi, vLo < vHi ? vHi : vLo),
+      );
+
+      final shrunk = pcell.shrinkToFit(rect);
+      expect(shrunk, equals(id));
+    });
   });
 }
 
