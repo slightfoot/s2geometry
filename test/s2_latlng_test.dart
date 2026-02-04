@@ -108,5 +108,97 @@ void main() {
           180,
           2e-6);
     });
+
+    test('testFromE6', () {
+      final ll = S2LatLng.fromE6(1234567, 9876543);
+      assertAlmostEquals(ll.lat.degrees, 1.234567);
+      assertAlmostEquals(ll.lng.degrees, 9.876543);
+    });
+
+    test('testFromE7', () {
+      final ll = S2LatLng.fromE7(12345678, 98765432);
+      assertAlmostEquals(ll.lat.degrees, 1.2345678);
+      assertAlmostEquals(ll.lng.degrees, 9.8765432);
+    });
+
+    test('testCenter', () {
+      final center = S2LatLng.center;
+      expect(center.latRadians, equals(0.0));
+      expect(center.lngRadians, equals(0.0));
+    });
+
+    test('testLatLngDegrees', () {
+      final ll = S2LatLng.fromDegrees(45, 90);
+      expect(ll.latDegrees, closeTo(45.0, 1e-10));
+      expect(ll.lngDegrees, closeTo(90.0, 1e-10));
+    });
+
+    test('testGetDistanceWithRadius', () {
+      final ll1 = S2LatLng.fromDegrees(0, 0);
+      final ll2 = S2LatLng.fromDegrees(0, 90);
+      // At the equator, 90 degrees is 1/4 of circumference
+      // With radius 1.0, distance should be pi/2
+      expect(ll1.getDistanceWithRadius(ll2, 1.0), closeTo(M_PI_2, 1e-10));
+    });
+
+    test('testOperators', () {
+      final ll1 = S2LatLng.fromDegrees(10, 20);
+      final ll2 = S2LatLng.fromDegrees(5, 10);
+
+      final sum = ll1 + ll2;
+      expect(sum.approxEquals(S2LatLng.fromDegrees(15, 30)), isTrue);
+
+      final diff = ll1 - ll2;
+      expect(diff.approxEquals(S2LatLng.fromDegrees(5, 10)), isTrue);
+
+      final scaled = ll1 * 2;
+      expect(scaled.approxEquals(S2LatLng.fromDegrees(20, 40)), isTrue);
+    });
+
+    test('testEquality', () {
+      final ll1 = S2LatLng.fromDegrees(45, 90);
+      final ll2 = S2LatLng.fromDegrees(45, 90);
+      expect(ll1, equals(ll2));
+
+      final ll3 = S2LatLng.fromDegrees(45, 91);
+      expect(ll1 == ll3, isFalse);
+
+      expect(ll1 == "not a latlng", isFalse);
+    });
+
+    test('testHashCode', () {
+      final ll1 = S2LatLng.fromDegrees(45, 90);
+      final ll2 = S2LatLng.fromDegrees(45, 90);
+      expect(ll1.hashCode, equals(ll2.hashCode));
+    });
+
+    test('testToString', () {
+      final ll = S2LatLng.fromDegrees(45, 90);
+      final str = ll.toString();
+      expect(str.contains('('), isTrue);
+      expect(str.contains(')'), isTrue);
+    });
+
+    test('testToStringDegrees', () {
+      final ll = S2LatLng.fromDegrees(45, 90);
+      final str = ll.toStringDegrees();
+      expect(str, contains('45'));
+      expect(str, contains('90'));
+    });
+
+    test('testApproxEquals', () {
+      final ll1 = S2LatLng.fromDegrees(45, 90);
+      final ll2 = S2LatLng.fromDegrees(45.0000001, 90.0000001);
+      expect(ll1.approxEquals(ll2, 1e-5), isTrue);
+      expect(ll1.approxEquals(ll2, 1e-10), isFalse);
+    });
+
+    test('testIsValidLatLng', () {
+      expect(S2LatLng.isValidLatLng(0, 0), isTrue);
+      expect(S2LatLng.isValidLatLng(M_PI_2, 0), isTrue);
+      expect(S2LatLng.isValidLatLng(-M_PI_2, math.pi), isTrue);
+      expect(S2LatLng.isValidLatLng(M_PI_2 + 0.1, 0), isFalse);
+      expect(S2LatLng.isValidLatLng(0, math.pi + 0.1), isFalse);
+    });
   });
 }
