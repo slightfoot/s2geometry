@@ -15,6 +15,7 @@
 import 'dart:math' as math;
 
 import 'r1_interval.dart';
+import 'r2_vector.dart';
 import 's1_angle.dart';
 import 's1_chord_angle.dart';
 import 's1_interval.dart';
@@ -23,6 +24,7 @@ import 's2_latlng.dart';
 import 's2_latlng_rect.dart';
 import 's2_point.dart';
 import 's2_predicates.dart';
+import 's2_projections.dart';
 import 's2_robust_cross_prod.dart';
 
 /// This class contains various utility functions related to edges. It collects
@@ -42,6 +44,13 @@ class S2EdgeUtil {
   /// The same angle as faceClipErrorRadians, expressed as a maximum distance
   /// in (u,v)-space.
   static const double faceClipErrorUvDist = 9 * S2.dblEpsilon;
+
+  // ignore: constant_identifier_names
+  /// The same angle as [faceClipErrorRadians], expressed as the maximum error
+  /// in an individual u- or v-coordinate. In other words, for each returned
+  /// vertex there is a point on the exact edge AB whose u- and v-coordinates
+  /// differ from the vertex by at most this amount.
+  static final double FACE_CLIP_ERROR_UV_COORD = 9 * S2.M_SQRT1_2 * S2.dblEpsilon;
 
   /// Error in IntersectRect.
   static final double intersectsRectErrorUvDist =
@@ -292,6 +301,205 @@ class S2EdgeUtil {
     if (b == c) return (a != b) && (c != d) && S2Predicates.orderedCCW(a, d, b, S2RobustCrossProd.robustCrossProd(a, d).normalize());
     if (b == d) return (a != b) && (c != d) && S2Predicates.orderedCCW(a, c, b, S2RobustCrossProd.robustCrossProd(a, c).normalize());
     return false;
+  }
+
+  // ============ Face Clipping Methods ============
+
+  /// Returns true if a given directed line L intersects the cube face F.
+  /// The line L is defined by its normal N in the (u,v,w) coordinates of F.
+  static bool _intersectsFace(S2Point n) {
+    // L intersects the [-1,1]x[-1,1] square in (u,v) if and only if the dot
+    // products of N with the four corner vertices (-1,-1,1), (1,-1,1), (1,1,1),
+    // and (-1,1,1) do not all have the same sign. This is true exactly when
+    // |Nu| + |Nv| >= |Nw|. The code below evaluates this expression exactly.
+    final u = n.x.abs();
+    final v = n.y.abs();
+    final w = n.z.abs();
+    // We only need to consider the cases where u or v is the smallest value,
+    // since if w is the smallest then both expressions below will have a
+    // positive LHS and a negative RHS.
+    return (v >= w - u) && (u >= w - v);
+  }
+
+  /// Given a directed line L intersecting a cube face F, return true if L
+  /// intersects two opposite edges of F (including the case where L passes
+  /// exactly through a corner vertex of F). The line L is defined by its
+  /// normal N in the (u,v,w) coordinates of F.
+  static bool _intersectsOppositeEdges(S2Point n) {
+    // The line L intersects opposite edges of the [-1,1]x[-1,1] (u,v) square
+    // if and only exactly two of the corner vertices lie on each side of L.
+    // This is true exactly when ||Nu| - |Nv|| >= |Nw|.
+    final u = n.x.abs();
+    final v = n.y.abs();
+    final w = n.z.abs();
+    // If w is the smallest, the following line returns an exact result.
+    if ((u - v).abs() != w) {
+      return (u - v).abs() >= w;
+    }
+    // Otherwise u - v = w exactly, or w is not the smallest value. In either
+    // case the following line returns the correct result.
+    return (u >= v) ? (u - w >= v) : (v - w >= u);
+  }
+
+  /// Given cube face F and a directed line L (represented by its CCW normal N
+  /// in the (u,v,w) coordinates of F), compute the axis of the cube face edge
+  /// where L exits the face: return 0 if L exits through the u=-1 or u=+1 edge,
+  /// and 1 if L exits through the v=-1 or v=+1 edge. Either result is
+  /// acceptable if L exits exactly through a corner vertex of the cube face.
+  static int _getExitAxis(S2Point n) {
+    assert(_intersectsFace(n));
+    if (_intersectsOppositeEdges(n)) {
+      // The line passes through opposite edges of the face. It exits through
+      // the v=+1 or v=-1 edge if the u-component of N has a larger absolute
+      // magnitude than the v-component.
+      return (n.x.abs() >= n.y.abs()) ? 1 : 0;
+    } else {
+      // The line passes through two adjacent edges of the face. It exits the
+      // v=+1 or v=-1 edge if an even number of the components of N are negative.
+      // We test this using comparison rather than multiplication to avoid the
+      // possibility of underflow.
+      assert(n.x != 0 && n.y != 0 && n.z != 0);
+      return ((n.x < 0) ^ (n.y < 0) ^ (n.z < 0)) ? 0 : 1;
+    }
+  }
+
+  /// Given a cube face F, a directed line L (represented by its CCW normal N
+  /// in the (u,v,w) coordinates of F), and result of [_getExitAxis], set
+  /// [result] to the (u,v) coordinates of the point where L exits the cube face.
+  static void _getExitPoint(S2Point n, int axis, R2Vector result) {
+    if (axis == 0) {
+      result.x = (n.y > 0) ? 1.0 : -1.0;
+      result.y = (-result.x * n.x - n.z) / n.y;
+    } else {
+      result.y = (n.x < 0) ? 1.0 : -1.0;
+      result.x = (-result.y * n.y - n.z) / n.x;
+    }
+  }
+
+  /// This helper function clips the line segment AB to find the clipped
+  /// destination B' on a given face. It partially computes whether the segment
+  /// AB intersects this face at all. The actual condition is fairly complicated,
+  /// but it turns out that it can be expressed as a "score" that can be computed
+  /// independently when clipping the two endpoints A and B.
+  ///
+  /// This function returns the score for the given endpoint, which is an integer
+  /// ranging from 0 to 3. If the sum of the two scores is 3 or more, then AB
+  /// does not intersect this face.
+  static int _clipDestination(
+    S2Point a,
+    S2Point b,
+    S2Point nScaled,
+    S2Point aTangent,
+    S2Point bTangent,
+    double uvScale,
+    R2Vector uv,
+  ) {
+    assert(_intersectsFace(nScaled));
+
+    // Optimization: if B is within the safe region of the face, use it.
+    final kMaxSafeUVCoord = 1 - FACE_CLIP_ERROR_UV_COORD;
+    if (b.z > 0) {
+      uv.set(b.x / b.z, b.y / b.z);
+      if (math.max(uv.x.abs(), uv.y.abs()) <= kMaxSafeUVCoord) {
+        return 0;
+      }
+    }
+
+    // Otherwise find the point B' where the line AB exits the face.
+    _getExitPoint(nScaled, _getExitAxis(nScaled), uv);
+    uv.x *= uvScale;
+    uv.y *= uvScale;
+    final p = S2Point(uv.x, uv.y, 1);
+
+    // Determine if the exit point B' is contained within the segment.
+    // We do this by computing the dot products with two inward-facing tangent
+    // vectors at A and B. If either dot product is negative, we say that B' is
+    // on the "wrong side" of that point.
+    int score = 0;
+    if (p.sub(a).dotProd(aTangent) < 0) {
+      score = 2; // B' is on wrong side of A.
+    } else if (p.sub(b).dotProd(bTangent) < 0) {
+      score = 1; // B' is on wrong side of B.
+    }
+    if (score > 0) {
+      // B' is not in the interior of AB.
+      if (b.z <= 0) {
+        score = 3; // B cannot be projected onto this face.
+      } else {
+        uv.set(b.x / b.z, b.y / b.z);
+      }
+    }
+    return score;
+  }
+
+  /// Clips the edge AB to the square [-R,R]x[-R,R] where R=(1+padding).
+  /// Rather than clipping to [-1,1]x[-1,1], this allows for a padded region.
+  ///
+  /// If the given edge does not intersect the face, returns false and does
+  /// NOT fill [aUv] and [bUv].
+  static bool clipToPaddedFace(
+    S2Point aXyz,
+    S2Point bXyz,
+    int face,
+    double padding,
+    R2Vector aUv,
+    R2Vector bUv,
+  ) {
+    assert(padding >= 0);
+
+    // Fast path: both endpoints are on the given face.
+    if (S2Projections.xyzToFace(aXyz) == face &&
+        S2Projections.xyzToFace(bXyz) == face) {
+      S2Projections.validFaceXyzToUvInto(face, aXyz, aUv);
+      S2Projections.validFaceXyzToUvInto(face, bXyz, bUv);
+      return true;
+    }
+
+    // Convert everything into the (u,v,w) coordinates of the given face. Note
+    // that the cross product *must* be computed in the original (x,y,z)
+    // coordinate system because RobustCrossProd (unlike the mathematical cross
+    // product) can produce different results in different coordinate systems
+    // when one argument is a linear multiple of the other, due to the use of
+    // symbolic perturbations.
+    final n = S2Projections.faceXyzToUvw(
+        face, S2RobustCrossProd.robustCrossProd(aXyz, bXyz));
+    final a = S2Projections.faceXyzToUvw(face, aXyz);
+    final b = S2Projections.faceXyzToUvw(face, bXyz);
+
+    // Padding is handled by scaling the u- and v-components of the normal.
+    // Letting R=1+padding, this means that when we compute the dot product of
+    // the normal with a cube face vertex (such as (-1,-1,1)), we will actually
+    // compute the dot product with the scaled vertex (-R,-R,1). This allows
+    // methods such as _intersectsFace(), _getExitAxis(), etc, to handle padding
+    // with no further modifications.
+    final uvScale = 1 + padding;
+    final nScaled = S2Point(uvScale * n.x, uvScale * n.y, n.z);
+    if (!_intersectsFace(nScaled)) {
+      return false;
+    }
+
+    final nNorm = n.normalize();
+    final aTangent = nNorm.crossProd(a);
+    final bTangent = b.crossProd(nNorm);
+    // As described above, if the sum of the scores from clipping the two
+    // endpoints is 3 or more, then the segment does not intersect this face.
+    final aScore =
+        _clipDestination(b, a, nScaled.neg(), bTangent, aTangent, uvScale, aUv);
+    final bScore =
+        _clipDestination(a, b, nScaled, aTangent, bTangent, uvScale, bUv);
+    return aScore + bScore < 3;
+  }
+
+  /// Clips the edge AB to the given face. Returns false and does not fill
+  /// [aUv] and [bUv] if AB does not intersect the given face.
+  static bool clipToFace(
+    S2Point a,
+    S2Point b,
+    int face,
+    R2Vector aUv,
+    R2Vector bUv,
+  ) {
+    return clipToPaddedFace(a, b, face, 0.0, aUv, bUv);
   }
 }
 

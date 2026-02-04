@@ -87,6 +87,7 @@ export 'src/s2_region_intersection.dart';
 // 2D geometry
 export 'src/r2_edge.dart';
 export 'src/r2_edge_clipper.dart';
+export 'src/uv_edge_clipper.dart';
 
 // Distance tracking
 export 'src/distance_collector.dart';
@@ -117,6 +118,17 @@ export 'src/s2_closest_point_query.dart';
 
 // Sharding
 export 'src/s2_region_sharder.dart';
+
+// Primitives
+export 'src/sorter.dart';
+export 'src/pullable.dart';
+export 'src/mutable_s2_point.dart';
+export 'src/primitive_arrays.dart';
+export 'src/s2_coder.dart';
+export 'src/s2_cell_id_vector.dart';
+export 'src/buffer_utils.dart';
+export 'src/input_streams.dart';
+export 'src/in_memory_output_stream.dart';
 
 // TODO: Port
 // export 'src/s2_loop.dart';

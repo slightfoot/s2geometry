@@ -395,7 +395,9 @@ class S2CellId implements Comparable<S2CellId> {
   String toToken() {
     if (id == 0) return 'X';
 
-    String hex = id.toRadixString(16).toLowerCase();
+    // Use BigInt.toUnsigned(64) to get the proper unsigned hex representation.
+    // Dart's int.toRadixString treats negative values as signed.
+    String hex = BigInt.from(id).toUnsigned(64).toRadixString(16).toLowerCase();
     // Pad to 16 characters
     hex = hex.padLeft(16, '0');
     // Trim trailing zeros
@@ -415,11 +417,20 @@ class S2CellId implements Comparable<S2CellId> {
       return none;
     }
 
-    // Pad with trailing zeros to make 16 characters
-    String padded = token.padRight(16, '0');
-
+    // Parse digit by digit to handle unsigned 64-bit values correctly.
+    // The value is left-shifted by (16 - length) * 4 bits to produce the full
+    // cell id, since trailing zeros are stripped in toToken().
     try {
-      int value = int.parse(padded, radix: 16);
+      int value = 0;
+      for (int pos = 0; pos < token.length; pos++) {
+        int digitValue = int.parse(token[pos], radix: 16);
+        if (digitValue < 0) {
+          return none;
+        }
+        value = value * 16 + digitValue;
+      }
+      // Shift left to fill the 16 hex digit space
+      value = value << (4 * (16 - token.length));
       return S2CellId(value);
     } catch (e) {
       return none;

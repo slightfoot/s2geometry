@@ -260,6 +260,18 @@ class S2Point implements Comparable<S2Point> {
   /// Returns a component by index (0=x, 1=y, 2=z). Used by Matrix operations.
   double get(int index) => this[index];
 
+  /// Returns the x coordinate (Java compatibility).
+  double getX() => x;
+
+  /// Returns the y coordinate (Java compatibility).
+  double getY() => y;
+
+  /// Returns the z coordinate (Java compatibility).
+  double getZ() => z;
+
+  /// Returns true if this point is equal to [that]. Slightly faster than ==.
+  bool equalsPoint(S2Point that) => x == that.x && y == that.y && z == that.z;
+
   /// Returns true if this point is approximately equal to [p].
   /// This is used for containment tests where exact equality would fail
   /// due to floating point precision.

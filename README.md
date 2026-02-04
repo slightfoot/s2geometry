@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 57 | ~120 | **48%** |
-| **Test Files** | 54 | ~100 | **54%** |
+| **Core Source Files** | 67 | ~120 | **56%** |
+| **Test Files** | 58 | ~100 | **58%** |
 
 #### Ported Classes
 
@@ -161,10 +161,20 @@ The port was created by:
 | `encoded_ints.dart` | EncodedInts.java | Varint encoding, ZigZag encoding, bit interleaving |
 | `little_endian_input.dart` | LittleEndianInput.java | Reading little-endian primitives |
 | `little_endian_output.dart` | LittleEndianOutput.java | Writing little-endian primitives |
+| `sorter.dart` | primitives/Sorter.java | Sorting utilities |
+| `pullable.dart` | primitives/Pullable.java | Pullable interface for sorting |
+| `mutable_s2_point.dart` | MutableS2Point.java | Mutable S2Point and MutableS2PointList |
+| `uv_edge_clipper.dart` | UVEdgeClipper.java | Edge clipping to faces in UV space |
+| `primitive_arrays.dart` | PrimitiveArrays.java | Bytes, Longs, and Cursor classes |
+| `s2_coder.dart` | S2Coder.java | Encoding/decoding interface |
+| `s2_cell_id_vector.dart` | S2CellIdVector.java | Abstract cell ID list |
+| `buffer_utils.dart` | BufferUtils.java | ByteBuffer utilities |
+| `input_streams.dart` | InputStreams.java | Input stream utilities |
+| `in_memory_output_stream.dart` | InMemoryOutputStream.java | In-memory output stream |
 
 ### Test Coverage
 
-All **1019 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
+All **1057 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
 
 | File | Coverage |
 |------|----------|

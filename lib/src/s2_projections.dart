@@ -26,6 +26,13 @@ class S2Projections {
   static const int maxLevel = 30;
   static const int maxSize = 1 << maxLevel;
 
+  /// The maximum absolute error in U/V coordinates when converting from XYZ.
+  ///
+  /// The XYZ -> UV conversion is a single division per coordinate, which is
+  /// promised to be at most 0.5*DBL_EPSILON absolute error for values with
+  /// magnitude less than two.
+  static const double maxXyzToUvError = 0.5 * S2.dblEpsilon;
+
   /// The maximum value of an si- or ti-coordinate.
   static const int maxSiTi = 1 << (maxLevel + 1);
 
