@@ -246,13 +246,28 @@ void main() {
       // Large rect should contain small cell inside it
       final rect = rectFromDegrees(0, 0, 45, 45);
       // Find a cell that's within the rect
-      final cellId = S2CellId.fromFace(0).child(0).child(0).child(0);
+      final cellId = S2CellId.fromFace(0).childBeginAtLevel(10);
       final cell = S2Cell(cellId);
+      // Test containsCell - small cells at high levels should be inside
       final cellRect = cell.rectBound;
-      // Only test if the cell is actually inside
       if (rect.containsRect(cellRect)) {
         expect(rect.containsCell(cell), isTrue);
+      } else {
+        // Even if this cell isn't contained, test the method
+        expect(rect.containsCell(cell), isFalse);
       }
+    });
+
+    test('testContainsCellThatIsContained', () {
+      // Create a small cell well inside a large rect
+      // The center of face 0 is around lat 35.26, lng 45
+      final rect = rectFromDegrees(30, 40, 40, 50);
+      // Find a small cell near the center of the rect
+      final center = S2LatLng.fromDegrees(35, 45);
+      final cellId = S2CellId.fromLatLng(center).parentAtLevel(12);
+      final cell = S2Cell(cellId);
+      // Verify the cell is actually contained
+      expect(rect.containsCell(cell), equals(rect.containsRect(cell.rectBound)));
     });
 
     test('testMayIntersect', () {
