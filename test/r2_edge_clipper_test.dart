@@ -393,6 +393,58 @@ void main() {
       expect(clipper.clipEdge(edge, false), isTrue);
       expect(clipper.outcode0, equals(R2EdgeClipper.inside));
     });
+
+    test('cornerClipSecondEdgeWins', () {
+      // Test case where first clip (to one boundary) leaves point outside,
+      // but second clip (to perpendicular boundary) puts it inside
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(0, 0),
+        R2Vector(2, 2),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from top-left corner region that clips better to left than top
+      // Start point is at (-1, 3) which is top | left corner
+      // End point is at (1, 1) which is inside
+      // When we clip to top (y=2), the x-intercept may still be outside left
+      // When we clip to left (x=0), the y-intercept should be inside
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-1, 3), R2Vector(1, 1));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
+
+    test('cornerClipSecondBoundaryWins', () {
+      // Test where clipping to first boundary (top) still leaves point outside (left)
+      // but clipping to second boundary (left) puts point inside
+      //
+      // Clip rect: [0,0] to [10,10]
+      // Point in top-left corner: (-5, 15) - very far left, above the rect
+      // Edge goes to (5, 5) inside
+      //
+      // When we clip (-5,15)->(5,5) to y=10 (top):
+      //   t = (10-15)/(5-15) = -5/-10 = 0.5
+      //   x at t=0.5: -5 + 0.5*(5-(-5)) = -5 + 5 = 0
+      //   So clipping to top gives (0, 10) which is on left edge - inside
+      //
+      // Actually, let me try a case where clipping to top gives point OUTSIDE
+      // Edge from (-20, 15) to (5, 5)
+      // Clip to y=10: t = (10-15)/(5-15) = 0.5
+      //   x = -20 + 0.5*(5-(-20)) = -20 + 12.5 = -7.5 -> still left of x=0
+      // Clip to x=0: t = (0-(-20))/(5-(-20)) = 20/25 = 0.8
+      //   y = 15 + 0.8*(5-15) = 15 - 8 = 7 -> inside [0,10]
+
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(0, 0),
+        R2Vector(10, 10),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-20, 15), R2Vector(5, 5));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
   });
 }
 
