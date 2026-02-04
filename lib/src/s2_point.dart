@@ -14,6 +14,9 @@
 
 import 'dart:math' as math;
 
+import 'little_endian_input.dart';
+import 'little_endian_output.dart';
+
 /// An S2Point represents a point on the unit sphere as a 3D vector.
 /// Usually points are normalized to be unit length, but some methods do not
 /// require this. S2Points are immutable.
@@ -276,4 +279,16 @@ class S2Point implements Comparable<S2Point> {
   /// This is used for containment tests where exact equality would fail
   /// due to floating point precision.
   bool containsPoint(S2Point p) => this == p;
+
+  /// Encodes this point to the given output stream (3 little-endian doubles).
+  void encode(LittleEndianOutput output) {
+    output.writeDouble(x);
+    output.writeDouble(y);
+    output.writeDouble(z);
+  }
+
+  /// Decodes an S2Point from the given input stream (3 little-endian doubles).
+  static S2Point decode(LittleEndianInput input) {
+    return S2Point(input.readDouble(), input.readDouble(), input.readDouble());
+  }
 }

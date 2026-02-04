@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 70 | ~124 | **56%** |
-| **Test Files** | 61 | ~100 | **61%** |
+| **Core Source Files** | 71 | ~124 | **57%** |
+| **Test Files** | 62 | ~100 | **62%** |
 
 #### Ported Classes
 
@@ -174,10 +174,11 @@ The port was created by:
 | `uint_vector_coder.dart` | UintVectorCoder.java | Encoder/decoder for integer arrays |
 | `s2_cell_id_vector_coder.dart` | S2CellIdVectorCoder.java | Encoder/decoder for S2CellId lists |
 | `vector_coder.dart` | VectorCoder.java | Generic list encoder/decoder |
+| `s2_point_vector_coder.dart` | S2PointVectorCoder.java | Encoder/decoder for S2Point lists |
 
 ### Test Coverage
 
-All **1105 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
+All **1119 tests pass** (3 skipped requiring extended precision). Code coverage for ported files:
 
 | File | Coverage |
 |------|----------|
