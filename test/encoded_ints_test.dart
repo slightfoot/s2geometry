@@ -149,6 +149,27 @@ void main() {
         expect(decoded, equals(testValue));
       }
     });
+
+    test('testTruncatedVarint', () {
+      // Test that a truncated varint throws FormatException
+      // Create bytes that indicate more bytes are coming (high bit set) but then end
+      final truncated = [0x80];  // High bit set means more bytes expected
+      expect(
+        () => EncodedInts.readVarint64(truncated, 0),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('testMalformedVarint', () {
+      // Test that a varint with too many bytes throws FormatException
+      // Create 10 bytes all with continuation bit set - exceeds 64-bit capacity
+      // A valid varint64 can be at most 10 bytes (70 bits can encode 64-bit value)
+      final malformed = List.filled(11, 0x80);  // 11 bytes all with continuation bit
+      expect(
+        () => EncodedInts.readVarint64(malformed, 0),
+        throwsA(isA<FormatException>()),
+      );
+    });
   });
 }
 

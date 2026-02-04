@@ -155,12 +155,12 @@ The port was created by:
 
 ### Test Coverage
 
-All 922 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 924 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | big_point.dart | 100.0% |
-| encoded_ints.dart | 96.4% |
+| encoded_ints.dart | 98.8% |
 | little_endian_input.dart | 100.0% |
 | little_endian_output.dart | 100.0% |
 | matrix.dart | 100.0% |
