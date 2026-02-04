@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 45 | ~120 | **38%** |
-| **Test Files** | 31 | ~100 | **31%** |
+| **Core Source Files** | 46 | ~120 | **38%** |
+| **Test Files** | 32 | ~100 | **32%** |
 
 #### Ported Classes
 
@@ -149,10 +149,11 @@ The port was created by:
 | `s2_exception.dart` | S2Exception.java | Exception wrapper for S2Error |
 | `s2_polyline_simplifier.dart` | S2PolylineSimplifier.java | Helper for simplifying polylines |
 | `s2_edge_tessellator.dart` | S2EdgeTessellator.java | Converts between geodesic and projected edges |
+| `encoded_ints.dart` | EncodedInts.java | Varint encoding, ZigZag encoding, bit interleaving |
 
 ### Test Coverage
 
-All 314 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 322 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -189,7 +190,8 @@ All 314 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| **Overall** | **74.6%** |
+| encoded_ints.dart | 96.4% |
+| **Overall** | **75.1%** |
 
 ---
 

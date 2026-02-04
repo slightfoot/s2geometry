@@ -94,6 +94,9 @@ export 'src/projection.dart';
 // Edge tessellation
 export 'src/s2_edge_tessellator.dart';
 
+// Encoding utilities
+export 'src/encoded_ints.dart';
+
 // TODO: Port
 // export 'src/s2_loop.dart';
 // export 'src/s2_polygon.dart';
