@@ -226,6 +226,29 @@ void main() {
         expect(p.norm2, closeTo(1.0, 1e-10));
       }
     });
+
+    test('testAvgAreaGetMinLevel', () {
+      // Test getMinLevel of avgArea metric
+      // For very large values, should return level 0
+      final level0 = S2Projections.avgArea.getMinLevel(100.0);
+      expect(level0, equals(0));
+      // For small values, should return higher levels
+      final smallLevel = S2Projections.avgArea.getMinLevel(1e-10);
+      expect(smallLevel, greaterThan(0));
+      // For zero or negative, should return maxLevel
+      final zeroLevel = S2Projections.avgArea.getMinLevel(0.0);
+      expect(zeroLevel, equals(S2CellId.maxLevel));
+      final negLevel = S2Projections.avgArea.getMinLevel(-1.0);
+      expect(negLevel, equals(S2CellId.maxLevel));
+    });
+
+    test('testMinWidthGetMinLevel', () {
+      // Test getMinLevel of minWidth metric
+      final level0 = S2Projections.minWidth.getMinLevel(100.0);
+      expect(level0, equals(0));
+      final smallLevel = S2Projections.minWidth.getMinLevel(1e-10);
+      expect(smallLevel, greaterThan(0));
+    });
   });
 }
 
