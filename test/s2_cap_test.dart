@@ -291,5 +291,25 @@ void main() {
 
       expect(cap1 == "not a cap", isFalse);
     });
+
+    test('testRectBoundEmpty', () {
+      // Empty cap returns empty rect
+      final empty = S2Cap.empty();
+      final rect = empty.rectBound;
+      expect(rect.isEmpty, isTrue);
+    });
+
+    test('testRectBoundFull', () {
+      // Full cap returns full rect
+      final full = S2Cap.full();
+      final rect = full.rectBound;
+      expect(rect.isFull, isTrue);
+    });
+
+    test('testRectBoundNotImplemented', () {
+      // Non-empty, non-full caps throw UnimplementedError
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      expect(() => cap.rectBound, throwsUnimplementedError);
+    });
   });
 }
