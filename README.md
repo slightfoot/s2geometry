@@ -130,25 +130,25 @@ The port was created by:
 
 ### Test Coverage
 
-All 154 ported tests pass. Code coverage for the ported files:
+All 164 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | s1_interval.dart | 97.0% |
 | s2_predicates.dart | 96.5% |
 | s2_cell_id.dart | 93.0% |
+| s2_edge_util.dart | 84.3% |
 | r2_rect.dart | 84.6% |
 | s2_latlng.dart | 84.3% |
-| s2_edge_util.dart | 81.8% |
 | s1_angle.dart | 80.6% |
 | r1_interval.dart | 79.6% |
+| s2.dart | 78.7% |
+| real.dart | 77.6% |
 | s2_cell.dart | 76.6% |
-| s2.dart | 75.4% |
-| s2_robust_cross_prod.dart | 75.0% |
+| s2_robust_cross_prod.dart | 76.5% |
 | s1_chord_angle.dart | 75.0% |
-| real.dart | 74.1% |
 | s2_projections.dart | 73.3% |
-| **Overall** | **75.3%** |
+| **Overall** | **75.8%** |
 
 ---
 

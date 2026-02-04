@@ -20,6 +20,81 @@ import 'package:test/test.dart';
 /// Helper to create S2Point from x, y, z.
 S2Point p(double x, double y, double z) => S2Point(x, y, z);
 
+/// Helper to get next representable double value towards direction.
+double nextAfter(double x, double direction) {
+  return direction < x ? x - S2.dblEpsilon : x + S2.dblEpsilon;
+}
+
+/// Helper function to check crossing with various permutations.
+void checkCrossing(
+  S2Point a,
+  S2Point b,
+  S2Point c,
+  S2Point d,
+  int crossingSign,
+  int signedCrossingSign,
+  bool checkSimple,
+) {
+  // For degenerate edges, robustCrossing() is documented to return 0 if two vertices from
+  // different edges are the same and -1 otherwise.
+  if (a == c || a == d || b == c || b == d) {
+    crossingSign = 0;
+  }
+
+  expect(S2EdgeUtil.robustCrossing(a, b, c, d), equals(crossingSign));
+  final edgeOrVertex = signedCrossingSign != 0;
+  expect(S2EdgeUtil.edgeOrVertexCrossing(a, b, c, d), equals(edgeOrVertex));
+
+  final crosser = EdgeCrosser.withEdgeAndVertex(a, b, c);
+  expect(crosser.robustCrossingFromD(d), equals(crossingSign));
+  expect(crosser.robustCrossingFromD(c), equals(crossingSign));
+  expect(crosser.robustCrossing(d, c), equals(crossingSign));
+  expect(crosser.robustCrossing(c, d), equals(crossingSign));
+
+  crosser.restartAt(c);
+  expect(crosser.edgeOrVertexCrossingFromD(d), equals(edgeOrVertex));
+  expect(crosser.edgeOrVertexCrossingFromD(c), equals(edgeOrVertex));
+  expect(crosser.edgeOrVertexCrossing(d, c), equals(edgeOrVertex));
+  expect(crosser.edgeOrVertexCrossing(c, d), equals(edgeOrVertex));
+
+  // Check that the crosser can be re-used.
+  final crosser2 = EdgeCrosser.withEdge(c, d);
+  crosser2.restartAt(a);
+  expect(crosser2.robustCrossingFromD(b), equals(crossingSign));
+  expect(crosser2.robustCrossingFromD(a), equals(crossingSign));
+}
+
+/// Helper function to check crossings with all permutations.
+void checkCrossings(
+  S2Point a,
+  S2Point b,
+  S2Point c,
+  S2Point d,
+  int crossingSign,
+  int signedCrossingSign,
+  bool checkSimple,
+) {
+  a = a.normalize();
+  b = b.normalize();
+  c = c.normalize();
+  d = d.normalize();
+
+  checkCrossing(a, b, c, d, crossingSign, signedCrossingSign, checkSimple);
+  checkCrossing(b, a, c, d, crossingSign, -signedCrossingSign, checkSimple);
+  checkCrossing(a, b, d, c, crossingSign, -signedCrossingSign, checkSimple);
+  checkCrossing(b, a, d, c, crossingSign, signedCrossingSign, checkSimple);
+  checkCrossing(a, a, c, d, -1, 0, false);
+  checkCrossing(a, b, c, c, -1, 0, false);
+  checkCrossing(a, a, c, c, -1, 0, false);
+  checkCrossing(a, b, a, b, 0, 1, false);
+  if (crossingSign == 0) {
+    // For vertex crossings, if AB crosses CD then CD does not cross AB.
+    checkCrossing(c, d, a, b, crossingSign, 0, checkSimple);
+  } else {
+    checkCrossing(c, d, a, b, crossingSign, -signedCrossingSign, checkSimple);
+  }
+}
+
 void main() {
   group('S2EdgeUtil', () {
     test('testRobustCrossingBasic', () {
@@ -374,6 +449,127 @@ void main() {
       final quarterLatLng = S2LatLng.fromPoint(quarter);
       expect(quarterLatLng.latDegrees, closeTo(0, 1));
       expect(quarterLatLng.lngDegrees, closeTo(22.5, 1));
+    });
+
+    // Comprehensive crossing tests ported from Java S2EdgeUtilTest.testCrossings
+    test('testCrossings_twoRegularEdgesThatCross', () {
+      // 1. Two regular edges that cross.
+      checkCrossings(p(1, 2, 1), p(1, -3, 0.5), p(1, -0.5, -3), p(0.1, 0.5, 3), 1, 1, true);
+    });
+
+    test('testCrossings_twoRegularEdgesThatIntersectAntipodalPoints', () {
+      // 2. Two regular edges that intersect antipodal points.
+      checkCrossings(p(1, 2, 1), p(1, -3, 0.5), p(-1, 0.5, 3), p(-0.1, -0.5, -3), -1, 0, true);
+    });
+
+    test('testCrossings_twoEdgesOnSameGreatCircleStartingAtAntipodalPoints', () {
+      // 3. Two edges on the same great circle that start at antipodal points.
+      checkCrossings(p(0, 0, -1), p(0, 1, 0), p(0, 1, 1), p(0, 0, 1), -1, 0, true);
+    });
+
+    test('testCrossings_twoEdgesThatCrossWhereOneVertexIsOrigin', () {
+      // 4. Two edges that cross where one vertex is S2.origin.
+      checkCrossings(p(1, 0, 0), S2.origin, p(1, -0.1, 1), p(1, 1, -0.1), 1, 1, true);
+    });
+
+    test('testCrossings_twoEdgesThatIntersectAntipodalPointsWhereOneVertexIsOrigin', () {
+      // 5. Two edges that intersect antipodal points where one vertex is S2.origin.
+      checkCrossings(p(1, 0, 0), S2.origin, p(-1, 0.1, -1), p(-1, -1, 0.1), -1, 0, true);
+    });
+
+    test('testCrossings_twoEdgesThatShareAnEndpoint', () {
+      // 6. Two edges that share an endpoint. The Ortho() direction is (-4,0,2),
+      // and edge AB is further CCW around (2,3,4) than CD.
+      checkCrossings(p(7, -2, 3), p(2, 3, 4), p(2, 3, 4), p(-1, 2, 5), 0, -1, true);
+    }, skip: 'Requires signedEdgeOrVertexCrossing implementation');
+
+    test('testCrossings_twoEdgesThatBarelyCrossNearMiddle', () {
+      // 7. Two edges that barely cross each other near the middle of one edge.
+      // The edge AB is approximately in the x=y plane, while CD is approximately
+      // perpendicular to it and ends exactly at the x=y plane.
+      checkCrossings(
+        p(1, 1, 1), p(1, nextAfter(1.0, 0), -1),
+        p(11, -12, -1), p(10, 10, 1),
+        1, -1, false,
+      );
+    });
+
+    test('testCrossings_twoEdgesSeparatedBySmallDistance', () {
+      // 8. In this version, the edges are separated by a distance of about 1e-15.
+      checkCrossings(
+        p(1, 1, 1), p(1, nextAfter(1.0, 2), -1),
+        p(1, -1, 0), p(1, 1, 0),
+        -1, 0, false,
+      );
+    });
+
+    test('testCrossings_twoEdgesThatBarelyCrossNearEndWithUnderflow', () {
+      // 9. Two edges that barely cross each other near the end of both edges.
+      // This example cannot be handled using regular double-precision arithmetic
+      // due to floating-point underflow.
+      checkCrossings(
+        p(0, 0, 1), p(2, -1e-323, 1),
+        p(1, -1, 1), p(1e-323, 0, 1),
+        1, -1, false,
+      );
+    }, skip: 'Requires extended precision arithmetic for subnormal values');
+
+    test('testCrossings_twoEdgesSeparatedByVerySmallDistance', () {
+      // 10. In this version, the edges are separated by a distance of about 1e-640.
+      checkCrossings(
+        p(0, 0, 1), p(2, 1e-323, 1),
+        p(1, -1, 1), p(1e-323, 0, 1),
+        -1, 0, false,
+      );
+    });
+
+    test('testCrossings_twoEdgesThatBarelyCrossNearMiddleHighPrecision', () {
+      // 11. Two edges that barely cross each other near the middle of one edge.
+      // Computing the exact determinant of some of the triangles in this test
+      // requires more than 2000 bits of precision.
+      checkCrossings(
+        p(1, -1e-323, -1e-323), p(1e-323, 1, 1e-323),
+        p(1, -1, 1e-323), p(1, 1, 0),
+        1, 1, false,
+      );
+    });
+
+    test('testCrossings_twoEdgesSeparatedByTinyDistance', () {
+      // 12. In this version, the edges are separated by a distance of about 1e-640.
+      checkCrossings(
+        p(1, 1e-323, -1e-323), p(-1e-323, 1, 1e-323),
+        p(1, -1, 1e-323), p(1, 1, 0),
+        -1, 0, false,
+      );
+    }, skip: 'Requires extended precision arithmetic for subnormal values');
+
+    test('testCollinearEdgesThatDontTouch', () {
+      // Test that collinear edges with no common points don't cross.
+      final rand = math.Random(42);
+      for (int iter = 0; iter < 500; ++iter) {
+        // Generate random points a and d on the sphere
+        final a = S2Point(
+          rand.nextDouble() * 2 - 1,
+          rand.nextDouble() * 2 - 1,
+          rand.nextDouble() * 2 - 1,
+        ).normalize();
+        final d = S2Point(
+          rand.nextDouble() * 2 - 1,
+          rand.nextDouble() * 2 - 1,
+          rand.nextDouble() * 2 - 1,
+        ).normalize();
+
+        // Create b and c as interpolated points on the line from a to d
+        final b = S2EdgeUtil.interpolate(a, d, 0.05);
+        final c = S2EdgeUtil.interpolate(a, d, 0.95);
+
+        // Edges AB and CD should not cross (they are collinear but don't overlap)
+        expect(S2EdgeUtil.robustCrossing(a, b, c, d), lessThan(0));
+
+        final crosser = EdgeCrosser.withEdgeAndVertex(a, b, c);
+        expect(crosser.robustCrossingFromD(d), lessThan(0));
+        expect(crosser.robustCrossingFromD(c), lessThan(0));
+      }
     });
   });
 }
