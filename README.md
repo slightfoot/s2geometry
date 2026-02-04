@@ -170,7 +170,7 @@ All 936 ported tests pass (3 skipped requiring extended precision). Code coverag
 | r2_edge.dart | 100.0% |
 | r2_edge_clipper.dart | 97.8% |
 | r2_rect.dart | 100.0% |
-| r2_vector.dart | 98.4% |
+| r2_vector.dart | 100.0% |
 | real.dart | 98.0% |
 | s1_angle.dart | 100.0% |
 | s1_chord_angle.dart | 100.0% |

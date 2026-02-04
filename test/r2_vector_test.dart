@@ -68,7 +68,11 @@ void main() {
     });
 
     test('testFromArrayThrowsOnWrongSize', () {
-      expect(() => R2Vector.fromArray([1.0]), throwsArgumentError);
+      // Too few elements - throws RangeError at initializer (coords[1])
+      expect(() => R2Vector.fromArray([1.0]), throwsRangeError);
+      // Too many elements - throws ArgumentError in body (line 37)
+      expect(() => R2Vector.fromArray([1.0, 2.0, 3.0]), throwsArgumentError);
+      // fromList too many elements - throws ArgumentError in body (line 46)
       expect(() => R2Vector.fromList([1.0, 2.0, 3.0]), throwsArgumentError);
     });
 
