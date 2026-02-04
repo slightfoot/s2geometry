@@ -98,7 +98,7 @@ The port was created by:
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
 | **Core Source Files** | 48 | ~120 | **40%** |
-| **Test Files** | 39 | ~100 | **39%** |
+| **Test Files** | 41 | ~100 | **41%** |
 
 #### Ported Classes
 
@@ -155,13 +155,19 @@ The port was created by:
 
 ### Test Coverage
 
-All 401 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 435 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | big_point.dart | 100.0% |
 | r2_edge.dart | 100.0% |
 | s2_exception.dart | 100.0% |
+| real.dart | 96.6% |
+| s2_predicates.dart | 96.5% |
+| s2_edge_tessellator.dart | 95.8% |
+| s2_cell_id.dart | 93.2% |
+| projection.dart | 92.9% |
+| s2_edge.dart | 92.3% |
 | s1_interval.dart | 97.0% |
 | s2_predicates.dart | 96.5% |
 | encoded_ints.dart | 96.4% |
@@ -197,7 +203,8 @@ All 401 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 64.8% |
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
-| **Overall** | **77.1%** |
+| s2_shape.dart | 88.1% |
+| **Overall** | **78.8%** |
 
 ---
 
