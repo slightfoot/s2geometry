@@ -90,6 +90,13 @@ void main() {
       // At (1, 0, 0), lat should be ~0 and lng should be ~0
       expect(region.toDegreesString(), contains(':'));
     });
+
+    test('testXYZGetters', () {
+      final region = S2PointRegion(S2Point(0.5, 0.6, 0.7));
+      expect(region.x, closeTo(0.5, 1e-10));
+      expect(region.y, closeTo(0.6, 1e-10));
+      expect(region.z, closeTo(0.7, 1e-10));
+    });
   });
 }
 

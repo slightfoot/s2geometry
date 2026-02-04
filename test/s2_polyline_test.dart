@@ -306,6 +306,58 @@ void main() {
       expect(str.contains('S2Polyline'), isTrue);
       expect(str.contains('2'), isTrue);  // numVertices
     });
+
+    test('testGetCellUnionBound', () {
+      final vertices = <S2Point>[
+        S2Point(1, 0, 0),
+        S2Point(0, 1, 0),
+      ];
+      final line = S2Polyline(vertices);
+      final results = <S2CellId>[];
+      line.getCellUnionBound(results);
+      expect(results, isNotEmpty);
+    });
+
+    test('testInterpolateEmpty', () {
+      final emptyLine = S2Polyline([]);
+      expect(() => emptyLine.interpolate(0.5), throwsStateError);
+    });
+
+    test('testInterpolateBeyondEnd', () {
+      final vertices = <S2Point>[
+        S2Point(1, 0, 0),
+        S2Point(0, 1, 0),
+      ];
+      final line = S2Polyline(vertices);
+      // fraction > 1 should return last vertex
+      final result = line.interpolate(1.5);
+      expect(result, equals(vertices[1]));
+    });
+
+    test('testGetNearestEdgeIndexEmpty', () {
+      final emptyLine = S2Polyline([]);
+      expect(() => emptyLine.getNearestEdgeIndex(S2Point(1, 0, 0)), throwsStateError);
+    });
+
+    test('testGetNearestEdgeIndexSingleVertex', () {
+      final singlePoint = S2Polyline([S2Point(1, 0, 0)]);
+      expect(singlePoint.getNearestEdgeIndex(S2Point(0, 1, 0)), equals(0));
+    });
+
+    test('testProjectToEdgeEmpty', () {
+      final emptyLine = S2Polyline([]);
+      expect(() => emptyLine.projectToEdge(S2Point(1, 0, 0), 0), throwsStateError);
+    });
+
+    test('testProjectToEdgeSingleVertex', () {
+      final singlePoint = S2Polyline([S2Point(1, 0, 0)]);
+      expect(singlePoint.projectToEdge(S2Point(0, 1, 0), 0), equals(S2Point(1, 0, 0)));
+    });
+
+    test('testProjectEmpty', () {
+      final emptyLine = S2Polyline([]);
+      expect(() => emptyLine.project(S2Point(1, 0, 0)), throwsStateError);
+    });
   });
 }
 

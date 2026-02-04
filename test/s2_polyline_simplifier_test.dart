@@ -187,6 +187,59 @@ void main() {
         );
       });
     });
+
+    test('testSrcGetter', () {
+      final simplifier = S2PolylineSimplifier();
+      final srcPoint = S2Point(1, 0, 0);
+      simplifier.init(srcPoint);
+      expect(simplifier.src, equals(srcPoint));
+    });
+
+    test('testAvoidDiscWithVeryLargeRadius', () {
+      // Test avoidDisc with a very large radius (semiwidth >= π)
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // A very large radius that spans more than π
+      final result = simplifier.avoidDisc(
+        S2TextFormat.makePointOrDie('0:90'),
+        S1ChordAngle.fromDegrees(180),
+        true,
+      );
+      // Should return false because semiwidth >= π
+      expect(result, isFalse);
+    });
+
+    test('testTargetDiscWithNegativeSemiwidth', () {
+      // Test targetDisc when semiwidth < 0 (point very far from edge)
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // First, set up a very narrow window
+      simplifier.targetDisc(S2TextFormat.makePointOrDie('0:1'), S1ChordAngle.fromDegrees(0.001));
+      // Then try to target something very far that can't be reached
+      // This should make semiwidth negative due to the disc being beyond the edge
+      final result = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('90:0'),
+        S1ChordAngle.fromDegrees(0.001),
+      );
+      expect(result, isFalse);
+    });
+
+    test('testAvoidThenTarget', () {
+      // Test calling avoidDisc before targetDisc (uses _rangesToAvoid)
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // First avoid a disc
+      simplifier.avoidDisc(S2TextFormat.makePointOrDie('1:1'), S1ChordAngle.fromDegrees(0.1), true);
+      // Then target a disc - this should process _rangesToAvoid
+      final result = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:1'),
+        S1ChordAngle.fromDegrees(1.0),
+      );
+      expect(result, isTrue);
+      // Then extend
+      final extendResult = simplifier.extend(S2TextFormat.makePointOrDie('0:2'));
+      expect(extendResult, isTrue);
+    });
   });
 }
 
