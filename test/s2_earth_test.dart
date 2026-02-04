@@ -138,6 +138,37 @@ void main() {
       expect(S2Earth.getInitialBearing(spain, japan).degrees, closeTo(29.2, 1e-2));
       expect(S2Earth.getInitialBearing(japan, spain).degrees, closeTo(-27.2, 1e-2));
     });
+
+    test('testRadiusMeters', () {
+      expect(S2Earth.radiusMeters, equals(6371010.0));
+    });
+
+    test('testRadiusKm', () {
+      expect(S2Earth.radiusKm, closeTo(6371.01, 0.01));
+    });
+
+    test('testLowestAltitudeMeters', () {
+      expect(S2Earth.lowestAltitudeMeters, equals(-10898));
+    });
+
+    test('testHighestAltitudeMeters', () {
+      expect(S2Earth.highestAltitudeMeters, equals(8846));
+    });
+
+    test('testMetersToAngle', () {
+      final quarterCircumference = S2Earth.radiusMeters * math.pi / 2;
+      final angle = S2Earth.metersToAngle(quarterCircumference);
+      expect(angle.degrees, closeTo(90, 1e-10));
+    });
+
+    test('testHaversine', () {
+      // Haversine of 0 should be 0
+      expect(S2Earth.haversine(0), closeTo(0, 1e-15));
+      // Haversine of pi should be 1
+      expect(S2Earth.haversine(math.pi), closeTo(1, 1e-10));
+      // Haversine of pi/2 should be 0.5
+      expect(S2Earth.haversine(math.pi / 2), closeTo(0.5, 1e-10));
+    });
   });
 }
 

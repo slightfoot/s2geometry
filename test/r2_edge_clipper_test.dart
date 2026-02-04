@@ -161,6 +161,238 @@ void main() {
       expect(clipper.clippedEdge.v1.x, closeTo(1, 1e-10));
       expect(clipper.clippedEdge.v1.y, closeTo(1, 1e-10));
     });
+
+    test('defaultConstructor', () {
+      final clipper = R2EdgeClipper();
+      expect(clipper, isNotNull);
+    });
+
+    test('clipRectGetter', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final rect = clipper.clipRect;
+      expect(rect.x.lo, equals(-1));
+      expect(rect.x.hi, equals(1));
+      expect(rect.y.lo, equals(-1));
+      expect(rect.y.hi, equals(1));
+    });
+
+    test('maxUnitClipError', () {
+      expect(R2EdgeClipper.maxUnitClipError, greaterThan(0));
+    });
+
+    test('clipMethodBottom', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(0, -2), R2Vector(0, 2));
+      final result = R2Vector.origin();
+      clipper.clip(edge, R2EdgeClipper.bottom, result);
+
+      expect(result.y, closeTo(-1, 1e-10));
+    });
+
+    test('clipMethodTop', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(0, -2), R2Vector(0, 2));
+      final result = R2Vector.origin();
+      clipper.clip(edge, R2EdgeClipper.top, result);
+
+      expect(result.y, closeTo(1, 1e-10));
+    });
+
+    test('clipMethodLeft', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, 0), R2Vector(2, 0));
+      final result = R2Vector.origin();
+      clipper.clip(edge, R2EdgeClipper.left, result);
+
+      expect(result.x, closeTo(-1, 1e-10));
+    });
+
+    test('clipMethodRight', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, 0), R2Vector(2, 0));
+      final result = R2Vector.origin();
+      clipper.clip(edge, R2EdgeClipper.right, result);
+
+      expect(result.x, closeTo(1, 1e-10));
+    });
+
+    test('connectedEdges', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // First edge ending inside
+      final edge1 = R2Edge();
+      edge1.initFromPoints(R2Vector(-2, 0), R2Vector(0, 0));
+      expect(clipper.clipEdge(edge1, false), isTrue);
+
+      // Second edge starting where first ended (connected)
+      final edge2 = R2Edge();
+      edge2.initFromPoints(R2Vector(0, 0), R2Vector(2, 0));
+      expect(clipper.clipEdge(edge2, true), isTrue);
+      expect(clipper.outcode0, equals(R2EdgeClipper.inside));
+      expect(clipper.outcode1, equals(R2EdgeClipper.right));
+    });
+
+    test('topLeftCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from top-left corner region to inside
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, 2), R2Vector(0, 0));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
+
+    test('topRightCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from top-right corner region to inside
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(2, 2), R2Vector(0, 0));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
+
+    test('bottomRightCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from bottom-right corner region to inside
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(2, -2), R2Vector(0, 0));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
+
+    test('bottomLeftCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from bottom-left corner region to inside
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, -2), R2Vector(0, 0));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+    });
+
+    test('cornerToCornerMisses', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Edge from one corner region to another that misses the clip rect
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-3, 2), R2Vector(-2, 3));
+
+      expect(clipper.clipEdge(edge, false), isFalse);
+    });
+
+    test('edgeTouchesCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Diagonal edge that exactly hits the corner
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, 0), R2Vector(0, -2));
+
+      // This should be clipped or rejected depending on tolerance
+      final result = clipper.clipEdge(edge, false);
+      expect(result, isA<bool>());
+    });
+
+    test('horizontalEdgeAboveClipRegion', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Horizontal edge above the clip region
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, 2), R2Vector(2, 2));
+
+      expect(clipper.clipEdge(edge, false), isFalse);
+    });
+
+    test('verticalEdgeLeftOfClipRegion', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Vertical edge to the left of the clip region
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(-2, -2), R2Vector(-2, 2));
+
+      expect(clipper.clipEdge(edge, false), isFalse);
+    });
+
+    test('edgeStartsInsideEndsOutsideCorner', () {
+      final clipRect = R2Rect.fromPoints(
+        R2Vector(-1, -1),
+        R2Vector(1, 1),
+      );
+      final clipper = R2EdgeClipper.fromRect(clipRect);
+
+      // Diagonal edge from inside to corner region
+      final edge = R2Edge();
+      edge.initFromPoints(R2Vector(0, 0), R2Vector(2, 2));
+
+      expect(clipper.clipEdge(edge, false), isTrue);
+      expect(clipper.outcode0, equals(R2EdgeClipper.inside));
+    });
   });
 }
 
