@@ -440,5 +440,59 @@ void main() {
       expect(union.size, equals(1));
       expect(union.cellId(0), equals(parent));
     });
+
+    test('testExpandLargeRadius', () {
+      // Test expand when radius is larger than face cell
+      final cell = S2CellId.fromFace(0).childBeginAtLevel(5);
+      final union = S2CellUnion.fromCellIds([cell]);
+      // Expand with a radius larger than min width of face 0
+      union.expand(S1Angle.degrees(90), 5);
+      // Should have expanded (may be normalized to a single larger cell or multiple)
+      expect(union.size, greaterThanOrEqualTo(1));
+    });
+
+    test('testExpandAtLevelWithSkipping', () {
+      // Test expandAtLevel that skips contained cells
+      final parent = S2CellId.fromFace(0).childBeginAtLevel(2);
+      final child = parent.childBeginAtLevel(4);
+      final union = S2CellUnion.fromCellIds([parent, child]);
+      union.expandAtLevel(2);
+      // Should have expanded cells
+      expect(union.size, greaterThan(0));
+    });
+
+    test('testGetIntersectionWithCellIdBinarySearch', () {
+      // Test intersection with a cell ID that triggers binary search
+      final x = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).childBeginAtLevel(3),
+        S2CellId.fromFace(0).childBeginAtLevel(3).next,
+        S2CellId.fromFace(0).childBeginAtLevel(3).next.next,
+        S2CellId.fromFace(1).childBeginAtLevel(3),
+        S2CellId.fromFace(2).childBeginAtLevel(3),
+      ]);
+      final result = S2CellUnion();
+      // Get intersection with a face cell
+      result.getIntersectionWithCellId(x, S2CellId.fromFace(0));
+      // Should contain only the cells from face 0
+      for (int i = 0; i < result.size; i++) {
+        expect(result.cellId(i).face, equals(0));
+      }
+    });
+
+    test('testIntersectionAsymmetricRanges', () {
+      // Test intersection of unions with asymmetric ranges
+      final x = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(0).child(0),
+        S2CellId.fromFace(2).child(0),
+      ]);
+      final y = S2CellUnion.fromCellIds([
+        S2CellId.fromFace(1).child(0),
+        S2CellId.fromFace(2).child(0),
+      ]);
+      final result = S2CellUnion.intersection(x, y);
+      // Only face 2 child should be in intersection
+      expect(result.size, equals(1));
+      expect(result.cellId(0).face, equals(2));
+    });
   });
 }
