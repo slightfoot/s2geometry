@@ -162,5 +162,134 @@ void main() {
       expect(cap50.expanded(S1Angle.degrees(129.99)).isFull, isFalse);
       expect(cap50.expanded(S1Angle.degrees(130.01)).isFull, isTrue);
     });
+
+    test('testFromAxisArea', () {
+      final cap = S2Cap.fromAxisArea(S2Point(1, 0, 0), 2 * math.pi);
+      expect(cap.area, closeTo(2 * math.pi, 1e-10));
+    });
+
+    test('testArea', () {
+      final full = S2Cap.full();
+      expect(full.area, closeTo(4 * math.pi, 1e-10));
+      final hemi = S2Cap.fromAxisHeight(S2Point(0, 0, 1), 1);
+      expect(hemi.area, closeTo(2 * math.pi, 1e-10));
+    });
+
+    test('testAddPoint', () {
+      final empty = S2Cap.empty();
+      final point = S2Point(1, 0, 0);
+      final cap = empty.addPoint(point);
+      expect(cap.radius.isZero, isTrue);
+
+      final cap2 = cap.addPoint(S2Point(0, 1, 0));
+      expect(cap2.radius.length2, greaterThan(0));
+    });
+
+    test('testAddCap', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(10));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(10));
+      final combined = cap1.addCap(cap2);
+      expect(combined.radius.length2, greaterThan(cap1.radius.length2));
+
+      // Add empty cap returns original
+      final empty = S2Cap.empty();
+      expect(cap1.addCap(empty), equals(cap1));
+      expect(empty.addCap(cap1), equals(cap1));
+    });
+
+    test('testIntersectsCap', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(45));
+      expect(cap1.intersectsCap(cap2), isFalse); // Too far apart
+
+      final cap3 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(60));
+      final cap4 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(60));
+      expect(cap3.intersectsCap(cap4), isTrue); // Close enough to intersect
+
+      final empty = S2Cap.empty();
+      expect(cap1.intersectsCap(empty), isFalse);
+      expect(empty.intersectsCap(cap1), isFalse);
+    });
+
+    test('testCapBound', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      expect(cap.capBound, equals(cap));
+    });
+
+    test('testGetCellUnionBound', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(10));
+      final cells = <S2CellId>[];
+      cap.getCellUnionBound(cells);
+      expect(cells, isNotEmpty);
+    });
+
+    test('testGetCellUnionBoundLarge', () {
+      // A large cap should get all face cells
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(120));
+      final cells = <S2CellId>[];
+      cap.getCellUnionBound(cells);
+      expect(cells.length, equals(6)); // All 6 face cells
+    });
+
+    test('testMayIntersectCell', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final cell = S2Cell(S2CellId.fromFace(0));
+      expect(cap.mayIntersect(cell), isTrue);
+    });
+
+    test('testContainsCell', () {
+      // A full cap contains any cell
+      final full = S2Cap.full();
+      final cell = S2Cell(S2CellId.fromFace(0));
+      expect(full.containsCell(cell), isTrue);
+
+      // Small cap doesn't contain large cell
+      final smallCap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(1));
+      expect(smallCap.containsCell(cell), isFalse);
+    });
+
+    test('testHashCode', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      expect(cap1.hashCode, equals(cap2.hashCode));
+
+      // Special cases
+      expect(S2Cap.empty().hashCode, equals(S2Cap.empty().hashCode));
+      expect(S2Cap.full().hashCode, equals(S2Cap.full().hashCode));
+    });
+
+    test('testToString', () {
+      final cap = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final str = cap.toString();
+      expect(str, contains('Point'));
+      expect(str, contains('Radius'));
+    });
+
+    test('testApproxEqualsWithError', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45.001));
+      expect(cap1.approxEqualsWithError(cap2, 0.1), isTrue);
+      expect(cap1.approxEqualsWithError(cap2, 1e-10), isFalse);
+
+      // Empty caps
+      expect(S2Cap.empty().approxEqualsWithError(S2Cap.empty(), 0.1), isTrue);
+
+      // Full caps
+      expect(S2Cap.full().approxEqualsWithError(S2Cap.full(), 0.1), isTrue);
+    });
+
+    test('testEquality', () {
+      final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      final cap2 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
+      expect(cap1, equals(cap2));
+
+      // Empty caps are equal
+      expect(S2Cap.empty(), equals(S2Cap.empty()));
+
+      // Full caps are equal
+      expect(S2Cap.full(), equals(S2Cap.full()));
+
+      expect(cap1 == "not a cap", isFalse);
+    });
   });
 }

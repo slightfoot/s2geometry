@@ -160,6 +160,98 @@ void main() {
       assertExactly(math.pi, base.radians); // Builder uses a copy, not original
     });
 
+    test('testFromPoints', () {
+      final x = S2Point(1, 0, 0);
+      final y = S2Point(0, 1, 0);
+      final angle = S1Angle.fromPoints(x, y);
+      expect(angle.degrees, closeTo(90.0, 1e-10));
+    });
+
+    test('testIsZero', () {
+      expect(S1Angle.zero.isZero, isTrue);
+      expect(S1Angle.degrees(0).isZero, isTrue);
+      expect(S1Angle.degrees(1).isZero, isFalse);
+    });
+
+    test('testComparisonOperators', () {
+      final small = S1Angle.degrees(30);
+      final large = S1Angle.degrees(60);
+      expect(small < large, isTrue);
+      expect(large > small, isTrue);
+      expect(small <= large, isTrue);
+      expect(small <= small, isTrue);
+      expect(large >= small, isTrue);
+      expect(large >= large, isTrue);
+    });
+
+    test('testMinMax', () {
+      final small = S1Angle.degrees(30);
+      final large = S1Angle.degrees(60);
+      expect(S1Angle.min(small, large), equals(small));
+      expect(S1Angle.min(large, small), equals(small));
+      expect(S1Angle.max(small, large), equals(large));
+      expect(S1Angle.max(large, small), equals(large));
+    });
+
+    test('testAbs', () {
+      expect(S1Angle.degrees(-45).abs(), equals(S1Angle.degrees(45)));
+      expect(S1Angle.degrees(45).abs(), equals(S1Angle.degrees(45)));
+    });
+
+    test('testOperators', () {
+      final a = S1Angle.degrees(30);
+      final b = S1Angle.degrees(20);
+      expect((a + b).degrees, closeTo(50.0, 1e-10));
+      expect((a - b).degrees, closeTo(10.0, 1e-10));
+      expect((a * 2).degrees, closeTo(60.0, 1e-10));
+      expect((a / 2).degrees, closeTo(15.0, 1e-10));
+      expect((-a).degrees, closeTo(-30.0, 1e-10));
+    });
+
+    test('testDivAngle', () {
+      final a = S1Angle.degrees(90);
+      final b = S1Angle.degrees(30);
+      expect(a.divAngle(b), closeTo(3.0, 1e-10));
+    });
+
+    test('testHashCode', () {
+      final a = S1Angle.degrees(45);
+      final b = S1Angle.degrees(45);
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('testToString', () {
+      final angle = S1Angle.degrees(45);
+      final str = angle.toString();
+      expect(str, contains('45'));
+      expect(str, contains('d'));
+    });
+
+    test('testCompareTo', () {
+      final a = S1Angle.degrees(30);
+      final b = S1Angle.degrees(60);
+      expect(a.compareTo(b), lessThan(0));
+      expect(b.compareTo(a), greaterThan(0));
+      expect(a.compareTo(a), equals(0));
+    });
+
+    test('testEqualityWithNonAngle', () {
+      final angle = S1Angle.degrees(45);
+      expect(angle == "not an angle", isFalse);
+    });
+
+    test('testBuilderAddRadians', () {
+      final builder = S1AngleBuilder();
+      builder.addRadians(math.pi / 2);
+      builder.addRadians(math.pi / 4);
+      expect(builder.build().radians, closeTo(3 * math.pi / 4, 1e-15));
+    });
+
+    test('testBuilderInvalidAdd', () {
+      final builder = S1AngleBuilder();
+      expect(() => builder.add("invalid"), throwsArgumentError);
+    });
+
     // Note: Java serialization test is not applicable to Dart
   });
 }
