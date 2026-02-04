@@ -205,5 +205,151 @@ void main() {
       expect(zero, isNot(equals(nonZero)));
       expect(zero.hashCode != nonZero.hashCode, isTrue);
     });
+
+    test('testFromPoints', () {
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 1, 0);
+      final angle = S1ChordAngle.fromPoints(a, b);
+      expect(angle.degrees, closeTo(90.0, 1e-10));
+    });
+
+    test('testFromPointsSamePoint', () {
+      final a = S2Point(1, 0, 0);
+      final angle = S1ChordAngle.fromPoints(a, a);
+      expect(angle.isZero, isTrue);
+    });
+
+    test('testFactoryConstructor', () {
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 1, 0);
+      final angle = S1ChordAngle(a, b);
+      expect(angle.degrees, closeTo(90.0, 1e-10));
+    });
+
+    test('testFromDegrees', () {
+      final angle = S1ChordAngle.fromDegrees(60);
+      expect(angle.degrees, closeTo(60.0, 1e-10));
+    });
+
+    test('testIsStraight', () {
+      expect(S1ChordAngle.STRAIGHT.isStraight, isTrue);
+      expect(S1ChordAngle.ZERO.isStraight, isFalse);
+    });
+
+    test('testIsValid', () {
+      expect(S1ChordAngle.ZERO.isValid, isTrue);
+      expect(S1ChordAngle.RIGHT.isValid, isTrue);
+      expect(S1ChordAngle.STRAIGHT.isValid, isTrue);
+      expect(S1ChordAngle.NEGATIVE.isValid, isTrue);
+      expect(S1ChordAngle.INFINITY.isValid, isTrue);
+    });
+
+    test('testComparison', () {
+      final small = S1ChordAngle.fromDegrees(30);
+      final large = S1ChordAngle.fromDegrees(60);
+
+      expect(small.lessThan(large), isTrue);
+      expect(large.lessThan(small), isFalse);
+      expect(large.greaterThan(small), isTrue);
+      expect(small.greaterThan(large), isFalse);
+      expect(small.lessOrEquals(large), isTrue);
+      expect(small.lessOrEquals(small), isTrue);
+      expect(large.greaterOrEquals(small), isTrue);
+      expect(large.greaterOrEquals(large), isTrue);
+    });
+
+    test('testMinMax', () {
+      final small = S1ChordAngle.fromDegrees(30);
+      final large = S1ChordAngle.fromDegrees(60);
+
+      expect(S1ChordAngle.min(small, large), equals(small));
+      expect(S1ChordAngle.min(large, small), equals(small));
+      expect(S1ChordAngle.max(small, large), equals(large));
+      expect(S1ChordAngle.max(large, small), equals(large));
+    });
+
+    test('testSin2', () {
+      final angle = S1ChordAngle.fromDegrees(90);
+      // sin²(90°) = 1
+      expect(S1ChordAngle.sin2(angle), closeTo(1.0, 1e-10));
+    });
+
+    test('testOperatorPlus', () {
+      final a = S1ChordAngle.fromDegrees(30);
+      final b = S1ChordAngle.fromDegrees(40);
+      final result = a + b;
+      expect(result.degrees, closeTo(70.0, 0.1));
+    });
+
+    test('testOperatorPlusSpecial', () {
+      expect(S1ChordAngle.NEGATIVE + S1ChordAngle.ZERO, equals(S1ChordAngle.NEGATIVE));
+      expect(S1ChordAngle.ZERO + S1ChordAngle.NEGATIVE, equals(S1ChordAngle.NEGATIVE));
+      expect(S1ChordAngle.INFINITY + S1ChordAngle.ZERO, equals(S1ChordAngle.INFINITY));
+      expect(S1ChordAngle.ZERO + S1ChordAngle.INFINITY, equals(S1ChordAngle.INFINITY));
+    });
+
+    test('testOperatorPlusStraight', () {
+      final a = S1ChordAngle.fromDegrees(100);
+      final b = S1ChordAngle.fromDegrees(100);
+      final result = a + b;
+      expect(result, equals(S1ChordAngle.STRAIGHT));
+    });
+
+    test('testOperatorMinus', () {
+      final a = S1ChordAngle.fromDegrees(60);
+      final b = S1ChordAngle.fromDegrees(30);
+      final result = a - b;
+      expect(result.degrees, closeTo(30.0, 0.1));
+    });
+
+    test('testOperatorMinusSpecial', () {
+      expect(S1ChordAngle.NEGATIVE - S1ChordAngle.ZERO, equals(S1ChordAngle.NEGATIVE));
+      expect(S1ChordAngle.ZERO - S1ChordAngle.NEGATIVE, equals(S1ChordAngle.NEGATIVE));
+      expect(S1ChordAngle.INFINITY - S1ChordAngle.ZERO, equals(S1ChordAngle.INFINITY));
+      expect(S1ChordAngle.ZERO - S1ChordAngle.INFINITY, equals(S1ChordAngle.INFINITY));
+    });
+
+    test('testOperatorMinusZero', () {
+      final a = S1ChordAngle.fromDegrees(30);
+      final b = S1ChordAngle.fromDegrees(60);
+      final result = a - b;
+      expect(result.isZero, isTrue);
+    });
+
+    test('testToString', () {
+      expect(S1ChordAngle.NEGATIVE.toString(), equals('NEGATIVE'));
+      expect(S1ChordAngle.ZERO.toString(), equals('ZERO'));
+      expect(S1ChordAngle.STRAIGHT.toString(), equals('STRAIGHT'));
+      expect(S1ChordAngle.INFINITY.toString(), equals('INFINITY'));
+      expect(S1ChordAngle.fromDegrees(45).toString(), contains('45'));
+    });
+
+    test('testGetS1AngleConstructorMaxError', () {
+      final angle = S1ChordAngle.fromDegrees(60);
+      expect(angle.s1AngleConstructorMaxError, greaterThanOrEqualTo(0));
+      expect(angle.getS1AngleConstructorMaxError(), equals(angle.s1AngleConstructorMaxError));
+    });
+
+    test('testGetS2PointConstructorMaxError', () {
+      final angle = S1ChordAngle.fromDegrees(60);
+      expect(angle.s2PointConstructorMaxError, greaterThanOrEqualTo(0));
+      expect(angle.getS2PointConstructorMaxError(), equals(angle.s2PointConstructorMaxError));
+    });
+
+    test('testLength2Getter', () {
+      final angle = S1ChordAngle.fromDegrees(60);
+      expect(angle.length2, equals(angle.getLength2()));
+      expect(angle.length2, closeTo(1.0, 0.01)); // 60 degrees has length2 ~= 1
+    });
+
+    test('testRadiansGetter', () {
+      final angle = S1ChordAngle.fromDegrees(90);
+      expect(angle.radians, closeTo(math.pi / 2, 1e-10));
+    });
+
+    test('testEqualityWithNonChordAngle', () {
+      final angle = S1ChordAngle.fromDegrees(60);
+      expect(angle == "not a chord angle", isFalse);
+    });
   });
 }
