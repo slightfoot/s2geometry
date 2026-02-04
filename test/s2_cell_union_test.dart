@@ -364,5 +364,81 @@ void main() {
       expect(union.approxArea, greaterThan(0));
       expect(union.exactArea, greaterThan(0));
     });
+
+    test('testFromIds', () {
+      final face0 = S2CellId.fromFace(0);
+      final face1 = S2CellId.fromFace(1);
+      final union = S2CellUnion.fromIds([face0.id, face1.id]);
+      expect(union.size, equals(2));
+      expect(union.containsCellId(face0), isTrue);
+      expect(union.containsCellId(face1), isTrue);
+    });
+
+    test('testNormalizeSiblings', () {
+      // Create 4 sibling cells that should be merged into their parent
+      final parent = S2CellId.fromFace(0).child(0);
+      final children = <S2CellId>[];
+      for (var i = 0; i < 4; i++) {
+        children.add(parent.child(i));
+      }
+      final union = S2CellUnion.fromCellIds(children);
+      // All 4 children should be normalized to their parent
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(parent));
+    });
+
+    test('testNormalizeMultipleLevels', () {
+      // Create cells that normalize across multiple levels
+      final face0 = S2CellId.fromFace(0);
+      // Add all 4 children of face0.child(0)
+      final children = <S2CellId>[];
+      final parent = face0.child(0);
+      for (var i = 0; i < 4; i++) {
+        children.add(parent.child(i));
+      }
+      final union = S2CellUnion.fromCellIds(children);
+      expect(union.size, equals(1));
+    });
+
+    test('testDenormalizeWithLevelMod2', () {
+      final face = S2CellId.fromFace(0);
+      final union = S2CellUnion.fromCellIds([face]);
+      final output = <S2CellId>[];
+      // Denormalize with minLevel=2 and levelMod=2
+      union.denormalize(2, 2, output);
+      expect(output.isNotEmpty, isTrue);
+      for (var cell in output) {
+        expect(cell.level, greaterThanOrEqualTo(2));
+      }
+    });
+
+    test('testDenormalizeWithLevelMod3', () {
+      final cell = S2CellId.fromFace(0).child(0);
+      final union = S2CellUnion.fromCellIds([cell]);
+      final output = <S2CellId>[];
+      // Denormalize with minLevel=3 and levelMod=3
+      union.denormalize(3, 3, output);
+      expect(output.isNotEmpty, isTrue);
+    });
+
+    test('testNormalizeDuplicates', () {
+      // Normalizing should remove duplicates
+      final cell = S2CellId.fromFace(0);
+      final union = S2CellUnion();
+      union.initRawCellIds([cell, cell, cell]);
+      union.normalize();
+      expect(union.size, equals(1));
+    });
+
+    test('testNormalizeContained', () {
+      // Normalize removes cells contained in other cells
+      final parent = S2CellId.fromFace(0);
+      final child = parent.child(0);
+      final union = S2CellUnion();
+      union.initRawCellIds([parent, child]);
+      union.normalize();
+      expect(union.size, equals(1));
+      expect(union.cellId(0), equals(parent));
+    });
   });
 }

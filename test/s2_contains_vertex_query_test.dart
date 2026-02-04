@@ -114,6 +114,27 @@ void main() {
       expect(sign.abs(), equals(1)); // Either +1 or -1, but not 0
       expect(q.duplicateEdges(), isFalse);
     });
+
+    test('testDefaultConstructorWithInit', () {
+      // Test using the default constructor followed by init()
+      final q = S2ContainsVertexQuery();
+      q.init(S2Point(1, 0, 0));
+      q.addOutgoing(S2Point(0, 1, 0));
+      final sign = q.containsSign();
+      expect(sign.abs(), equals(1));
+    });
+
+    test('testInitResetsState', () {
+      // Test that init() clears previous state
+      final q = S2ContainsVertexQuery.withTarget(S2Point(1, 0, 0));
+      q.addOutgoing(S2Point(0, 1, 0));
+      q.addIncoming(S2Point(0, 0, 1));
+
+      // Re-init with a different target
+      q.init(S2Point(0, 1, 0));
+      // Should have no edges now
+      expect(q.safeContainsSign(), equals(0));
+    });
   });
 }
 
