@@ -186,5 +186,50 @@ void main() {
       expect(input.readFloat(), closeTo(3.14159, 1e-5));
     });
   });
+
+  group('Static methods', () {
+    test('writeLongToBytes', () {
+      final bytes = List<int>.filled(8, 0);
+      final written = LittleEndianOutput.writeLongToBytes(bytes, 0, 0x123456789ABCDEF0);
+      expect(written, equals(8));
+      expect(bytes, equals([0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12]));
+    });
+
+    test('writeDoubleToBytes', () {
+      final bytes = List<int>.filled(8, 0);
+      final written = LittleEndianOutput.writeDoubleToBytes(bytes, 0, 1.0);
+      expect(written, equals(8));
+      expect(bytes, equals([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F]));
+    });
+
+    test('readLongFromBytes', () {
+      final bytes = [0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12];
+      final value = LittleEndianInput.readLongFromBytes(bytes, 0);
+      expect(value, equals(0x123456789ABCDEF0));
+    });
+
+    test('readDoubleFromBytes', () {
+      final bytes = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F];
+      final value = LittleEndianInput.readDoubleFromBytes(bytes, 0);
+      expect(value, equals(1.0));
+    });
+  });
+
+  group('Edge cases', () {
+    test('fromUint8List constructor', () {
+      final input = LittleEndianInput.fromUint8List(Uint8List.fromList([0x42]));
+      expect(input.readByte(), equals(0x42));
+    });
+
+    test('readBytes with negative size throws', () {
+      final input = LittleEndianInput([0x01, 0x02, 0x03]);
+      expect(() => input.readBytes(-1), throwsFormatException);
+    });
+
+    test('readBytes past EOF throws', () {
+      final input = LittleEndianInput([0x01]);
+      expect(() => input.readBytes(2), throwsFormatException);
+    });
+  });
 }
 
