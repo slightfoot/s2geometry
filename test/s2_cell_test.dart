@@ -171,5 +171,139 @@ void main() {
       // Cell should contain its own center
       expect(cell.containsPoint(center), isTrue);
     });
+
+    test('testFromPoint', () {
+      final point = S2LatLng.fromDegrees(45, 60).toPoint();
+      final cell = S2Cell.fromPoint(point);
+      expect(cell.containsPoint(point), isTrue);
+      expect(cell.isLeaf, isTrue);
+    });
+
+    test('testFromLatLng', () {
+      final ll = S2LatLng.fromDegrees(45, 60);
+      final cell = S2Cell.fromLatLng(ll);
+      expect(cell.containsPoint(ll.toPoint()), isTrue);
+      expect(cell.isLeaf, isTrue);
+    });
+
+    test('testCenterRaw', () {
+      final cell = S2Cell.fromFace(0);
+      final centerRaw = cell.centerRaw;
+      expect(centerRaw.norm, greaterThan(0));
+      // The normalized center should be the same as center
+      expect((centerRaw.normalize() - cell.center).norm, lessThan(1e-10));
+    });
+
+    test('testCenterUV', () {
+      final cell = S2Cell.fromFace(0);
+      final centerUV = cell.centerUV;
+      expect(centerUV.x, closeTo(0, 1e-10));
+      expect(centerUV.y, closeTo(0, 1e-10));
+    });
+
+    test('testBoundUV', () {
+      final cell = S2Cell.fromFace(0);
+      final boundUV = cell.boundUV;
+      expect(boundUV.x.lo, lessThan(0));
+      expect(boundUV.x.hi, greaterThan(0));
+      expect(boundUV.y.lo, lessThan(0));
+      expect(boundUV.y.hi, greaterThan(0));
+    });
+
+    test('testSizeIJ', () {
+      // Face cell has max size
+      final faceCell = S2Cell.fromFace(0);
+      expect(faceCell.sizeIJ, greaterThan(0));
+
+      // Smaller level has smaller size
+      final children = faceCell.subdivide();
+      expect(children[0].sizeIJ, lessThan(faceCell.sizeIJ));
+    });
+
+    test('testGetEdge', () {
+      final cell = S2Cell.fromFace(0);
+      for (int k = 0; k < 4; k++) {
+        final edge = cell.getEdge(k);
+        expect(edge.norm, closeTo(1.0, 1e-10));
+      }
+    });
+
+    test('testGetVertex', () {
+      final cell = S2Cell.fromFace(0);
+      for (int k = 0; k < 4; k++) {
+        final vertex = cell.getVertex(k);
+        expect(vertex.norm, closeTo(1.0, 1e-10));
+      }
+    });
+
+    test('testGetCellUnionBound', () {
+      final cell = S2Cell.fromFace(0);
+      final cells = <S2CellId>[];
+      cell.getCellUnionBound(cells);
+      expect(cells.length, equals(1));
+      expect(cells[0], equals(cell.id));
+    });
+
+    test('testLevel', () {
+      final faceCell = S2Cell.fromFace(0);
+      expect(faceCell.level, equals(0));
+
+      final children = faceCell.subdivide();
+      expect(children[0].level, equals(1));
+    });
+
+    test('testOrientation', () {
+      for (int face = 0; face < 6; face++) {
+        final cell = S2Cell.fromFace(face);
+        expect(cell.orientation, isNonNegative);
+        expect(cell.orientation, lessThan(4));
+      }
+    });
+
+    test('testApproxAreaSmallCell', () {
+      // Get a small cell at level 10
+      final cellId = S2CellId.fromFace(0).childBeginAtLevel(10);
+      final cell = S2Cell(cellId);
+      expect(cell.approxArea, greaterThan(0));
+      expect(cell.approxArea, lessThan(cell.averageArea * 2));
+    });
+
+    test('testContainsPointOutsideFace', () {
+      // Create a cell on face 0 and test with a point on face 3
+      final cell = S2Cell.fromFace(0);
+      final pointOnFace3 = S2Point.xNeg;
+      expect(cell.containsPoint(pointOnFace3), isFalse);
+    });
+
+    test('testEquality', () {
+      final cell1 = S2Cell.fromFace(0);
+      final cell2 = S2Cell.fromFace(0);
+      expect(cell1, equals(cell2));
+
+      final cell3 = S2Cell.fromFace(1);
+      expect(cell1 == cell3, isFalse);
+
+      expect(cell1 == "not a cell", isFalse);
+    });
+
+    test('testHashCode', () {
+      final cell1 = S2Cell.fromFace(0);
+      final cell2 = S2Cell.fromFace(0);
+      expect(cell1.hashCode, equals(cell2.hashCode));
+    });
+
+    test('testToString', () {
+      final cell = S2Cell.fromFace(0);
+      final str = cell.toString();
+      expect(str, contains('0'));
+    });
+
+    test('testRectBoundForNonFaceCell', () {
+      // Test rectBound for a cell at level > 0
+      final cellId = S2CellId.fromFace(0).child(0);
+      final cell = S2Cell(cellId);
+      final rect = cell.rectBound;
+      expect(rect.isEmpty, isFalse);
+    });
   });
 }

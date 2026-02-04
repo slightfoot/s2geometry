@@ -16,6 +16,8 @@
 /// Ported from S2PointTest.java
 library;
 
+import 'dart:math' as math;
+
 import 'package:test/test.dart';
 import 'package:s2geometry/s2geometry.dart';
 
@@ -108,6 +110,156 @@ void main() {
       final c = S2Point(1, 2, 3).normalize();
       final d = S2Point(4, 5, 6).normalize();
       expect(c.crossProdNorm(d), closeTo(c.crossProd(d).norm, 1e-14));
+    });
+
+    test('testFromList', () {
+      final p = S2Point.fromList([1.0, 2.0, 3.0]);
+      expect(p.x, equals(1.0));
+      expect(p.y, equals(2.0));
+      expect(p.z, equals(3.0));
+    });
+
+    test('testIndexOperator', () {
+      final p = S2Point(1, 2, 3);
+      expect(p[0], equals(1.0));
+      expect(p[1], equals(2.0));
+      expect(p[2], equals(3.0));
+      expect(() => p[3], throwsRangeError);
+    });
+
+    test('testGet', () {
+      final p = S2Point(1, 2, 3);
+      expect(p.get(0), equals(1.0));
+      expect(p.get(1), equals(2.0));
+      expect(p.get(2), equals(3.0));
+    });
+
+    test('testOperators', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(4, 5, 6);
+
+      expect(a + b, equals(S2Point(5, 7, 9)));
+      expect(b - a, equals(S2Point(3, 3, 3)));
+      expect(a * 2, equals(S2Point(2, 4, 6)));
+      expect(a / 2, equals(S2Point(0.5, 1, 1.5)));
+      expect(-a, equals(S2Point(-1, -2, -3)));
+    });
+
+    test('testNorm', () {
+      final p = S2Point(3, 4, 0);
+      expect(p.norm, equals(5.0));
+      expect(p.norm2, equals(25.0));
+    });
+
+    test('testNormalize', () {
+      final p = S2Point(3, 0, 0);
+      final normalized = p.normalize();
+      expect(normalized.norm, closeTo(1.0, 1e-15));
+      expect(normalized, equals(S2Point.xPos));
+
+      // Normalizing zero returns zero
+      expect(S2Point.zero.normalize(), equals(S2Point.zero));
+    });
+
+    test('testLargestAbsComponent', () {
+      expect(S2Point(3, 1, 2).largestAbsComponent, equals(0));
+      expect(S2Point(1, 3, 2).largestAbsComponent, equals(1));
+      expect(S2Point(1, 2, 3).largestAbsComponent, equals(2));
+    });
+
+    test('testAngle', () {
+      final a = S2Point.xPos;
+      final b = S2Point.yPos;
+      expect(a.angle(b), closeTo(S2.piOver2, 1e-10));
+    });
+
+    test('testGetDistance', () {
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 1, 0);
+      expect(a.getDistance(b), closeTo(math.sqrt(2), 1e-10));
+      expect(a.getDistance2(b), closeTo(2.0, 1e-10));
+    });
+
+    test('testLessThan', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1, 2, 4);
+      final c = S2Point(2, 0, 0);
+      expect(a.lessThan(b), isTrue);
+      expect(b.lessThan(a), isFalse);
+      expect(a.lessThan(c), isTrue);
+    });
+
+    test('testAequal', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1.001, 2.001, 3.001);
+      expect(a.aequal(b, 0.01), isTrue);
+      expect(a.aequal(b, 0.0001), isFalse);
+    });
+
+    test('testRotate', () {
+      final p = S2Point.xPos;
+      final axis = S2Point.zPos;
+      final rotated = p.rotate(axis, S2.piOver2);
+      expect(rotated.aequal(S2Point.yPos, 1e-10), isTrue);
+    });
+
+    test('testEquality', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1, 2, 3);
+      expect(a, equals(b));
+
+      expect(a == "not a point", isFalse);
+    });
+
+    test('testHashCode', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1, 2, 3);
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('testCompareTo', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1, 2, 4);
+      expect(a.compareTo(b), lessThan(0));
+      expect(b.compareTo(a), greaterThan(0));
+      expect(a.compareTo(a), equals(0));
+    });
+
+    test('testToString', () {
+      final p = S2Point(1, 2, 3);
+      final str = p.toString();
+      expect(str, contains('1'));
+      expect(str, contains('2'));
+      expect(str, contains('3'));
+    });
+
+    test('testToDegreesString', () {
+      final p = S2LatLng.fromDegrees(45, 90).toPoint();
+      final str = p.toDegreesString();
+      expect(str, contains('45'));
+      expect(str, contains('90'));
+    });
+
+    test('testContainsPoint', () {
+      final a = S2Point(1, 2, 3);
+      final b = S2Point(1, 2, 3);
+      expect(a.containsPoint(b), isTrue);
+      expect(a.containsPoint(S2Point(4, 5, 6)), isFalse);
+    });
+
+    test('testOrtho', () {
+      // Test all three branches of ortho
+      final p1 = S2Point(0, 1, 0); // largestAbsComponent = 1
+      final ortho1 = p1.ortho();
+      expect(ortho1.dotProd(p1), closeTo(0, 1e-10));
+
+      final p2 = S2Point(0, 0, 1); // largestAbsComponent = 2
+      final ortho2 = p2.ortho();
+      expect(ortho2.dotProd(p2), closeTo(0, 1e-10));
+
+      final p3 = S2Point(1, 0, 0); // largestAbsComponent = 0
+      final ortho3 = p3.ortho();
+      expect(ortho3.dotProd(p3), closeTo(0, 1e-10));
     });
   });
 }

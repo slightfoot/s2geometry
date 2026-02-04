@@ -155,7 +155,7 @@ The port was created by:
 
 ### Test Coverage
 
-All 714 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 750 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -174,12 +174,12 @@ All 714 ported tests pass (3 skipped requiring extended precision). Code coverag
 | real.dart | 96.6% |
 | s1_angle.dart | 100.0% |
 | s1_chord_angle.dart | 100.0% |
-| s1_interval.dart | 97.0% |
+| s1_interval.dart | 98.5% |
 | s2.dart | 91.8% |
 | s2_area_centroid.dart | 100.0% |
 | s2_cap.dart | 96.6% |
-| s2_cell.dart | 77.9% |
-| s2_cell_id.dart | 93.2% |
+| s2_cell.dart | 100.0% |
+| s2_cell_id.dart | 94.8% |
 | s2_cell_union.dart | 90.6% |
 | s2_contains_vertex_query.dart | 90.0% |
 | s2_earth.dart | 89.1% |
@@ -188,10 +188,10 @@ All 714 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_edge_util.dart | 85.9% |
 | s2_error.dart | 100.0% |
 | s2_exception.dart | 100.0% |
-| s2_latlng.dart | 84.3% |
+| s2_latlng.dart | 86.7% |
 | s2_latlng_rect.dart | 97.9% |
 | s2_padded_cell.dart | 86.5% |
-| s2_point.dart | 83.5% |
+| s2_point.dart | 100.0% |
 | s2_point_region.dart | 90.0% |
 | s2_polyline.dart | 92.6% |
 | s2_polyline_simplifier.dart | 91.5% |
@@ -203,7 +203,7 @@ All 714 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_robust_cross_prod.dart | 80.9% |
 | s2_shape.dart | 88.1% |
 | s2_text_format.dart | 94.1% |
-| **Overall** | **92.0%** |
+| **Overall** | **92.8%** |
 
 ---
 
