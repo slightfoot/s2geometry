@@ -201,6 +201,120 @@ void main() {
       expect(R1IntervalEndpoint.hi.opposite.opposite, equals(R1IntervalEndpoint.hi));
     });
 
+    test('testUppercaseEndpoints', () {
+      // Test uppercase endpoint aliases
+      expect(R1IntervalEndpoint.LO.opposite, equals(R1IntervalEndpoint.hi));
+      expect(R1IntervalEndpoint.HI.opposite, equals(R1IntervalEndpoint.lo));
+      final interval = R1Interval(1, 5);
+      expect(interval.getValue(R1IntervalEndpoint.LO), equals(1.0));
+      expect(interval.getValue(R1IntervalEndpoint.HI), equals(5.0));
+      interval.setValue(R1IntervalEndpoint.LO, 2);
+      expect(interval.lo, equals(2.0));
+      interval.setValue(R1IntervalEndpoint.HI, 10);
+      expect(interval.hi, equals(10.0));
+    });
+
+    test('testGetDirectedHausdorffDistance', () {
+      final empty = R1Interval.empty();
+      final unit = R1Interval(0, 1);
+      final larger = R1Interval(-1, 2);
+
+      // Empty interval has distance 0
+      expect(empty.getDirectedHausdorffDistance(unit), equals(0.0));
+      // Distance to empty interval is maxFinite
+      expect(unit.getDirectedHausdorffDistance(empty), equals(double.maxFinite));
+      // Same interval has distance 0
+      expect(unit.getDirectedHausdorffDistance(unit), equals(0.0));
+      // Larger interval contains unit - distance is 0
+      expect(unit.getDirectedHausdorffDistance(larger), equals(0.0));
+      // Unit doesn't fully cover larger
+      expect(larger.getDirectedHausdorffDistance(unit), greaterThan(0.0));
+    });
+
+    test('testSetEmpty', () {
+      final interval = R1Interval(1, 5);
+      expect(interval.isEmpty, isFalse);
+      interval.setEmpty();
+      expect(interval.isEmpty, isTrue);
+    });
+
+    test('testUnionInternalInterval', () {
+      // Union with empty
+      final r1 = R1Interval(1, 5);
+      final empty = R1Interval.empty();
+      r1.unionInternalInterval(empty);
+      expect(r1, equals(R1Interval(1, 5)));
+
+      // Empty unioned with non-empty
+      final r2 = R1Interval.empty();
+      r2.unionInternalInterval(R1Interval(2, 4));
+      expect(r2, equals(R1Interval(2, 4)));
+
+      // Two non-empty intervals
+      final r3 = R1Interval(1, 3);
+      r3.unionInternalInterval(R1Interval(2, 5));
+      expect(r3, equals(R1Interval(1, 5)));
+    });
+
+    test('testIntersectionInternal', () {
+      final r = R1Interval(0, 10);
+      r.intersectionInternal(R1Interval(5, 15));
+      expect(r, equals(R1Interval(5, 10)));
+
+      final r2 = R1Interval(0, 5);
+      r2.intersectionInternal(R1Interval(10, 15));
+      expect(r2.isEmpty, isTrue);
+    });
+
+    test('testExpandedInternal', () {
+      final r = R1Interval(5, 10);
+      r.expandedInternal(2);
+      expect(r, equals(R1Interval(3, 12)));
+
+      final r2 = R1Interval(0, 10);
+      r2.expandedInternal(-3);
+      expect(r2, equals(R1Interval(3, 7)));
+    });
+
+    test('testHashCode', () {
+      final empty1 = R1Interval.empty();
+      final empty2 = R1Interval.empty();
+      expect(empty1.hashCode, equals(empty2.hashCode));
+
+      final interval1 = R1Interval(1, 5);
+      final interval2 = R1Interval(1, 5);
+      expect(interval1.hashCode, equals(interval2.hashCode));
+
+      final interval3 = R1Interval(2, 6);
+      expect(interval1.hashCode, isNot(equals(interval3.hashCode)));
+    });
+
+    test('testToString', () {
+      final interval = R1Interval(1.5, 3.5);
+      final str = interval.toString();
+      expect(str, contains('1.5'));
+      expect(str, contains('3.5'));
+    });
+
+    test('testCopyConstructor', () {
+      final original = R1Interval(2, 8);
+      final copy = R1Interval.copy(original);
+      expect(copy, equals(original));
+      original.lo = 0;
+      expect(copy.lo, equals(2.0)); // copy is independent
+    });
+
+    test('testCenterAndLengthGetters', () {
+      final interval = R1Interval(2, 6);
+      expect(interval.center, equals(4.0));
+      expect(interval.length, equals(4.0));
+    });
+
+    test('testEqualityWithNonInterval', () {
+      final interval = R1Interval(1, 5);
+      expect(interval == "not an interval", isFalse);
+    });
+
     // Note: Java serialization test is not applicable to Dart
   });
 }

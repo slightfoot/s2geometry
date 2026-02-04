@@ -240,5 +240,88 @@ void main() {
               .approxEquals(R2Rect.fromVectors(R2Vector(0.1, 0.3), R2Vector(0.4, 0.8))),
           isTrue);
     });
+
+    test('testContainsRect', () {
+      final outer = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      final inner = R2Rect.fromVectors(R2Vector(2, 2), R2Vector(8, 8));
+      expect(outer.containsRect(inner), isTrue);
+      expect(inner.containsRect(outer), isFalse);
+      expect(outer.containsRect(outer), isTrue);
+    });
+
+    test('testInteriorContainsRect', () {
+      final outer = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      final inner = R2Rect.fromVectors(R2Vector(2, 2), R2Vector(8, 8));
+      expect(outer.interiorContainsRect(inner), isTrue);
+      expect(inner.interiorContainsRect(outer), isFalse);
+      expect(outer.interiorContainsRect(outer), isFalse);
+    });
+
+    test('testContainsPointMethod', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(rect.containsPoint(R2Vector(5, 5)), isTrue);
+      expect(rect.containsPoint(R2Vector(-1, 5)), isFalse);
+      expect(rect.containsPoint(R2Vector(0, 0)), isTrue);
+    });
+
+    test('testInteriorContainsPointMethod', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(rect.interiorContainsPoint(R2Vector(5, 5)), isTrue);
+      expect(rect.interiorContainsPoint(R2Vector(0, 0)), isFalse);
+      expect(rect.interiorContainsPoint(R2Vector(10, 10)), isFalse);
+    });
+
+    test('testContainsInvalidArgument', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(() => rect.contains("invalid"), throwsArgumentError);
+    });
+
+    test('testInteriorContainsInvalidArgument', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(() => rect.interiorContains("invalid"), throwsArgumentError);
+    });
+
+    test('testExpandedInvalidArgument', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(() => rect.expanded("invalid"), throwsArgumentError);
+    });
+
+    test('testGetVertexIJ', () {
+      final rect = R2Rect.fromVectors(R2Vector(1, 2), R2Vector(5, 8));
+      expect(rect.getVertexIJ(0, 0), equals(R2Vector(1, 2)));
+      expect(rect.getVertexIJ(1, 0), equals(R2Vector(5, 2)));
+      expect(rect.getVertexIJ(0, 1), equals(R2Vector(1, 8)));
+      expect(rect.getVertexIJ(1, 1), equals(R2Vector(5, 8)));
+    });
+
+    test('testCenterGetter', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 20));
+      expect(rect.center, equals(R2Vector(5, 10)));
+    });
+
+    test('testSizeGetter', () {
+      final rect = R2Rect.fromVectors(R2Vector(1, 2), R2Vector(5, 8));
+      expect(rect.size, equals(R2Vector(4, 6)));
+    });
+
+    test('testHashCode', () {
+      final rect1 = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      final rect2 = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(rect1.hashCode, equals(rect2.hashCode));
+    });
+
+    test('testToString', () {
+      final rect = R2Rect.fromVectors(R2Vector(1, 2), R2Vector(5, 8));
+      final str = rect.toString();
+      expect(str, contains('1'));
+      expect(str, contains('2'));
+      expect(str, contains('5'));
+      expect(str, contains('8'));
+    });
+
+    test('testEqualityWithNonRect', () {
+      final rect = R2Rect.fromVectors(R2Vector(0, 0), R2Vector(10, 10));
+      expect(rect == "not a rect", isFalse);
+    });
   });
 }
