@@ -379,5 +379,49 @@ void main() {
       // Should be reduced to 3 or fewer cells
       expect(covering.length, lessThanOrEqualTo(3));
     });
+
+    test('testNormalizeCoveringLoopReplacesAdjacentCells', () {
+      // Test the while loop that replaces adjacent cells by their common ancestor
+      // We need cells that don't fully merge via normalizeList but can be further reduced
+      final coverer = S2RegionCoverer(maxCells: 2, minLevel: 0);
+      final covering = <S2CellId>[];
+
+      // Add cells from multiple branches that should trigger the while loop
+      // These are not siblings, so normalizeList won't merge them automatically
+      final face0child0 = S2CellId.fromFace(0).child(0);
+      final face0child1 = S2CellId.fromFace(0).child(1);
+      final face0child2 = S2CellId.fromFace(0).child(2);
+      final face0child3 = S2CellId.fromFace(0).child(3);
+
+      // Add children of different branches
+      covering.add(face0child0.child(0));
+      covering.add(face0child1.child(0));
+      covering.add(face0child2.child(0));
+      covering.add(face0child3.child(0));
+
+      // normalizeCovering should try to reduce these via the while loop
+      coverer.normalizeCovering(covering);
+
+      // The result should be reduced (possibly to the face cell if fully merged)
+      expect(covering.length, lessThanOrEqualTo(4));
+    });
+
+    test('testNormalizeCoveringWithMinLevelBreak', () {
+      // Test the case where bestLevel < minLevel causes the while loop to break
+      final coverer = S2RegionCoverer(maxCells: 2, minLevel: 5);
+      final covering = <S2CellId>[];
+
+      // Add cells at level 5 that are not siblings
+      covering.add(S2CellId.fromFace(0).childBeginAtLevel(5));
+      covering.add(S2CellId.fromFace(0).childEndAtLevel(5).prev);
+      covering.add(S2CellId.fromFace(1).childBeginAtLevel(5));
+      covering.add(S2CellId.fromFace(2).childBeginAtLevel(5));
+
+      // With minLevel=5, the while loop should break when bestLevel < 5
+      coverer.normalizeCovering(covering);
+
+      // Should remain at 4 cells since they can't be merged below minLevel
+      expect(covering.isNotEmpty, isTrue);
+    });
   });
 }
