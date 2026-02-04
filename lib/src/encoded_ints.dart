@@ -122,8 +122,15 @@ class EncodedInts {
   }
 
   /// Decode a ZigZag-encoded 32-bit signed value.
+  /// Returns a signed 32-bit value (can be negative).
   static int decodeZigZag32(int n) {
-    return ((n >>> 1) ^ -(n & 1)) & 0xFFFFFFFF;
+    // XOR with -(n & 1) flips all bits if LSB is 1 (value was negative)
+    final result = (n >>> 1) ^ -(n & 1);
+    // Sign-extend from 32-bit to 64-bit if needed
+    if (result & 0x80000000 != 0) {
+      return result | 0xFFFFFFFF00000000;
+    }
+    return result;
   }
 
   /// Decode a ZigZag-encoded 64-bit signed value.

@@ -99,6 +99,9 @@ export 'src/encoded_ints.dart';
 export 'src/little_endian_input.dart';
 export 'src/little_endian_output.dart';
 
+// Point compression
+export 'src/s2_point_compression.dart';
+
 // TODO: Port
 // export 'src/s2_loop.dart';
 // export 'src/s2_polygon.dart';

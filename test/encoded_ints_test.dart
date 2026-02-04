@@ -82,13 +82,13 @@ void main() {
 
     test('testDecodeZigZag32', () {
       expect(EncodedInts.decodeZigZag32(0), equals(0));
-      expect(EncodedInts.decodeZigZag32(1), equals(0xFFFFFFFF)); // -1 as unsigned 32
+      expect(EncodedInts.decodeZigZag32(1), equals(-1));
       expect(EncodedInts.decodeZigZag32(2), equals(1));
-      expect(EncodedInts.decodeZigZag32(3), equals(0xFFFFFFFE)); // -2 as unsigned 32
+      expect(EncodedInts.decodeZigZag32(3), equals(-2));
       expect(EncodedInts.decodeZigZag32(0x7FFFFFFE), equals(0x3FFFFFFF));
-      expect(EncodedInts.decodeZigZag32(0x7FFFFFFF), equals(0xC0000000));
+      expect(EncodedInts.decodeZigZag32(0x7FFFFFFF), equals(-1073741824)); // 0xC0000000 as signed
       expect(EncodedInts.decodeZigZag32(0xFFFFFFFE), equals(0x7FFFFFFF));
-      expect(EncodedInts.decodeZigZag32(0xFFFFFFFF), equals(0x80000000));
+      expect(EncodedInts.decodeZigZag32(0xFFFFFFFF), equals(-2147483648)); // 0x80000000 as signed (int32 min)
     });
 
     test('testDecodeZigZag64', () {

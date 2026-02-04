@@ -288,8 +288,71 @@ class S2Projections {
   /// Minimum width of cells at each level.
   static final minWidth = _Metric(1, 2 * S2.sqrt2 / 3);
 
+  /// Convert a direction vector (not necessarily unit length) to (face, si, ti) coordinates.
+  static FaceSiTi xyzToFaceSiTi(S2Point p) {
+    final face = xyzToFace(p);
+    final uv = validFaceXyzToUv(face, p);
+    final si = stToSiTi(uvToST(uv.x));
+    final ti = stToSiTi(uvToST(uv.y));
+    return FaceSiTi(face, si, ti);
+  }
+
+  /// Returns the level of the given si or ti coordinate.
+  static int _siTiToLevel(int siTi) {
+    // Count trailing zeros of (siTi | maxSiTi)
+    var val = siTi | maxSiTi;
+    var tz = 0;
+    if (val == 0) {
+      tz = 64;
+    } else {
+      while ((val & 1) == 0) {
+        tz++;
+        val = val >>> 1;
+      }
+    }
+    return maxLevel - tz;
+  }
+
+  /// If p is exactly a cell center, returns the level of the cell, -1 otherwise.
+  static int levelIfCenter(FaceSiTi fst, S2Point p) {
+    // If the levels corresponding to si,ti are not equal, then p is not a cell center.
+    // The si,ti values 0 and maxSiTi need to be handled specially because they do not
+    // correspond to cell centers at any valid level; they are mapped to level -1.
+    final level = _siTiToLevel(fst.si);
+    if (level < 0 || level != _siTiToLevel(fst.ti)) {
+      return -1;
+    } else {
+      assert(level <= maxLevel);
+      // In infinite precision, this test could be changed to ST == SiTi. However, due to rounding
+      // errors, UVtoST(XYZtoFaceUV(FaceUVtoXYZ(STtoUV(...)))) is not idempotent. On the other hand,
+      // centerRaw is computed exactly the same way p was originally computed (if it is indeed the
+      // center of an S2Cell): the comparison can be exact.
+      final center = faceSiTiToXyz(fst.face, fst.si, fst.ti).normalize();
+      if (p == center) {
+        return level;
+      } else {
+        return -1;
+      }
+    }
+  }
+
   // Private constructor - this is a utility class
   S2Projections._();
+}
+
+/// A (face, si, ti) position.
+class FaceSiTi {
+  /// The face on which the position exists.
+  final int face;
+
+  /// The si coordinate.
+  final int si;
+
+  /// The ti coordinate.
+  final int ti;
+
+  /// Creates a FaceSiTi with the given values.
+  const FaceSiTi(this.face, this.si, this.ti);
 }
 
 /// A metric for cell sizes at different levels.
