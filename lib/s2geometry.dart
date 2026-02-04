@@ -96,6 +96,8 @@ export 'src/s2_edge_tessellator.dart';
 
 // Encoding utilities
 export 'src/encoded_ints.dart';
+export 'src/little_endian_input.dart';
+export 'src/little_endian_output.dart';
 
 // TODO: Port
 // export 'src/s2_loop.dart';

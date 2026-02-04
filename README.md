@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 46 | ~120 | **38%** |
-| **Test Files** | 32 | ~100 | **32%** |
+| **Core Source Files** | 48 | ~120 | **40%** |
+| **Test Files** | 33 | ~100 | **33%** |
 
 #### Ported Classes
 
@@ -150,10 +150,12 @@ The port was created by:
 | `s2_polyline_simplifier.dart` | S2PolylineSimplifier.java | Helper for simplifying polylines |
 | `s2_edge_tessellator.dart` | S2EdgeTessellator.java | Converts between geodesic and projected edges |
 | `encoded_ints.dart` | EncodedInts.java | Varint encoding, ZigZag encoding, bit interleaving |
+| `little_endian_input.dart` | LittleEndianInput.java | Reading little-endian primitives |
+| `little_endian_output.dart` | LittleEndianOutput.java | Writing little-endian primitives |
 
 ### Test Coverage
 
-All 322 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 347 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -191,7 +193,9 @@ All 322 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_padded_cell.dart | 61.7% |
 | s2_text_format.dart | 46.0% |
 | encoded_ints.dart | 96.4% |
-| **Overall** | **75.1%** |
+| little_endian_input.dart | 72.1% |
+| little_endian_output.dart | 70.0% |
+| **Overall** | **75.0%** |
 
 ---
 
