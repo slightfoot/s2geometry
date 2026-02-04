@@ -155,7 +155,7 @@ The port was created by:
 
 ### Test Coverage
 
-All 795 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
+All 821 ported tests pass (3 skipped requiring extended precision). Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
@@ -190,7 +190,7 @@ All 795 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_exception.dart | 100.0% |
 | s2_latlng.dart | 100.0% |
 | s2_latlng_rect.dart | 97.9% |
-| s2_padded_cell.dart | 86.5% |
+| s2_padded_cell.dart | 94.0% |
 | s2_point.dart | 100.0% |
 | s2_point_region.dart | 90.0% |
 | s2_polyline.dart | 92.6% |
@@ -200,10 +200,10 @@ All 795 ported tests pass (3 skipped requiring extended precision). Code coverag
 | s2_region_coverer.dart | 92.7% |
 | s2_region_intersection.dart | 100.0% |
 | s2_region_union.dart | 100.0% |
-| s2_robust_cross_prod.dart | 80.9% |
+| s2_robust_cross_prod.dart | 85.3% |
 | s2_shape.dart | 88.1% |
 | s2_text_format.dart | 94.1% |
-| **Overall** | **94.7%** |
+| **Overall** | **95.0%** |
 
 ---
 

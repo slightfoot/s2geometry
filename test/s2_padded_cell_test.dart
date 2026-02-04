@@ -253,6 +253,206 @@ void main() {
         expect(exitVertex.norm, closeTo(1.0, 1e-10));
       }
     });
+
+    test('testMiddleForNonFaceCell', () {
+      // Test the middle() method for a non-face-level cell
+      final id = S2CellId.fromFacePosLevel(0, 0, 10);
+      final padding = 0.001;
+      final pcell = S2PaddedCell(id, padding);
+
+      final middle = pcell.middle();
+      expect(middle, isNotNull);
+      // Middle should have width of 2*padding in both dimensions
+      expect(middle.x.hi - middle.x.lo, closeTo(2 * padding, 1e-10));
+      expect(middle.y.hi - middle.y.lo, closeTo(2 * padding, 1e-10));
+    });
+
+    test('testChildBoundsI0J0', () {
+      // Test child at (0,0) position
+      final id = S2CellId.fromFace(0);
+      final padding = 0.1;
+      final pcell = S2PaddedCell(id, padding);
+
+      final child = pcell.childAtIJ(0, 0);
+      expect(child.level, equals(1));
+      // Child bound should be in the correct quadrant
+      expect(child.bound.x.hi, lessThanOrEqualTo(pcell.middle().x.hi));
+      expect(child.bound.y.hi, lessThanOrEqualTo(pcell.middle().y.hi));
+    });
+
+    test('testChildBoundsI1J1', () {
+      // Test child at (1,1) position
+      final id = S2CellId.fromFace(0);
+      final padding = 0.1;
+      final pcell = S2PaddedCell(id, padding);
+
+      final child = pcell.childAtIJ(1, 1);
+      expect(child.level, equals(1));
+      // Child bound should be in the correct quadrant
+      expect(child.bound.x.lo, greaterThanOrEqualTo(pcell.middle().x.lo));
+      expect(child.bound.y.lo, greaterThanOrEqualTo(pcell.middle().y.lo));
+    });
+
+    test('testChildBoundsI0J1', () {
+      // Test child at (0,1) position
+      final id = S2CellId.fromFace(0);
+      final padding = 0.1;
+      final pcell = S2PaddedCell(id, padding);
+
+      final child = pcell.childAtIJ(0, 1);
+      expect(child.level, equals(1));
+      expect(child.bound.x.hi, lessThanOrEqualTo(pcell.middle().x.hi));
+      expect(child.bound.y.lo, greaterThanOrEqualTo(pcell.middle().y.lo));
+    });
+
+    test('testChildBoundsI1J0', () {
+      // Test child at (1,0) position
+      final id = S2CellId.fromFace(0);
+      final padding = 0.1;
+      final pcell = S2PaddedCell(id, padding);
+
+      final child = pcell.childAtIJ(1, 0);
+      expect(child.level, equals(1));
+      expect(child.bound.x.lo, greaterThanOrEqualTo(pcell.middle().x.lo));
+      expect(child.bound.y.hi, lessThanOrEqualTo(pcell.middle().y.hi));
+    });
+
+    test('testEntryVertexWithInvertMask', () {
+      // Test entry vertex for cells with invert orientation
+      // Create cells through multiple levels to get different orientations
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Go to children to find one with invert mask set
+      for (int pos = 0; pos < 4; pos++) {
+        final child = pcell.childAtPos(pos);
+        final entryVertex = child.getEntryVertex();
+        expect(entryVertex.norm, closeTo(1.0, 1e-10));
+      }
+    });
+
+    test('testExitVertexAllOrientations', () {
+      // Test exit vertex for cells with all 4 possible orientations
+      // orientation = 0, swapMask, invertMask, swapMask+invertMask
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Go down several levels to see all orientations
+      for (int pos1 = 0; pos1 < 4; pos1++) {
+        final child1 = pcell.childAtPos(pos1);
+        for (int pos2 = 0; pos2 < 4; pos2++) {
+          final child2 = child1.childAtPos(pos2);
+          final exitVertex = child2.getExitVertex();
+          expect(exitVertex.norm, closeTo(1.0, 1e-10));
+        }
+      }
+    });
+
+    test('testShrinkToFitXContainsMiddle', () {
+      // Test shrinkToFit when rect.x contains middle point (non-face)
+      final id = S2CellId.fromFacePosLevel(0, 0, 5);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Get the cell's middle u coordinate
+      final ijSize = S2CellId.getSizeIJ(5);
+      final ijo = id.toIJOrientation();
+      final i = S2CellId.getI(ijo) & -ijSize;
+      final j = S2CellId.getJ(ijo) & -ijSize;
+      final u = S2Projections.stToUV(S2Projections.siTiToSt(2 * i + ijSize));
+      final v = S2Projections.stToUV(S2Projections.siTiToSt(2 * j + ijSize));
+
+      // Rectangle where x contains middle but y doesn't
+      final rect = R2Rect(
+        R1Interval(u - 0.01, u + 0.01), // contains u
+        R1Interval(v + 0.001, v + 0.002), // doesn't contain v
+      );
+
+      final shrunk = pcell.shrinkToFit(rect);
+      // Should return original cell since x contains the middle
+      expect(shrunk, equals(id));
+    });
+
+    test('testShrinkToFitYContainsMiddle', () {
+      // Test shrinkToFit when rect.y contains middle point (non-face)
+      final id = S2CellId.fromFacePosLevel(0, 0, 5);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Get the cell's middle v coordinate
+      final ijSize = S2CellId.getSizeIJ(5);
+      final ijo = id.toIJOrientation();
+      final i = S2CellId.getI(ijo) & -ijSize;
+      final j = S2CellId.getJ(ijo) & -ijSize;
+      final u = S2Projections.stToUV(S2Projections.siTiToSt(2 * i + ijSize));
+      final v = S2Projections.stToUV(S2Projections.siTiToSt(2 * j + ijSize));
+
+      // Rectangle where y contains middle but x doesn't
+      final rect = R2Rect(
+        R1Interval(u + 0.001, u + 0.002), // doesn't contain u
+        R1Interval(v - 0.01, v + 0.01), // contains v
+      );
+
+      final shrunk = pcell.shrinkToFit(rect);
+      // Should return original cell since y contains the middle
+      expect(shrunk, equals(id));
+    });
+
+    test('testShrinkToFitLevelNotBetter', () {
+      // Test shrinkToFit when computed level is not better than current
+      final id = S2CellId.fromFacePosLevel(0, 0, S2CellId.maxLevel);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Use the cell's bound as the rect - can't shrink a leaf cell
+      final rect = pcell.bound;
+      final shrunk = pcell.shrinkToFit(rect);
+      // Should return original cell
+      expect(shrunk, equals(id));
+    });
+
+    test('testZeroPadding', () {
+      // Test with zero padding
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      expect(pcell.padding, equals(0.0));
+      final middle = pcell.middle();
+      // With zero padding, middle should have zero width
+      expect(middle.x.hi - middle.x.lo, closeTo(0, 1e-10));
+    });
+
+    test('testLargePadding', () {
+      // Test with large padding
+      final id = S2CellId.fromFace(0);
+      final padding = 0.5;
+      final pcell = S2PaddedCell(id, padding);
+
+      expect(pcell.padding, equals(padding));
+      // Bound should be expanded by padding
+      expect(pcell.bound.x.lo, equals(-1 - padding));
+      expect(pcell.bound.x.hi, equals(1 + padding));
+    });
+
+    test('testDeepHierarchy', () {
+      // Test traversing deep into the cell hierarchy
+      var pcell = S2PaddedCell(S2CellId.fromFace(0), 0.01);
+      for (int level = 0; level < 10; level++) {
+        final child = pcell.childAtPos(0);
+        expect(child.level, equals(level + 1));
+        pcell = child;
+      }
+    });
+
+    test('testOrientationInheritance', () {
+      // Test that child orientation is computed correctly
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      for (int pos = 0; pos < 4; pos++) {
+        final child = pcell.childAtPos(pos);
+        // Child orientation should be parent ^ posToOrientation(pos)
+        final expectedOrientation = pcell.orientation ^ S2.posToOrientation(pos);
+        expect(child.orientation, equals(expectedOrientation));
+      }
+    });
   });
 }
 

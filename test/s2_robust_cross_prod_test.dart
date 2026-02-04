@@ -218,6 +218,136 @@ void main() {
       expect(result.z.abs(), greaterThan(result.x.abs()));
       expect(result.z.abs(), greaterThan(result.y.abs()));
     });
+
+    test('testSymbolicCrossProdAXYNonZero', () {
+      // Test _symbolicCrossProdSorted when b = (0,0,0) and a.x/y != 0
+      // This is a theoretical edge case - in practice we can't have b = (0,0,0)
+      // but we test symbolic cross prod with vectors where b.z = 0 and b.x,y = 0
+      // The path is: if b is all zeros but a.x or a.y is non-zero
+      // Since symbolic cross prod is called only when other methods fail,
+      // we need to test it directly
+      final a = S2Point(1, 1, 0).normalize();
+      final b = S2Point(0, 0, 1);
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdBothZero', () {
+      // Test symbolic cross prod with various orderings
+      final a = S2Point(0.1, 0.2, 0.3).normalize();
+      final b = S2Point(0.2, 0.1, 0.4).normalize();
+
+      // a < b should take one path, b < a should take the negated path
+      final result1 = S2RobustCrossProd.symbolicCrossProd(a, b);
+      final result2 = S2RobustCrossProd.symbolicCrossProd(b, a);
+
+      expect(result1.norm2, greaterThan(0));
+      expect(result2.norm2, greaterThan(0));
+      // Antisymmetric
+      expect(result1.x + result2.x, closeTo(0, 1e-10));
+    });
+
+    test('testStableCrossProdVerySmallResult', () {
+      // Test stableCrossProd returning null when result is too small
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(1 + 1e-17, 0, 0).normalize();
+      final result = S2RobustCrossProd.stableCrossProd(a, b);
+      // Should return null for nearly identical vectors
+      expect(result, isNull);
+    });
+
+    test('testRealCrossProdVerySmall', () {
+      // Test realCrossProd with very nearly parallel vectors
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(1, 1e-200, 0).normalize();
+      final result = S2RobustCrossProd.realCrossProd(a, b);
+      // May return null or a valid small result
+      if (result != null) {
+        expect(result.norm2, greaterThan(0));
+      }
+    });
+
+    test('testBigDecimalCrossProdVerySmall', () {
+      // Test bigDecimalCrossProd with nearly parallel vectors
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(1, 1e-100, 0).normalize();
+      final result = S2RobustCrossProd.bigDecimalCrossProd(a, b);
+      // May return null or a valid result
+      if (result != null) {
+        expect(result.norm2, greaterThan(0));
+      }
+    });
+
+    test('testExactCrossProdAllFallbacks', () {
+      // Test that exactCrossProd tries all fallback methods
+      // This requires vectors that are very nearly identical but not equal
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(1, 1e-320, 0).normalize(); // Nearly identical
+      final result = S2RobustCrossProd.exactCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdWithZeroB', () {
+      // Test symbolic cross prod with b having only z component
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 0, 1);
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdALessThanB', () {
+      // Ensure we test both orderings in symbolicCrossProd
+      final a = S2Point(0.1, 0.1, 0.1).normalize();
+      final b = S2Point(0.9, 0.1, 0.1).normalize();
+
+      // Determine which one is "less than" the other
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testSymbolicCrossProdBLessThanA', () {
+      // Test the other ordering
+      final a = S2Point(0.9, 0.1, 0.1).normalize();
+      final b = S2Point(0.1, 0.1, 0.1).normalize();
+
+      final result = S2RobustCrossProd.symbolicCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testNearlyAntipodalVectors', () {
+      // Test with nearly antipodal vectors
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(-1 + 1e-15, 1e-15, 0).normalize();
+
+      final result = S2RobustCrossProd.robustCrossProd(a, b);
+      expect(result.norm2, greaterThan(0));
+    });
+
+    test('testRobustCrossProdNegativeA', () {
+      // Test RCP(-a, b) == -RCP(a, b) property
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 1, 0);
+
+      final posResult = S2RobustCrossProd.robustCrossProd(a, b);
+      final negResult = S2RobustCrossProd.robustCrossProd(a.neg(), b);
+
+      expect(posResult.x, closeTo(-negResult.x, 1e-10));
+      expect(posResult.y, closeTo(-negResult.y, 1e-10));
+      expect(posResult.z, closeTo(-negResult.z, 1e-10));
+    });
+
+    test('testRobustCrossProdNegativeB', () {
+      // Test RCP(a, -b) == -RCP(a, b) property
+      final a = S2Point(1, 0, 0);
+      final b = S2Point(0, 1, 0);
+
+      final posResult = S2RobustCrossProd.robustCrossProd(a, b);
+      final negResult = S2RobustCrossProd.robustCrossProd(a, b.neg());
+
+      expect(posResult.x, closeTo(-negResult.x, 1e-10));
+      expect(posResult.y, closeTo(-negResult.y, 1e-10));
+      expect(posResult.z, closeTo(-negResult.z, 1e-10));
+    });
   });
 }
 
