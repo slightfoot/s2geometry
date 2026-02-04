@@ -285,6 +285,42 @@ void main() {
       );
       expect(result, isTrue);
     });
+
+    test('testAvoidRangeWindowContainsDiscOnLeftTrue', () {
+      // Test the branch where window.contains(avoidInterval) and discOnLeft=true
+      // Need to avoid a disc that's properly contained in the window
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // Create a target disc first to establish window
+      final targetResult = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:5'),
+        S1ChordAngle.fromDegrees(45.0),  // Very large target radius
+      );
+      expect(targetResult, isTrue);
+      // Avoid a small disc with discOnLeft=true
+      simplifier.avoidDisc(S2TextFormat.makePointOrDie('0:5'), S1ChordAngle.fromDegrees(0.01), true);
+      // The avoid should have trimmed the window from the lo side
+      // Can still extend but result depends on geometry
+      simplifier.extend(S2TextFormat.makePointOrDie('0:10'));
+      // Test passes if no exception is thrown
+    });
+
+    test('testAvoidRangeWindowContainsDiscOnLeftFalse', () {
+      // Test the branch where window.contains(avoidInterval) and discOnLeft=false
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // Create a target disc first to establish window
+      final targetResult = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:5'),
+        S1ChordAngle.fromDegrees(45.0),  // Very large target radius
+      );
+      expect(targetResult, isTrue);
+      // Avoid a small disc with discOnLeft=false
+      simplifier.avoidDisc(S2TextFormat.makePointOrDie('0:5'), S1ChordAngle.fromDegrees(0.01), false);
+      // The avoid should have trimmed the window from the hi side
+      simplifier.extend(S2TextFormat.makePointOrDie('0:10'));
+      // Test passes if no exception is thrown
+    });
   });
 }
 
