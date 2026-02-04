@@ -727,5 +727,47 @@ void main() {
       expect(crosser.c, equals(c));
     });
   });
+
+  group('RectBounder', () {
+    test('testRectBounderSinglePoint', () {
+      final bounder = RectBounder();
+      final point = S2LatLng.fromDegrees(45, 90).toPoint();
+      bounder.addPoint(point);
+      expect(bounder.bound.isEmpty, isFalse);
+    });
+
+    test('testRectBounderMultiplePoints', () {
+      final bounder = RectBounder();
+      bounder.addPoint(S2LatLng.fromDegrees(0, 0).toPoint());
+      bounder.addPoint(S2LatLng.fromDegrees(10, 10).toPoint());
+      bounder.addPoint(S2LatLng.fromDegrees(20, 20).toPoint());
+      expect(bounder.bound.isEmpty, isFalse);
+      expect(bounder.bound.containsLatLng(S2LatLng.fromDegrees(10, 10)), isTrue);
+    });
+
+    test('testRectBounderNearlyAntipodalPoints', () {
+      // Test the code path for nearly antipodal points (a.dotProd(b) < 0)
+      // When points are nearly antipodal, the bound becomes full
+      final bounder = RectBounder();
+      final a = S2Point(1, 0, 0).normalize();
+      final b = S2Point(-1, 1e-16, 1e-16).normalize(); // Nearly antipodal to a
+      bounder.addPoint(a);
+      bounder.addPoint(b);
+      // For nearly antipodal points, the bound should be full
+      expect(bounder.bound.isFull, isTrue);
+    });
+
+    test('testRectBounderNearlyFullLongitudeSpan', () {
+      // Test edges that span nearly the full longitude range
+      final bounder = RectBounder();
+      // Points at opposite longitudes (nearly 180 degrees apart)
+      final a = S2LatLng.fromDegrees(0, 0).toPoint();
+      final b = S2LatLng.fromDegrees(0, 179.9999999).toPoint();
+      bounder.addPoint(a);
+      bounder.addPoint(b);
+      // The longitude range should be nearly full
+      expect(bounder.bound.lng.length, greaterThan(math.pi - 0.01));
+    });
+  });
 }
 
