@@ -240,6 +240,51 @@ void main() {
       final extendResult = simplifier.extend(S2TextFormat.makePointOrDie('0:2'));
       expect(extendResult, isTrue);
     });
+
+    test('testTargetDiscMakesWindowEmpty', () {
+      // Test case where targetDisc makes window empty (semiwidth < 0 path)
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // Target a very small disc at a point behind the source
+      // This should result in negative semiwidth
+      final result = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:180'),  // Antipodal point
+        S1ChordAngle.fromDegrees(0.001),
+      );
+      expect(result, isFalse);
+    });
+
+    test('testAvoidRangeContainedByWindow', () {
+      // Test the code path where window.contains(avoidInterval)
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // First establish a wide window with a target
+      simplifier.targetDisc(S2TextFormat.makePointOrDie('0:10'), S1ChordAngle.fromDegrees(5.0));
+      // Then avoid a small disc within that window
+      simplifier.avoidDisc(S2TextFormat.makePointOrDie('0:10'), S1ChordAngle.fromDegrees(0.5), true);
+      // Now target again to process the avoid range
+      final result = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:10'),
+        S1ChordAngle.fromDegrees(4.0),
+      );
+      expect(result, isTrue);
+    });
+
+    test('testAvoidRangeContainedDiscOnLeftFalse', () {
+      // Test _avoidRange with discOnLeft=false when window contains interval
+      final simplifier = S2PolylineSimplifier();
+      simplifier.init(S2TextFormat.makePointOrDie('0:0'));
+      // Establish a wide window
+      simplifier.targetDisc(S2TextFormat.makePointOrDie('0:10'), S1ChordAngle.fromDegrees(5.0));
+      // Avoid a small disc with discOnLeft=false
+      simplifier.avoidDisc(S2TextFormat.makePointOrDie('0:10'), S1ChordAngle.fromDegrees(0.5), false);
+      // Target again
+      final result = simplifier.targetDisc(
+        S2TextFormat.makePointOrDie('0:10'),
+        S1ChordAngle.fromDegrees(4.0),
+      );
+      expect(result, isTrue);
+    });
   });
 }
 
