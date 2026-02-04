@@ -123,8 +123,84 @@ void main() {
     test('testHashCode', () {
       final m1 = Matrix.fromValues(2, [1, 2, 3, 4]);
       final m2 = Matrix.fromValues(2, [1, 2, 3, 4]);
-      
+
       expect(m1.hashCode, equals(m2.hashCode));
+    });
+
+    test('testHouseholder', () {
+      // Householder reflection across the plane with normal (1, 0, 0)
+      final normal = S2Point(1, 0, 0);
+      final h = Matrix.householder(normal);
+
+      // The Householder matrix should reflect points across the YZ plane
+      // H = I - 2*n*n^T where n is unit normal
+      // Reflecting (1, 0, 0) should give (-1, 0, 0)
+      final p = S2Point(1, 0, 0);
+      final reflected = h.multPoint(p);
+
+      expect(reflected.x, closeTo(-1, 1e-10));
+      expect(reflected.y, closeTo(0, 1e-10));
+      expect(reflected.z, closeTo(0, 1e-10));
+    });
+
+    test('testHouseholderPreservesParallelToPlane', () {
+      // Points in the plane should be unchanged
+      final normal = S2Point(0, 0, 1);
+      final h = Matrix.householder(normal);
+
+      // Point in the XY plane
+      final p = S2Point(1, 2, 0);
+      final result = h.multPoint(p);
+
+      expect(result.x, closeTo(1, 1e-10));
+      expect(result.y, closeTo(2, 1e-10));
+      expect(result.z, closeTo(0, 1e-10));
+    });
+
+    test('testToString', () {
+      final m = Matrix.fromValues(2, [1, 2, 3, 4]);
+      final str = m.toString();
+
+      expect(str, contains('Matrix'));
+      expect(str, contains('2x2'));
+    });
+
+    test('testEqualityDifferentDimensions', () {
+      final m1 = Matrix.fromValues(2, [1, 2, 3, 4]);
+      final m2 = Matrix.fromValues(1, [1, 2, 3, 4]);
+
+      expect(m1 == m2, isFalse);
+    });
+
+    test('testEqualityDifferentType', () {
+      final m = Matrix.fromValues(2, [1, 2, 3, 4]);
+
+      expect(m == S2Point(1, 2, 3), isFalse);
+    });
+
+    test('testConstructorWithNegativeRows', () {
+      expect(() => Matrix(-1, 2), throwsArgumentError);
+    });
+
+    test('testConstructorWithNegativeCols', () {
+      expect(() => Matrix(2, -1), throwsArgumentError);
+    });
+
+    test('testFromValuesNegativeCols', () {
+      expect(() => Matrix.fromValues(-1, [1, 2, 3]), throwsArgumentError);
+    });
+
+    test('testFromValuesNotEvenMultiple', () {
+      expect(() => Matrix.fromValues(3, [1, 2, 3, 4]), throwsArgumentError);
+    });
+
+    test('testZeroMatrix', () {
+      final m = Matrix(2, 2);
+
+      expect(m.get(0, 0), equals(0.0));
+      expect(m.get(0, 1), equals(0.0));
+      expect(m.get(1, 0), equals(0.0));
+      expect(m.get(1, 1), equals(0.0));
     });
   });
 }

@@ -145,6 +145,114 @@ void main() {
       final nextEntry = S2PaddedCell(id.next, 0.0).getEntryVertex();
       expect(exitVertex, equals(nextEntry));
     });
+
+    test('testShrinkToFitFaceLevel', () {
+      // Test shrinkToFit for a face-level cell.
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // A rectangle that doesn't contain 0 in either x or y
+      // should allow shrinking to a smaller cell
+      final rect = R2Rect(R1Interval(0.5, 0.6), R1Interval(0.5, 0.6));
+      final shrunk = pcell.shrinkToFit(rect);
+
+      // The shrunk cell should be at a higher level
+      expect(shrunk.level, greaterThan(0));
+    });
+
+    test('testShrinkToFitRectContainsMiddle', () {
+      // Test shrinkToFit when rectangle contains the middle
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // A rectangle that contains 0 in x or y should return the original cell
+      final rect = R2Rect(R1Interval(-0.5, 0.5), R1Interval(-0.5, 0.5));
+      final shrunk = pcell.shrinkToFit(rect);
+
+      expect(shrunk, equals(id));
+    });
+
+    test('testShrinkToFitNonFaceLevel', () {
+      // Test shrinkToFit for a non-face-level cell
+      final id = S2CellId.fromFacePosLevel(0, 0, 5);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Get the bound of this cell and create a rectangle that's inside it
+      final bound = pcell.bound;
+      final midX = (bound.x.lo + bound.x.hi) / 2;
+      final midY = (bound.y.lo + bound.y.hi) / 2;
+      final rect = R2Rect(
+        R1Interval(midX - 0.001, midX + 0.001),
+        R1Interval(midY - 0.001, midY + 0.001),
+      );
+
+      final shrunk = pcell.shrinkToFit(rect);
+
+      // The shrunk cell should be at a higher level or same
+      expect(shrunk.level, greaterThanOrEqualTo(id.level));
+    });
+
+    test('testShrinkToFitRectContainsMiddleNonFace', () {
+      // Test shrinkToFit for non-face cell where rect contains the middle
+      final id = S2CellId.fromFacePosLevel(0, 0, 5);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Get the center u,v coordinates
+      final ijSize = S2CellId.getSizeIJ(5);
+      // Calculate the center point to create a rectangle containing it
+      final ijo = id.toIJOrientation();
+      final i = S2CellId.getI(ijo) & -ijSize;
+      final j = S2CellId.getJ(ijo) & -ijSize;
+      final u = S2Projections.stToUV(S2Projections.siTiToSt(2 * i + ijSize));
+      final v = S2Projections.stToUV(S2Projections.siTiToSt(2 * j + ijSize));
+
+      // Rectangle containing the center point
+      final rect = R2Rect(
+        R1Interval(u - 0.01, u + 0.01),
+        R1Interval(v - 0.01, v + 0.01),
+      );
+
+      final shrunk = pcell.shrinkToFit(rect);
+
+      // Should return original cell when rect contains center
+      expect(shrunk, equals(id));
+    });
+
+    test('testOrientation', () {
+      // Test orientation accessor
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      // Face 0 has orientation 0
+      expect(pcell.orientation, equals(0));
+    });
+
+    test('testDifferentFaces', () {
+      // Test cells on different faces
+      for (int face = 0; face < 6; face++) {
+        final id = S2CellId.fromFace(face);
+        final pcell = S2PaddedCell(id, 0.1);
+
+        expect(pcell.id, equals(id));
+        expect(pcell.level, equals(0));
+        expect(pcell.orientation, equals(face & 1));
+      }
+    });
+
+    test('testExitVertexOrientations', () {
+      // Test exit vertex for different orientations
+      // Create cells with different orientations by going to children
+      final id = S2CellId.fromFace(0);
+      final pcell = S2PaddedCell(id, 0.0);
+
+      for (int pos = 0; pos < 4; pos++) {
+        final child = pcell.childAtPos(pos);
+        final exitVertex = child.getExitVertex();
+
+        // Exit vertex should be on the unit sphere
+        expect(exitVertex.norm, closeTo(1.0, 1e-10));
+      }
+    });
   });
 }
 
