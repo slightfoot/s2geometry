@@ -444,5 +444,27 @@ void main() {
       assertExactly(3.0 - 0.1, S1Interval(0.1, 0.2).getDirectedHausdorffDistance(inInterval));
       assertExactly(3.0 - 0.1, S1Interval(-0.2, -0.1).getDirectedHausdorffDistance(inInterval));
     });
+
+    test('testToString', () {
+      final interval = S1Interval(1.0, 2.0);
+      expect(interval.toString(), equals('[1.0, 2.0]'));
+
+      final empty = S1Interval.empty();
+      expect(empty.toString(), contains('['));
+      expect(empty.toString(), contains(']'));
+    });
+
+    test('testComplementCenterPointInterval', () {
+      // Test complementCenter when lo == hi (a point interval)
+      final point = S1Interval.fromPoint(0.5);
+      // When lo == hi, complementCenter returns hi + pi (if hi <= 0) or hi - pi
+      final complement = point.complementCenter;
+      expect(complement, closeTo(0.5 - pi, 1e-10));
+
+      // Test with negative point
+      final negPoint = S1Interval.fromPoint(-2.0);
+      final negComplement = negPoint.complementCenter;
+      expect(negComplement, closeTo(-2.0 + pi, 1e-10));
+    });
   });
 }
