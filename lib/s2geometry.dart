@@ -48,7 +48,8 @@ export 'src/platform.dart';
 export 'src/real.dart';
 export 'src/big_point.dart';
 export 'src/s2_predicates.dart';
-// export 'src/s2_edge_util.dart'; // TODO: Port
+export 'src/s2_robust_cross_prod.dart';
+export 'src/s2_edge_util.dart';
 
 // Shape types
 // export 'src/s2_shape.dart'; // TODO: Port

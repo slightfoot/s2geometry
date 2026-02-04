@@ -14,6 +14,7 @@
 
 import 'dart:math' as math;
 
+import 's1_angle.dart';
 import 's2_point.dart';
 
 /// The S2 class is a namespace for constants and static utility functions
@@ -58,6 +59,21 @@ class S2 {
 
   /// Maximum rounding error for arithmetic operations.
   static const double dblError = dblEpsilon / 2;
+
+  /// Upper bound on the angle between the vector returned by robustCrossProd
+  /// and the true cross product.
+  static final S1Angle robustCrossProdError = S1Angle.radians(8 * dblError);
+
+  /// Error bound for exact cross product.
+  static final S1Angle exactCrossProdError = S1Angle.radians(dblError);
+
+  /// MIN_NORM is the lower bound on the absolute error of the norm of cross
+  /// product. If we compute a cross product with a norm below MIN_NORM, then
+  /// it's possible we have flipped signs and need to fall back to methods
+  /// with more precision like calculating with Reals or BigDecimal.
+  static final double minNorm =
+      (32 * M_SQRT3 * dblError) /
+      (robustCrossProdError.radians / dblError - (1 + 2 * M_SQRT3));
 
   // Cell orientation flags
   static const int swapMask = 0x01;

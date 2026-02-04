@@ -107,5 +107,10 @@ class BigPoint implements Comparable<BigPoint> {
 
   @override
   String toString() => 'BigPoint($x, $y, $z)';
+
+  /// Converts this BigPoint to an S2Point.
+  S2Point toS2Point() {
+    return S2Point(x, y, z);
+  }
 }
 

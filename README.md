@@ -97,8 +97,8 @@ The port was created by:
 
 | Category | Ported | Total (Java) | Percentage |
 |----------|--------|--------------|------------|
-| **Core Source Files** | 21 | ~120 | **18%** |
-| **Test Files** | 15 | ~100 | **15%** |
+| **Core Source Files** | 23 | ~120 | **19%** |
+| **Test Files** | 17 | ~100 | **17%** |
 
 #### Ported Classes
 
@@ -122,29 +122,33 @@ The port was created by:
 | `s2.dart` | S2.java | Core S2 utilities |
 | `s2_projections.dart` | S2Projections.java | Cell projection utilities |
 | `s2_predicates.dart` | S2Predicates.java | Robust geometric predicates |
+| `s2_robust_cross_prod.dart` | S2RobustCrossProd.java | Robust cross product calculation |
+| `s2_edge_util.dart` | S2EdgeUtil.java | Edge utilities (crossing, distance, interpolation) |
 | `real.dart` | Real.java | Exact arithmetic for predicates |
 | `big_point.dart` | BigPoint.java | Extended precision 3D point |
 | `platform.dart` | Platform.java | Platform-specific utilities |
 
 ### Test Coverage
 
-All 126 ported tests pass. Code coverage for the ported files:
+All 154 ported tests pass. Code coverage for the ported files:
 
 | File | Coverage |
 |------|----------|
 | s1_interval.dart | 97.0% |
+| s2_predicates.dart | 96.5% |
 | s2_cell_id.dart | 93.0% |
-| s2_predicates.dart | 88.6% |
 | r2_rect.dart | 84.6% |
-| s2_latlng.dart | 81.9% |
+| s2_latlng.dart | 84.3% |
+| s2_edge_util.dart | 81.8% |
+| s1_angle.dart | 80.6% |
 | r1_interval.dart | 79.6% |
-| s1_angle.dart | 77.8% |
 | s2_cell.dart | 76.6% |
+| s2.dart | 75.4% |
+| s2_robust_cross_prod.dart | 75.0% |
 | s1_chord_angle.dart | 75.0% |
+| real.dart | 74.1% |
 | s2_projections.dart | 73.3% |
-| real.dart | 72.1% |
-| s2.dart | 71.4% |
-| **Overall** | **74.2%** |
+| **Overall** | **75.3%** |
 
 ---
 
