@@ -113,14 +113,14 @@ class S2Cap implements S2Region {
   bool containsCap(S2Cap other) {
     if (isFull || other.isEmpty) return true;
     final axialDistance = S1ChordAngle.fromPoints(_axis, other._axis);
-    return _radius.compareTo(axialDistance + other._radius) >= 0;
+    return _radius.compareTo(S1ChordAngle.add(axialDistance, other._radius)) >= 0;
   }
 
   /// Returns true if this cap intersects the given other cap.
   bool intersectsCap(S2Cap other) {
     if (isEmpty || other.isEmpty) return false;
     final axialDistance = S1ChordAngle.fromPoints(_axis, other._axis);
-    return (_radius + other._radius).greaterOrEquals(axialDistance);
+    return S1ChordAngle.add(_radius, other._radius).greaterOrEquals(axialDistance);
   }
 
   /// Returns true if and only if the interior of this cap intersects the
@@ -151,7 +151,7 @@ class S2Cap implements S2Region {
   /// Returns a new S2Cap expanded by the given distance.
   S2Cap expanded(S1Angle distance) {
     if (isEmpty) return S2Cap.empty();
-    return S2Cap._(_axis, _radius + S1ChordAngle.fromS1Angle(distance));
+    return S2Cap._(_axis, S1ChordAngle.add(_radius, S1ChordAngle.fromS1Angle(distance)));
   }
 
   /// Returns a new S2Cap that includes the given cap.
@@ -160,7 +160,7 @@ class S2Cap implements S2Region {
     if (other.isEmpty) return this;
     // Compute the distance from our axis to the far point of the other cap.
     final dist = S1ChordAngle.fromPoints(_axis, other._axis);
-    final totalRadius = dist + other._radius;
+    final totalRadius = S1ChordAngle.add(dist, other._radius);
     if (totalRadius.length2 >= _radius.length2) {
       return S2Cap._(_axis, totalRadius);
     }

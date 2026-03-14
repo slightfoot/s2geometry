@@ -200,7 +200,12 @@ void main() {
     test('testIntersectsCap', () {
       final cap1 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(45));
       final cap2 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(45));
-      expect(cap1.intersectsCap(cap2), isFalse); // Too far apart
+      expect(cap1.intersectsCap(cap2), isTrue); // Just barely touching at boundary
+
+      // Caps that are truly too far apart
+      final capA = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(40));
+      final capB = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(40));
+      expect(capA.intersectsCap(capB), isFalse); // Sum of radii < 90 degrees
 
       final cap3 = S2Cap.fromAxisAngle(S2Point(1, 0, 0), S1Angle.degrees(60));
       final cap4 = S2Cap.fromAxisAngle(S2Point(0, 1, 0), S1Angle.degrees(60));
